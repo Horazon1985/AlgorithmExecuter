@@ -14,13 +14,13 @@ public abstract class AlgorithmOutputPrinter {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
 
-    private static final String GUI_MathToolAlgorithmsGUI_START_COMPILING_ALGORITHM = "GUI_MathToolAlgorithmsGUI_START_COMPILING_ALGORITHM";
-    private static final String GUI_MathToolAlgorithmsGUI_COMPILING_ALGORITHM_SUCCESSFUL = "GUI_MathToolAlgorithmsGUI_COMPILING_ALGORITHM_SUCCESSFUL";
-    private static final String GUI_MathToolAlgorithmsGUI_START_EXECUTING_ALGORITHM = "GUI_MathToolAlgorithmsGUI_START_EXECUTING_ALGORITHM";
-    private static final String GUI_MathToolAlgorithmsGUI_OUTPUT_OF_ALGORITHM = "GUI_MathToolAlgorithmsGUI_OUTPUT_OF_ALGORITHM";
-    private static final String GUI_MathToolAlgorithmsGUI_EXECUTION_OF_ALGORITHM_SUCCESSFUL = "GUI_MathToolAlgorithmsGUI_EXECUTION_OF_ALGORITHM_SUCCESSFUL";
-    private static final String GUI_MathToolAlgorithmsGUI_EXECUTION_OF_ALGORITHM_ABORTED = "GUI_MathToolAlgorithmsGUI_EXECUTION_OF_ALGORITHM_ABORTED";
-    private static final String GUI_MathToolAlgorithmsGUI_EXCEPTION_IN_ALGORITHM_OCCURRED = "GUI_MathToolAlgorithmsGUI_EXCEPTION_IN_ALGORITHM_OCCURRED";
+    private static final String AP_START_COMPILING_ALGORITHM = "AP_START_COMPILING_ALGORITHM";
+    private static final String AP_COMPILING_ALGORITHM_SUCCESSFUL = "AP_COMPILING_ALGORITHM_SUCCESSFUL";
+    private static final String AP_START_EXECUTING_ALGORITHM = "AP_START_EXECUTING_ALGORITHM";
+    private static final String AP_OUTPUT_OF_ALGORITHM = "AP_OUTPUT_OF_ALGORITHM";
+    private static final String AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL = "AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL";
+    private static final String AP_EXECUTION_OF_ALGORITHM_ABORTED = "AP_EXECUTION_OF_ALGORITHM_ABORTED";
+    private static final String AP_EXCEPTION_IN_ALGORITHM_OCCURRED = "AP_EXCEPTION_IN_ALGORITHM_OCCURRED";
 
     private static JTextPane outputArea;
 
@@ -52,7 +52,7 @@ public abstract class AlgorithmOutputPrinter {
         }
         StyledDocument doc = outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_START_COMPILING_ALGORITHM));
+        println(doc, keyWord, Translator.translateOutputMessage(AP_START_COMPILING_ALGORITHM));
     }
 
     public static void printEndParsingAlgorithms() {
@@ -61,7 +61,7 @@ public abstract class AlgorithmOutputPrinter {
         }
         StyledDocument doc = outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_COMPILING_ALGORITHM_SUCCESSFUL));
+        println(doc, keyWord, Translator.translateOutputMessage(AP_COMPILING_ALGORITHM_SUCCESSFUL));
     }
 
     public static void printStartAlgorithmData() {
@@ -70,7 +70,7 @@ public abstract class AlgorithmOutputPrinter {
         }
         StyledDocument doc = outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_START_EXECUTING_ALGORITHM));
+        println(doc, keyWord, Translator.translateOutputMessage(AP_START_EXECUTING_ALGORITHM));
     }
 
     public static void printLine(String s) {
@@ -93,9 +93,9 @@ public abstract class AlgorithmOutputPrinter {
             for (Object obj : identifier.getMalString().getStringValues()) {
                 printedValue += obj.toString();
             }
-            println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_OUTPUT_OF_ALGORITHM, alg.getName(), printedValue));
+            println(doc, keyWord, Translator.translateOutputMessage(AP_OUTPUT_OF_ALGORITHM, alg.getName(), printedValue));
         } else {
-            println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_OUTPUT_OF_ALGORITHM, alg.getName(), identifier.getValue()));
+            println(doc, keyWord, Translator.translateOutputMessage(AP_OUTPUT_OF_ALGORITHM, alg.getName(), identifier.getValue()));
         }
     }
 
@@ -105,7 +105,7 @@ public abstract class AlgorithmOutputPrinter {
         }
         StyledDocument doc = outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_EXECUTION_OF_ALGORITHM_SUCCESSFUL));
+        println(doc, keyWord, Translator.translateOutputMessage(AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL));
     }
 
     public static void printAbortAlgorithm() {
@@ -114,7 +114,7 @@ public abstract class AlgorithmOutputPrinter {
         }
         StyledDocument doc = outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_EXECUTION_OF_ALGORITHM_ABORTED));
+        println(doc, keyWord, Translator.translateOutputMessage(AP_EXECUTION_OF_ALGORITHM_ABORTED));
     }
 
     public static void printException(Exception e) {
@@ -123,7 +123,7 @@ public abstract class AlgorithmOutputPrinter {
         }
         StyledDocument doc = outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(GUI_MathToolAlgorithmsGUI_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
+        println(doc, keyWord, Translator.translateOutputMessage(AP_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
     }
 
     private static String withDate(String s) {

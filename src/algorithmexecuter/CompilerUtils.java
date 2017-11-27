@@ -677,14 +677,18 @@ public final class CompilerUtils {
         int bracketCounter = 0;
         int beginBlockPosition = 0;
         int endBlockPosition = -1;
+        boolean withinString = false;
         for (int i = 0; i < input.length(); i++) {
-            if (input.charAt(i) == ReservedChars.OPEN_BRACKET.getValue()) {
+            if (input.charAt(i) == ReservedChars.STRING_DELIMITER.getValue()) {
+                withinString = !withinString;
+            }
+            if (input.charAt(i) == ReservedChars.OPEN_BRACKET.getValue() && !withinString) {
                 bracketCounter++;
-            } else if (input.charAt(i) == ReservedChars.CLOSE_BRACKET.getValue()) {
+            } else if (input.charAt(i) == ReservedChars.CLOSE_BRACKET.getValue() && !withinString) {
                 bracketCounter--;
             }
             if (bracketCounter == 0) {
-                if (Operators.CONCAT.getValue().equals(String.valueOf(input.charAt(i)))) {
+                if (Operators.CONCAT.getValue().equals(String.valueOf(input.charAt(i))) && !withinString) {
                     endBlockPosition = i;
                     stringValues.add(input.substring(beginBlockPosition, endBlockPosition));
                     beginBlockPosition = i + 1;

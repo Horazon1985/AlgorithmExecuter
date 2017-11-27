@@ -37,7 +37,7 @@ public class VoidCommand extends AlgorithmCommand {
     public String toString() {
         return "VoidCommand[name = " + this.name + ", identifiers = " + identifierArrayToString(this.identifiers) + "]";
     }
-    
+
     private String identifierArrayToString(Identifier[] identifiers) {
         String result = "(";
         for (int i = 0; i < identifiers.length; i++) {
@@ -99,7 +99,7 @@ public class VoidCommand extends AlgorithmCommand {
         }
         return result;
     }
-    
+
     //////////////////////// Liste vordefinierter Void-Befehle ////////////////////////
     public static void inc(Identifier identifier) throws AlgorithmExecutionException {
         if (identifier.getValue() != null) {
@@ -124,7 +124,7 @@ public class VoidCommand extends AlgorithmCommand {
                 commandString += ReservedChars.ARGUMENT_SEPARATOR.getStringValue() + " ";
             }
         }
-        return commandString + ReservedChars.CLOSE_BRACKET.getStringValue();
+        return commandString + ReservedChars.CLOSE_BRACKET.getStringValue() + ReservedChars.LINE_SEPARATOR.getStringValue();
     }
 
 }

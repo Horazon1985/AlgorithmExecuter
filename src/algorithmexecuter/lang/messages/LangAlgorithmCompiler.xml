@@ -210,8 +210,8 @@
         <Russian>Следующее булевое выражение/часть логического выражения не может быть проинтерпритирована: [0]</Russian>
     </object>
     <object id = "AC_NOT_A_VALID_STRING">
-        <German></German>
-        <English></English>
+        <German>Kein gültiger String: [0]</German>
+        <English>Not a valid string: [0]</English>
         <Ukrainian>???</Ukrainian>
         <Russian>???</Russian>
     </object>

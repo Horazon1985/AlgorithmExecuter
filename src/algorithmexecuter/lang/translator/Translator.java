@@ -17,10 +17,12 @@ public abstract class Translator {
 
     private static final String PREFIX_ALGORITHM_COMPILLATION_MESSAGES = "AC";
     private static final String PREFIX_ALGORITHM_EXECUTION_MESSAGES = "AE";
+    private static final String PREFIX_ALGORITHM_PRINTER_MESSAGES = "AP";
 
     private static final String PATH_ALGORITHM_COMPILLATION_MESSAGES = "algorithmexecuter/lang/messages/LangAlgorithmCompiler.xml";
     private static final String PATH_ALGORITHM_EXECUTION_MESSAGES = "algorithmexecuter/lang/messages/LangAlgorithmExecuter.xml";
-    public static final String PATH_UNKNOWN_ERROR_MESSAGES = "algorithmexecuter/lang/messages/LangUndefinedError.xml";
+    private static final String PATH_ALGORITHM_PRINTER_MESSAGES = "algorithmexecuter/lang/messages/LangAlgorithmPrinter.xml";
+    private static final String PATH_UNKNOWN_ERROR_MESSAGES = "algorithmexecuter/lang/messages/LangUndefinedError.xml";
 
     private static final String ELEMENT_NAME_OBJECT = "object";
     private static final String ELEMENT_ATTRIBUTE_ID = "id";
@@ -37,6 +39,7 @@ public abstract class Translator {
     static {
         RESOURCES.put(PREFIX_ALGORITHM_COMPILLATION_MESSAGES, PATH_ALGORITHM_COMPILLATION_MESSAGES);
         RESOURCES.put(PREFIX_ALGORITHM_EXECUTION_MESSAGES, PATH_ALGORITHM_EXECUTION_MESSAGES);
+        RESOURCES.put(PREFIX_ALGORITHM_PRINTER_MESSAGES, PATH_ALGORITHM_PRINTER_MESSAGES);
     }
 
     public static Collection<String> getResources() {
