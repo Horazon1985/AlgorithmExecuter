@@ -103,14 +103,24 @@ public class VoidCommand extends AlgorithmCommand {
     //////////////////////// Liste vordefinierter Void-Befehle ////////////////////////
     public static void inc(Identifier identifier) throws AlgorithmExecutionException {
         if (identifier.getValue() != null) {
-            identifier.setValue(((Expression) identifier.getValue()).add(Expression.ONE));
+            try {
+                identifier.setValue(((Expression) identifier.getValue()).add(Expression.ONE).simplify());
+                return;
+            } catch (EvaluationException e) {
+                throw new AlgorithmExecutionException(e.getMessage());
+            }
         }
         throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_NULL_POINTER, identifier.getName());
     }
 
     public static void dec(Identifier identifier) throws AlgorithmExecutionException {
         if (identifier.getValue() != null) {
-            identifier.setValue(((Expression) identifier.getValue()).sub(Expression.ONE));
+            try {
+                identifier.setValue(((Expression) identifier.getValue()).sub(Expression.ONE).simplify());
+                return;
+            } catch (EvaluationException e) {
+                throw new AlgorithmExecutionException(e.getMessage());
+            }
         }
         throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_NULL_POINTER, identifier.getName());
     }
