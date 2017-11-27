@@ -80,8 +80,8 @@
      <object id = "AC_CANNOT_PARSE_GENERAL_PARAMETER_IN_COMMAND">
         <German>Der [0]. Parameter im Befehl '[1]' konnte nicht geparst werden.</German>
         <English>The [0]. parameter in command '[1]' could not be parsed.</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Неможливо проаналізувати [0]. параметр у команді '[1]'.</Ukrainian>
+        <Russian>Невозможно проанализировать [0]. параметр в команде '[1]'.</Russian>
     </object>
     <object id = "AC_NO_SUCH_COMMAND">
         <German>Ein Befehl mit der Signatur '[0]' wurde nicht gefunden.</German>

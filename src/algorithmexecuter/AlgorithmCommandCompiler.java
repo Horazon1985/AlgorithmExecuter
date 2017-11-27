@@ -60,9 +60,8 @@ public abstract class AlgorithmCommandCompiler {
      * <b>BEISPIEL:</b> Der Algorithmus "computeggt(expression a, expression b)"
      * existiert bereits. Dann werden aus "expression x = computeggt(15,25) *
      * exp(4)" etwa die beiden folgenden Befehle generiert: <br>
-     * expression GEN_VAR_b5e67f88_2006_47a4_a94f_ce25854fdbdb =
-     * computeggt(15,25)<br>
-     * expression x = GEN_VAR_b5e67f88_2006_47a4_a94f_ce25854fdbdb * exp(4)<br>
+     * expression #1 = computeggt(15,25)<br>
+     * expression x = #1 * exp(4)<br>
      *
      * @throws AlgorithmCompileException
      */
