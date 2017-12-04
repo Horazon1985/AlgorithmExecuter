@@ -2,8 +2,8 @@
     <object id = "AP_START_COMPILING_ALGORITHM">
         <German>Kompiliere Algoirithmus ...</German>
         <English>Start compiling algorithm ...</English>
-        <Ukrainian>Компілювати алгоритм ...</Ukrainian>
-        <Russian>Компилировать алгоритм ...</Russian>
+        <Ukrainian>Алгоритм компілюєтся ...</Ukrainian>
+        <Russian>Алгоритм компилируется ...</Russian>
     </object>
     <object id = "AP_COMPILING_ALGORITHM_SUCCESSFUL">
         <German>Kompilieren des Algorithmus erfolgreich.</German>

@@ -523,7 +523,7 @@ public final class CompilerUtils {
     public static Map<String, AbstractExpression> extractValuesOfIdentifiers(AlgorithmMemory scopeMemory) {
         Map<String, AbstractExpression> valuesMap = new HashMap<>();
         for (String identifierName : scopeMemory.getMemory().keySet()) {
-            valuesMap.put(identifierName, scopeMemory.getMemory().get(identifierName).getValue());
+            valuesMap.put(identifierName, scopeMemory.getMemory().get(identifierName).getRuntimeValue());
         }
         return valuesMap;
     }

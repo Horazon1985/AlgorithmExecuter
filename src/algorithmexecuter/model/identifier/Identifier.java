@@ -10,8 +10,8 @@ public class Identifier {
 
     private final IdentifierType type;
     private final String name;
-    private AbstractExpression value;
-    private MalString stringValue;
+    private AbstractExpression runtimeValue;
+    private MalString runtimeStringValue;
 
     private Identifier(IdentifierType type, String name) {
         this.type = type;
@@ -26,25 +26,25 @@ public class Identifier {
         return name;
     }
 
-    public AbstractExpression getValue() {
-        return value;
+    public AbstractExpression getRuntimeValue() {
+        return runtimeValue;
     }
 
-    public void setValue(AbstractExpression value) {
-        this.value = value;
+    public void setRuntimeValue(AbstractExpression value) {
+        this.runtimeValue = value;
     }
 
-    public MalString getMalString() {
-        return stringValue;
+    public MalString getRuntimeStringValue() {
+        return runtimeStringValue;
     }
 
-    public void setStringValue(MalString stringValue) {
-        this.stringValue = stringValue;
+    public void setRuntimeStringValue(MalString stringValue) {
+        this.runtimeStringValue = stringValue;
     }
 
-    public void setAllValuesFromAnotherIdentifier(Identifier identifier) {
-        this.value = identifier.value;
-        this.stringValue = identifier.stringValue;
+    public void setAllValuesFromGivenIdentifier(Identifier identifier) {
+        this.runtimeValue = identifier.runtimeValue;
+        this.runtimeStringValue = identifier.runtimeStringValue;
     }
     
     @Override
@@ -52,8 +52,8 @@ public class Identifier {
         int hash = 3;
         hash = 43 * hash + Objects.hashCode(this.type);
         hash = 43 * hash + Objects.hashCode(this.name);
-        hash = 43 * hash + Objects.hashCode(this.value);
-        hash = 43 * hash + Objects.hashCode(this.stringValue);
+        hash = 43 * hash + Objects.hashCode(this.runtimeValue);
+        hash = 43 * hash + Objects.hashCode(this.runtimeStringValue);
         return hash;
     }
 
@@ -75,10 +75,10 @@ public class Identifier {
         if (this.type != other.type) {
             return false;
         }
-        if (!Objects.equals(this.value, other.value)) {
+        if (!Objects.equals(this.runtimeValue, other.runtimeValue)) {
             return false;
         }
-        if (!Objects.equals(this.stringValue, other.stringValue)) {
+        if (!Objects.equals(this.runtimeStringValue, other.runtimeStringValue)) {
             return false;
         }
         return true;
@@ -89,14 +89,14 @@ public class Identifier {
         if (this.type == IdentifierType.STRING) {
             String result = "Identifier[type = " + this.type + ", name = " + this.name
                     + ", stringValue = ";
-            if (this.stringValue != null) {
-                return result + malStringToString(this.stringValue) + "]";
+            if (this.runtimeStringValue != null) {
+                return result + malStringToString(this.runtimeStringValue) + "]";
             } else {
                 return result + "null]";
             }
         }
         return "Identifier[type = " + this.type + ", name = " + this.name
-                + ", value = " + this.value + "]";
+                + ", value = " + this.runtimeValue + "]";
     }
 
     private String malStringToString(MalString malString) {

@@ -85,7 +85,7 @@ public class VoidCommand extends AlgorithmCommand {
             if (this.identifiers[0].getType() != IdentifierType.STRING) {
                 AlgorithmOutputPrinter.printLine(this.identifiers[0].toString());
             } else {
-                AlgorithmOutputPrinter.printLine(stringArrayToOutputString(this.identifiers[0].getMalString()));
+                AlgorithmOutputPrinter.printLine(stringArrayToOutputString(this.identifiers[0].getRuntimeStringValue()));
             }
             return null;
         }
@@ -102,9 +102,9 @@ public class VoidCommand extends AlgorithmCommand {
 
     //////////////////////// Liste vordefinierter Void-Befehle ////////////////////////
     public static void inc(Identifier identifier) throws AlgorithmExecutionException {
-        if (identifier.getValue() != null) {
+        if (identifier.getRuntimeValue() != null) {
             try {
-                identifier.setValue(((Expression) identifier.getValue()).add(Expression.ONE).simplify());
+                identifier.setRuntimeValue(((Expression) identifier.getRuntimeValue()).add(Expression.ONE).simplify());
                 return;
             } catch (EvaluationException e) {
                 throw new AlgorithmExecutionException(e.getMessage());
@@ -114,9 +114,9 @@ public class VoidCommand extends AlgorithmCommand {
     }
 
     public static void dec(Identifier identifier) throws AlgorithmExecutionException {
-        if (identifier.getValue() != null) {
+        if (identifier.getRuntimeValue() != null) {
             try {
-                identifier.setValue(((Expression) identifier.getValue()).sub(Expression.ONE).simplify());
+                identifier.setRuntimeValue(((Expression) identifier.getRuntimeValue()).sub(Expression.ONE).simplify());
                 return;
             } catch (EvaluationException e) {
                 throw new AlgorithmExecutionException(e.getMessage());

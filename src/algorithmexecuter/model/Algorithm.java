@@ -1,5 +1,6 @@
 package algorithmexecuter.model;
 
+import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.model.command.AlgorithmCommand;
 import algorithmexecuter.model.command.IfElseControlStructure;
@@ -11,6 +12,7 @@ import algorithmexecuter.exceptions.constants.AlgorithmExecutionExceptionIds;
 import algorithmexecuter.model.command.DoWhileControlStructure;
 import algorithmexecuter.model.command.ForControlStructure;
 import algorithmexecuter.model.identifier.Identifier;
+import algorithmexecuter.model.utilclasses.MalString;
 import exceptions.EvaluationException;
 import java.util.ArrayList;
 import java.util.List;
@@ -115,8 +117,16 @@ public class Algorithm {
     }
 
     public void initInputParameter(Identifier[] identifiers) {
+        AbstractExpression[] values = new AbstractExpression[identifiers.length];
+        MalString[] stringValues = new MalString[identifiers.length];
         for (int i = 0; i < this.inputParameters.length; i++) {
-            this.inputParameters[i].setValue(identifiers[i].getValue());
+            values[i] = identifiers[i].getRuntimeValue();
+            stringValues[i] = identifiers[i].getRuntimeStringValue();
+        }
+        
+        for (int i = 0; i < this.inputParameters.length; i++) {
+            this.inputParameters[i].setRuntimeValue(values[i]);
+            this.inputParameters[i].setRuntimeStringValue(stringValues[i]);
         }
     }
 
@@ -138,7 +148,7 @@ public class Algorithm {
 
     private void checkForIdentifierWithoutValues() throws AlgorithmExecutionException {
         for (int i = 0; i < this.inputParameters.length; i++) {
-            if (this.inputParameters[i].getValue() == null) {
+            if (this.inputParameters[i].getRuntimeValue() == null) {
                 throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_ALGORITHM_NOT_ALL_INPUT_PARAMETERS_SET, i, this.getName());
             }
         }

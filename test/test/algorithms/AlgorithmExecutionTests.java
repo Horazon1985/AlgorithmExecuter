@@ -1,7 +1,5 @@
 package test.algorithms;
 
-
-
 import abstractexpressions.expression.classes.Expression;
 import algorithmexecuter.AlgorithmCompiler;
 import algorithmexecuter.AlgorithmExecuter;
@@ -75,7 +73,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("ggt"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("5")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("5")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -93,8 +91,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, result.getMalString().getStringValues().length);
-            assertEquals("a hat den Wert 3", result.getMalString().getStringValues()[0]);
+            assertEquals(1, result.getRuntimeStringValue().getStringValues().length);
+            assertEquals("a hat den Wert 3", result.getRuntimeStringValue().getStringValues()[0]);
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -119,7 +117,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("exp(1)")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("exp(1)")));
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -142,7 +140,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("1+exp(1)")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("1+exp(1)")));
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -164,7 +162,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("1+exp(1)")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("1+exp(1)")));
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -185,7 +183,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().startsWith("#"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("7")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("7")));
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -210,7 +208,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.BOOLEAN_EXPRESSION);
             assertTrue(result.getName().equals("#1"));
-            assertTrue(((BooleanConstant) result.getValue()).getValue());
+            assertTrue(((BooleanConstant) result.getRuntimeValue()).getValue());
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -237,7 +235,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("b"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("13")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("13")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -261,7 +259,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("8")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("8")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -293,7 +291,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("6")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("6")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -318,7 +316,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("10")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("10")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -351,7 +349,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("3")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("3")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -375,7 +373,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("96")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("96")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -407,7 +405,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("161")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("161")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -434,7 +432,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("35")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("35")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -461,7 +459,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("82")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("82")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -486,7 +484,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("8")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("8")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -521,7 +519,42 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getValue()).equals(Expression.build("17")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("17")));
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    @Test
+    public void executeEuclideanAlgorithmTest2() {
+        String input = "expression main(){\n"
+                + "	expression a=ggt(34,51);\n"
+                + "	return a;\n"
+                + "}\n"
+                + "\n"
+                + "expression ggt(expression a,expression b){\n"
+                + "	if(a<b){\n"
+                + "		return ggt(b,a);\n"
+                + "	}\n"
+                + "	expression r=mod(a,b);\n"
+                + "	while(r!=0){\n"
+                + "		expression c=a;\n"
+                + "		a=b;\n"
+                + "		b=mod(c,b);\n"
+                + "		r=mod(a,b);\n"
+                + "	}\n"
+                + "	return b;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.EXPRESSION);
+            assertTrue(result.getName().equals("a"));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("17")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -547,8 +580,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, ((MalString) result.getMalString()).getStringValues().length);
-            assertEquals("Test!", ((MalString) result.getMalString()).getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeStringValue()).getStringValues().length);
+            assertEquals("Test!", ((MalString) result.getRuntimeStringValue()).getStringValues()[0]);
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
