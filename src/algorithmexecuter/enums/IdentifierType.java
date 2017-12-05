@@ -31,17 +31,17 @@ public enum IdentifierType {
         return this == type;
     }
 
-    public static IdentifierType identifierTypeOf(AbstractExpression abstrExpr) {
-        if (abstrExpr instanceof Expression) {
+    public static IdentifierType identifierTypeOf(Object value) {
+        if (value instanceof Expression) {
             return EXPRESSION;
         }
-        if (abstrExpr instanceof BooleanExpression) {
+        if (value instanceof BooleanExpression) {
             return BOOLEAN_EXPRESSION;
         }
-        if (abstrExpr instanceof MatrixExpression) {
+        if (value instanceof MatrixExpression) {
             return MATRIX_EXPRESSION;
         }
-        return null;
+        return STRING;
     }
 
 }

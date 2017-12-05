@@ -39,13 +39,13 @@ public class WhileControlStructure extends ControlStructure {
 
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
-        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractValuesOfIdentifiers(scopeMemory);
+        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(scopeMemory);
         Identifier result = null;
         while (this.condition.evaluate(valuesMap)) {
             try {
                 result = AlgorithmExecuter.executeConnectedBlock(scopeMemory, this.commands);
                 // Identifierwerte aktualisieren.
-                valuesMap = CompilerUtils.extractValuesOfIdentifiers(scopeMemory);
+                valuesMap = CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(scopeMemory);
                 if (result != null) {
                     return result;
                 }

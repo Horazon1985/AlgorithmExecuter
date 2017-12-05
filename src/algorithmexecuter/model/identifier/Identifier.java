@@ -10,8 +10,7 @@ public class Identifier {
 
     private final IdentifierType type;
     private final String name;
-    private AbstractExpression runtimeValue;
-    private MalString runtimeStringValue;
+    private Object runtimeValue;
 
     private Identifier(IdentifierType type, String name) {
         this.type = type;
@@ -26,34 +25,24 @@ public class Identifier {
         return name;
     }
 
-    public AbstractExpression getRuntimeValue() {
+    public Object getRuntimeValue() {
         return runtimeValue;
     }
 
-    public void setRuntimeValue(AbstractExpression value) {
+    public void setRuntimeValue(Object value) {
         this.runtimeValue = value;
     }
 
-    public MalString getRuntimeStringValue() {
-        return runtimeStringValue;
-    }
-
-    public void setRuntimeStringValue(MalString stringValue) {
-        this.runtimeStringValue = stringValue;
-    }
-
-    public void setAllValuesFromGivenIdentifier(Identifier identifier) {
+    public void setValueFromGivenIdentifier(Identifier identifier) {
         this.runtimeValue = identifier.runtimeValue;
-        this.runtimeStringValue = identifier.runtimeStringValue;
     }
-    
+
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 43 * hash + Objects.hashCode(this.type);
-        hash = 43 * hash + Objects.hashCode(this.name);
-        hash = 43 * hash + Objects.hashCode(this.runtimeValue);
-        hash = 43 * hash + Objects.hashCode(this.runtimeStringValue);
+        int hash = 5;
+        hash = 53 * hash + Objects.hashCode(this.type);
+        hash = 53 * hash + Objects.hashCode(this.name);
+        hash = 53 * hash + Objects.hashCode(this.runtimeValue);
         return hash;
     }
 
@@ -78,36 +67,13 @@ public class Identifier {
         if (!Objects.equals(this.runtimeValue, other.runtimeValue)) {
             return false;
         }
-        if (!Objects.equals(this.runtimeStringValue, other.runtimeStringValue)) {
-            return false;
-        }
         return true;
     }
-
+    
     @Override
     public String toString() {
-        if (this.type == IdentifierType.STRING) {
-            String result = "Identifier[type = " + this.type + ", name = " + this.name
-                    + ", stringValue = ";
-            if (this.runtimeStringValue != null) {
-                return result + malStringToString(this.runtimeStringValue) + "]";
-            } else {
-                return result + "null]";
-            }
-        }
         return "Identifier[type = " + this.type + ", name = " + this.name
-                + ", value = " + this.runtimeValue + "]";
-    }
-
-    private String malStringToString(MalString malString) {
-        String result = "(";
-        for (int i = 0; i < malString.getStringValues().length; i++) {
-            result += malString.getStringValues()[i];
-            if (i < malString.getStringValues().length - 1) {
-                result += ", ";
-            }
-        }
-        return result + ")";
+                + ", runtimeValue = " + this.runtimeValue + "]";
     }
 
     public static Identifier createIdentifier(String identifierName, IdentifierType type) {

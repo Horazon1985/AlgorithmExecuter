@@ -91,8 +91,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, result.getRuntimeStringValue().getStringValues().length);
-            assertEquals("a hat den Wert 3", result.getRuntimeStringValue().getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
+            assertEquals("a hat den Wert 3", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -349,7 +349,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("3")));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.THREE));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -580,8 +580,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, ((MalString) result.getRuntimeStringValue()).getStringValues().length);
-            assertEquals("Test!", ((MalString) result.getRuntimeStringValue()).getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
+            assertEquals("Test!", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {

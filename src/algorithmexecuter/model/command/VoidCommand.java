@@ -85,7 +85,7 @@ public class VoidCommand extends AlgorithmCommand {
             if (this.identifiers[0].getType() != IdentifierType.STRING) {
                 AlgorithmOutputPrinter.printLine(this.identifiers[0].toString());
             } else {
-                AlgorithmOutputPrinter.printLine(stringArrayToOutputString(this.identifiers[0].getRuntimeStringValue()));
+                AlgorithmOutputPrinter.printLine(stringArrayToOutputString((MalString) this.identifiers[0].getRuntimeValue()));
             }
             return null;
         }

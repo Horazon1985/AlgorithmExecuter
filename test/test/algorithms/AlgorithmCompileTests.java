@@ -19,6 +19,7 @@ import algorithmexecuter.model.command.ReturnCommand;
 import algorithmexecuter.model.command.VoidCommand;
 import java.util.List;
 import algorithmexecuter.lang.translator.Translator;
+import algorithmexecuter.model.utilclasses.MalString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -96,9 +97,9 @@ public class AlgorithmCompileTests {
             assertEquals(mainAlg.getCommands().size(), 3);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
             assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
-            assertEquals(2, ((AssignValueCommand) mainAlg.getCommands().get(1)).getMalString().getStringValues().length);
-            assertEquals("a hat den Wert ", ((AssignValueCommand) mainAlg.getCommands().get(1)).getMalString().getStringValues()[0]);
-            assertEquals(Variable.create("a"), ((AssignValueCommand) mainAlg.getCommands().get(1)).getMalString().getStringValues()[1]);
+            assertEquals(2, ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues().length);
+            assertEquals("a hat den Wert ", ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues()[0]);
+            assertEquals(Variable.create("a"), ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues()[1]);
             assertTrue(mainAlg.getCommands().get(2).isReturnCommand());
             assertEquals("s", ((ReturnCommand) mainAlg.getCommands().get(2)).getIdentifier().getName());
         } catch (AlgorithmCompileException e) {
@@ -533,13 +534,13 @@ public class AlgorithmCompileTests {
             // Prüfung für den Hauptalgorithmus "main".
             assertEquals(mainAlg.getCommands().size(), 5);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
-            assertTrue(((AssignValueCommand) mainAlg.getCommands().get(0)).getTargetExpression() != null);
+            assertTrue(((AssignValueCommand) mainAlg.getCommands().get(0)).getTargetValue() != null);
             assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
-            assertTrue(((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetExpression() != null);
+            assertTrue(((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue() != null);
             assertTrue(mainAlg.getCommands().get(2).isAssignValueCommand());
             assertEquals(ggtAlg, ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetAlgorithm());
             assertTrue(mainAlg.getCommands().get(3).isAssignValueCommand());
-            assertTrue(((AssignValueCommand) mainAlg.getCommands().get(3)).getTargetExpression() != null);
+            assertTrue(((AssignValueCommand) mainAlg.getCommands().get(3)).getTargetValue() != null);
             assertTrue(mainAlg.getCommands().get(4).isReturnCommand());
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");

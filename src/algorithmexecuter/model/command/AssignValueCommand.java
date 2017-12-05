@@ -27,20 +27,18 @@ import java.util.Set;
 public class AssignValueCommand extends AlgorithmCommand {
 
     private final Identifier identifierSrc;
-    private final AbstractExpression targetExpression;
-    private final MalString malString;
+    private final Object targetValue;
     private final AssignValueType type;
     private final Signature targetAlgorithmSignature;
     private final Identifier[] targetAlgorithmArguments;
     private Algorithm targetAlgorithm;
 
-    public AssignValueCommand(Identifier identifierSrc, AbstractExpression targetExpression, AssignValueType type) throws AlgorithmCompileException {
-        if (!areTypesCompatible(identifierSrc, IdentifierType.identifierTypeOf(targetExpression))) {
+    public AssignValueCommand(Identifier identifierSrc, Object targetValue, AssignValueType type) throws AlgorithmCompileException {
+        if (!areTypesCompatible(identifierSrc, IdentifierType.identifierTypeOf(targetValue))) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES);
         }
         this.identifierSrc = identifierSrc;
-        this.targetExpression = targetExpression;
-        this.malString = null;
+        this.targetValue = targetValue;
         this.type = type;
         this.targetAlgorithmSignature = null;
         this.targetAlgorithmArguments = null;
@@ -51,32 +49,18 @@ public class AssignValueCommand extends AlgorithmCommand {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES);
         }
         this.identifierSrc = identifierSrc;
-        this.targetExpression = null;
-        this.malString = null;
+        this.targetValue = null;
         this.type = type;
         this.targetAlgorithmSignature = targetAlgorithmSignature;
         this.targetAlgorithmArguments = targetAlgorithmArguments;
-    }
-
-    public AssignValueCommand(Identifier identifierSrc, MalString malString, AssignValueType type) {
-        this.identifierSrc = identifierSrc;
-        this.targetExpression = null;
-        this.malString = malString;
-        this.type = type;
-        this.targetAlgorithmSignature = null;
-        this.targetAlgorithmArguments = null;
     }
 
     private boolean areTypesCompatible(Identifier identifierSrc, IdentifierType targetType) {
         return identifierSrc.getType().isSameOrGeneralTypeOf(targetType);
     }
 
-    public AbstractExpression getTargetExpression() {
-        return this.targetExpression;
-    }
-
-    public MalString getMalString() {
-        return this.malString;
+    public Object getTargetValue() {
+        return this.targetValue;
     }
 
     public Identifier getIdentifierSrc() {
@@ -106,25 +90,25 @@ public class AssignValueCommand extends AlgorithmCommand {
     @Override
     public String toString() {
         String command = "AssignValueCommand[type = " + this.type + ", identifierSrc = " + this.identifierSrc;
-        // Typ: String.
-        if (this.malString != null) {
-            String values = "(";
-            for (int i = 0; i < this.malString.getStringValues().length; i++) {
-                if (this.malString.getStringValues()[i] instanceof String) {
-                    values += "\"" + this.malString.getStringValues()[i] + "\"";
-                } else {
-                    values += this.malString.getStringValues()[i].toString();
+        // Typ: MalString.
+        if (this.targetValue != null) {
+            if (this.targetValue instanceof MalString) {
+                String values = "(";
+                MalString malString = (MalString) this.targetValue;
+                for (int i = 0; i < malString.getStringValues().length; i++) {
+                    if (malString.getStringValues()[i] instanceof String) {
+                        values += "\"" + malString.getStringValues()[i] + "\"";
+                    } else {
+                        values += malString.getStringValues()[i].toString();
+                    }
+                    if (i < malString.getStringValues().length - 1) {
+                        values += ", ";
+                    }
                 }
-                if (i < this.malString.getStringValues().length - 1) {
-                    values += ", ";
-                }
+                values += ")";
+                return command + ", stringValues = " + values + "]";
             }
-            values += ")";
-            return command + ", stringValues = " + values + "]";
-        }
-        // Typ: (Abstrakter) Ausdruck.
-        if (this.targetExpression != null) {
-            return command + ", targetExpression = " + this.targetExpression + "]";
+            return command + ", targetValue = " + this.targetValue + "]";
         }
         return command + ", targetAlgorithm = " + this.targetAlgorithmSignature.toString() + "]";
     }
@@ -133,8 +117,8 @@ public class AssignValueCommand extends AlgorithmCommand {
         Set<String> varsInAlgorithmSignature = new HashSet<>();
         AbstractExpression abstrExpr;
         for (Identifier identifier : alg.getInputParameters()) {
-            abstrExpr = identifier.getRuntimeValue();
-            if (abstrExpr != null) {
+            if (identifier.getRuntimeValue() != null && identifier.getRuntimeValue() instanceof AbstractExpression) {
+                abstrExpr = (AbstractExpression) identifier.getRuntimeValue();
                 varsInAlgorithmSignature.addAll(abstrExpr.getContainedIndeterminates());
             }
         }
@@ -143,26 +127,30 @@ public class AssignValueCommand extends AlgorithmCommand {
 
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
-        if (this.malString != null) {
-            String resultValue = "";
-            for (Object obj : this.malString.getStringValues()) {
-                if (obj instanceof String) {
-                    resultValue += obj;
-                } else if (obj instanceof AbstractExpression) {
-                    resultValue += simplifyTargetExpression((AbstractExpression) obj, scopeMemory);
+        if (this.targetValue != null) {
+            if (this.targetValue instanceof MalString) {
+                MalString malString = (MalString) this.targetValue;
+                String resultValue = "";
+                for (Object obj : malString.getStringValues()) {
+                    if (obj instanceof String) {
+                        resultValue += obj;
+                    } else if (obj instanceof AbstractExpression) {
+                        resultValue += simplifyTargetExpression((AbstractExpression) obj, scopeMemory);
+                    }
                 }
+                this.identifierSrc.setRuntimeValue(new MalString(resultValue));
+            } else if (this.targetValue instanceof AbstractExpression) {
+                AbstractExpression abstrExpr = (AbstractExpression) this.targetValue;
+                Set<String> varsInTargetExpr = abstrExpr.getContainedIndeterminates();
+                checkForUnknownIdentifier(scopeMemory, varsInTargetExpr);
+                AbstractExpression targetExprSimplified = simplifyTargetExpression(abstrExpr, scopeMemory);
+                this.identifierSrc.setRuntimeValue(targetExprSimplified);
             }
-            this.identifierSrc.setRuntimeStringValue(new MalString(resultValue));
-        } else if (this.targetExpression != null) {
-            Set<String> varsInTargetExpr = this.targetExpression.getContainedIndeterminates();
-            checkForUnknownIdentifier(scopeMemory, varsInTargetExpr);
-            AbstractExpression targetExprSimplified = simplifyTargetExpression(this.targetExpression, scopeMemory);
-            this.identifierSrc.setRuntimeValue(targetExprSimplified);
         } else {
             this.targetAlgorithm.initInputParameter(this.targetAlgorithmArguments);
             Set<String> varsInTargetExpr = getVarsFromAlgorithmParameters(this.targetAlgorithm);
             checkForUnknownIdentifier(scopeMemory, varsInTargetExpr);
-            this.identifierSrc.setAllValuesFromGivenIdentifier(this.targetAlgorithm.execute());
+            this.identifierSrc.setValueFromGivenIdentifier(this.targetAlgorithm.execute());
         }
         scopeMemory.addToMemoryInRuntime(this.identifierSrc);
         return null;
@@ -206,7 +194,7 @@ public class AssignValueCommand extends AlgorithmCommand {
             }
             targetExprSimplified = matExprSimplified;
         } else {
-            targetExprSimplified = new BooleanConstant(((BooleanExpression) abstrExpr).evaluate(CompilerUtils.extractValuesOfIdentifiers(scopeMemory)));
+            targetExprSimplified = new BooleanConstant(((BooleanExpression) abstrExpr).evaluate(CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(scopeMemory)));
         }
 
         if (targetExprSimplified instanceof Expression) {
@@ -226,19 +214,22 @@ public class AssignValueCommand extends AlgorithmCommand {
             commandString += this.identifierSrc.getType().toString() + " ";
         }
         commandString += this.identifierSrc.getName() + Operators.DEFINE.getValue();
-        if (this.malString != null) {
-            for (int i = 0; i < this.malString.getStringValues().length; i++) {
-                if (this.malString.getStringValues()[i] instanceof String) {
-                    commandString += "\"" + this.malString.getStringValues()[i] + "\"";
-                } else {
-                    commandString += this.malString.getStringValues()[i].toString();
+        if (this.targetValue != null) {
+            if (this.targetValue instanceof MalString) {
+                MalString malString = (MalString) this.targetValue;
+                for (int i = 0; i < malString.getStringValues().length; i++) {
+                    if (malString.getStringValues()[i] instanceof String) {
+                        commandString += "\"" + malString.getStringValues()[i] + "\"";
+                    } else {
+                        commandString += malString.getStringValues()[i].toString();
+                    }
+                    if (i < malString.getStringValues().length - 1) {
+                        commandString += Operators.CONCAT.getValue();
+                    }
                 }
-                if (i < this.malString.getStringValues().length - 1) {
-                    commandString += Operators.CONCAT.getValue();
-                }
+            } else {
+                commandString += this.targetValue;
             }
-        } else if (this.targetExpression != null) {
-            commandString += this.targetExpression.toString();
         } else {
             commandString += this.targetAlgorithm.getName() + ReservedChars.OPEN_BRACKET.getStringValue();
             for (int i = 0; i < this.targetAlgorithmArguments.length; i++) {

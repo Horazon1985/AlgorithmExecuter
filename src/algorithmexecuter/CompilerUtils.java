@@ -520,10 +520,12 @@ public final class CompilerUtils {
         return assignedIdentifiers;
     }
 
-    public static Map<String, AbstractExpression> extractValuesOfIdentifiers(AlgorithmMemory scopeMemory) {
+    public static Map<String, AbstractExpression> extractAbstactExpressionValuesOfIdentifiers(AlgorithmMemory scopeMemory) {
         Map<String, AbstractExpression> valuesMap = new HashMap<>();
         for (String identifierName : scopeMemory.getMemory().keySet()) {
-            valuesMap.put(identifierName, scopeMemory.getMemory().get(identifierName).getRuntimeValue());
+            if (scopeMemory.getMemory().get(identifierName).getType() != IdentifierType.STRING) {
+                valuesMap.put(identifierName, (AbstractExpression) scopeMemory.getMemory().get(identifierName).getRuntimeValue());
+            }
         }
         return valuesMap;
     }
