@@ -633,6 +633,13 @@ public final class CompilerUtils {
             if (isValidString(s)) {
                 stringValues.add(s.substring(1, s.length() - 1));
             } else {
+                // Öffnende Klammer am Anfang und schließende Klammer am Ende beseitigen.
+                boolean stringWasSurroundedByBracket = false;
+                while (s.startsWith(ReservedChars.OPEN_BRACKET.getStringValue()) && s.endsWith(ReservedChars.CLOSE_BRACKET.getStringValue())) {
+                    s = s.substring(1, s.length() - 1);
+                    stringWasSurroundedByBracket = true;
+                }
+
                 AbstractExpression abstrExpr = null;
                 try {
                     abstrExpr = Expression.build(s, VALIDATOR);
@@ -665,7 +672,18 @@ public final class CompilerUtils {
                 } catch (ExpressionException e) {
                 }
                 if (abstrExpr == null) {
-                    throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_NOT_A_VALID_STRING, s);
+                    // Letzte Möglichkeit: s war von Klammern umgeben und innen steht ein zusammengesetzter String.
+                    if (stringWasSurroundedByBracket) {
+                        List<String> substrings = decomposeByConcat(s);
+                        if (substrings.size() > 1) {
+                            MalString subMalString = getMalString(s, scopeMemory);
+                            for (Object obj : subMalString.getStringValues()) {
+                                stringValues.add(obj);
+                            }
+                        }
+                    } else {
+                        throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_NOT_A_VALID_STRING, s);
+                    }
                 }
             }
         }

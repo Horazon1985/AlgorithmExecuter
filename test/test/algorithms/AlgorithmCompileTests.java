@@ -1,5 +1,6 @@
 package test.algorithms;
 
+import abstractexpressions.expression.classes.Expression;
 import abstractexpressions.expression.classes.Variable;
 import algorithmexecuter.AlgorithmCompiler;
 import algorithmexecuter.CompilerUtils;
@@ -102,6 +103,30 @@ public class AlgorithmCompileTests {
             assertEquals(Variable.create("a"), ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues()[1]);
             assertTrue(mainAlg.getCommands().get(2).isReturnCommand());
             assertEquals("s", ((ReturnCommand) mainAlg.getCommands().get(2)).getIdentifier().getName());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        }
+    }
+
+    @Test
+    public void parseAlgorithmWithReturnTypeStringTest() {
+        String input = "string main(){expression a=3;expression b=5;string s=\"a+b hat den Wert \"+((a+b)+\". Dies wurde eben ausgegeben.\");return s;}";
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            assertEquals(mainAlg.getReturnType(), IdentifierType.STRING);
+            assertEquals(mainAlg.getName(), "main");
+            assertEquals(mainAlg.getInputParameters().length, 0);
+            assertEquals(mainAlg.getCommands().size(), 4);
+            assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(2).isAssignValueCommand());
+            assertEquals(3, ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues().length);
+            assertEquals("a+b hat den Wert ", ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues()[0]);
+            assertTrue(Variable.create("a").add(Variable.create("b")).equals((Expression) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues()[1]));
+            assertEquals(". Dies wurde eben ausgegeben.", ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues()[2]);
+            assertTrue(mainAlg.getCommands().get(3).isReturnCommand());
+            assertEquals("s", ((ReturnCommand) mainAlg.getCommands().get(3)).getIdentifier().getName());
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         }

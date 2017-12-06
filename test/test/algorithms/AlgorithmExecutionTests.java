@@ -101,6 +101,25 @@ public class AlgorithmExecutionTests {
     }
 
     @Test
+    public void executeAlgorithmsWithStringReturnTypeAndBracketsInsideStringTest() {
+        String input = "string main(){expression a=3;expression b=5;string s=\"a+b hat den Wert \"+((a+b)+\". Dies wurde eben ausgegeben.\");return s;}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.STRING);
+            assertTrue(result.getName().equals("s"));
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
+            assertEquals("a+b hat den Wert 8. Dies wurde eben ausgegeben.", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+        } catch (AlgorithmCompileException e) {
+            fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    @Test
     public void executeAlgorithmsWithIfElseControlStructureTest() {
         String input = "expression main(){\n"
                 + "	expression a=exp(1);\n"
