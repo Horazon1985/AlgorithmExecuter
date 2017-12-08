@@ -125,7 +125,7 @@ public abstract class AlgorithmCommandCompiler {
             throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, identifierName);
         }
         Identifier identifier = Identifier.createIdentifier(scopeMemory, identifierName, type);
-        scopeMemory.getMemory().put(identifierName, identifier);
+        scopeMemory.put(identifierName, identifier);
         return Collections.singletonList((AlgorithmCommand) new DeclareIdentifierCommand(identifier));
     }
 
@@ -177,7 +177,7 @@ public abstract class AlgorithmCommandCompiler {
             if (!scopeMemory.containsIdentifier(identifierName)) {
                 throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, identifierName);
             }
-            type = scopeMemory.getMemory().get(identifierName).getType();
+            type = scopeMemory.get(identifierName).getType();
         }
 
         // Rechte Seite behandeln.
@@ -189,7 +189,7 @@ public abstract class AlgorithmCommandCompiler {
             if (type != IdentifierType.STRING) {
                 try {
                     AbstractExpression expr = (AbstractExpression) CompilerUtils.parseParameterAgaingstType(rightSideReplaced, VALIDATOR, scopeMemory, type);
-                    scopeMemory.getMemory().put(identifierName, identifier);
+                    scopeMemory.put(identifierName, identifier);
                     commands.add(new AssignValueCommand(identifier, expr, assignValueType));
                     return commands;
                 } catch (BooleanExpressionException | ExpressionException e) {
@@ -198,7 +198,7 @@ public abstract class AlgorithmCommandCompiler {
             } else {
                 try {
                     MalString malString = CompilerUtils.getMalString(rightSideReplaced, scopeMemory);
-                    scopeMemory.getMemory().put(identifierName, identifier);
+                    scopeMemory.put(identifierName, identifier);
                     commands.add(new AssignValueCommand(identifier, malString, assignValueType));
                     return commands;
                 } catch (AlgorithmCompileException e) {
@@ -254,7 +254,7 @@ public abstract class AlgorithmCommandCompiler {
         Signature calledAlgSignature = getAlgorithmCallDataFromAlgorithmCall(rightSide, memory, assignType).getSignature();
         // Parameter auslesen;
         Identifier[] parameterIdentifiers = getParameterFromAlgorithmCall(rightSide, calledAlgSignature, commands, memory);
-        memory.getMemory().put(identifier.getName(), identifier);
+        memory.put(identifier.getName(), identifier);
         commands.add(new AssignValueCommand(identifier, calledAlgSignature, parameterIdentifiers, assignValueType));
         return commands;
 
@@ -268,8 +268,8 @@ public abstract class AlgorithmCommandCompiler {
             Identifier[] identifiers = new Identifier[params.length];
             for (int i = 0; i < params.length; i++) {
                 // 1. Fall: der Parameter ist ein Bezeichner (welcher bereits in der Memory liegt).
-                if (scopeMemory.getMemory().get(params[i]) != null) {
-                    identifiers[i] = scopeMemory.getMemory().get(params[i]);
+                if (scopeMemory.get(params[i]) != null) {
+                    identifiers[i] = scopeMemory.get(params[i]);
                     continue;
                 }
                 // 2. Fall: der Parameter ist gültiger (abstrakter) Ausdruck vom geforderten Typ oder ein String.
@@ -379,7 +379,7 @@ public abstract class AlgorithmCommandCompiler {
 
     private static boolean areAllVarsContainedInMemory(Set<String> varNames, AlgorithmMemory memory) {
         for (String varName : varNames) {
-            if (memory.getMemory().get(varName) == null) {
+            if (memory.get(varName) == null) {
                 return false;
             }
         }
@@ -404,6 +404,7 @@ public abstract class AlgorithmCommandCompiler {
             throw new NotDesiredCommandException();
         }
 
+        // 1. Auf vom Benutzer definierte Algorithmen prüfen.
         for (Signature sgn : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
             if (sgn.getName().equals(algName)) {
                 try {
@@ -415,61 +416,18 @@ public abstract class AlgorithmCommandCompiler {
                 }
             }
         }
-        // Auf Standardbefehle überprüfen.
-        // "inc" = ++
-        if (algName.equals(FixedAlgorithmNames.INC.getValue()) && params.length == 1) {
-            Signature sgn = new Signature(null, FixedAlgorithmNames.INC.getValue(), new IdentifierType[]{IdentifierType.EXPRESSION});
-            try {
-                Identifier[] parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                commands.add(new VoidCommand(algName, parameters));
-                return commands;
-            } catch (ParseAssignValueException e) {
-                throw new ParseVoidException(e);
+
+        // 2. Auf Standardbefehle überprüfen.
+        for (Algorithm alg : Algorithm.FIXED_ALGORITHMS) {
+            Signature sgn = alg.getSignature();
+            if (sgn.getName().equals(algName)) {
+                try {
+                    Identifier[] parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
+                    commands.add(new VoidCommand(algName, parameters));
+                    return commands;
+                } catch (ParseAssignValueException e) {
+                }
             }
-        }
-        // "dec" = --
-        if (algName.equals(FixedAlgorithmNames.DEC.getValue()) && params.length == 1) {
-            Signature sgn = new Signature(null, FixedAlgorithmNames.DEC.getValue(), new IdentifierType[]{IdentifierType.EXPRESSION});
-            try {
-                Identifier[] parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                commands.add(new VoidCommand(algName, parameters));
-                return commands;
-            } catch (ParseAssignValueException e) {
-                throw new ParseVoidException(e);
-            }
-        }
-        // "print" = Konsolenausgabe
-        if (algName.equals(FixedAlgorithmNames.PRINT.getValue()) && params.length == 1) {
-            Identifier[] parameters;
-            Signature sgn = new Signature(null, FixedAlgorithmNames.PRINT.getValue(), new IdentifierType[]{IdentifierType.EXPRESSION});
-            try {
-                parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                commands.add(new VoidCommand(algName, parameters));
-                return commands;
-            } catch (ParseAssignValueException e) {
-            }
-            sgn = new Signature(null, FixedAlgorithmNames.PRINT.getValue(), new IdentifierType[]{IdentifierType.BOOLEAN_EXPRESSION});
-            try {
-                parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                commands.add(new VoidCommand(algName, parameters));
-                return commands;
-            } catch (ParseAssignValueException e) {
-            }
-            sgn = new Signature(null, FixedAlgorithmNames.PRINT.getValue(), new IdentifierType[]{IdentifierType.MATRIX_EXPRESSION});
-            try {
-                parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                commands.add(new VoidCommand(algName, parameters));
-                return commands;
-            } catch (ParseAssignValueException e) {
-            }
-            sgn = new Signature(null, FixedAlgorithmNames.PRINT.getValue(), new IdentifierType[]{IdentifierType.STRING});
-            try {
-                parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                commands.add(new VoidCommand(algName, parameters));
-                return commands;
-            } catch (ParseAssignValueException e) {
-            }
-            throw new ParseVoidException(AlgorithmCompileExceptionIds.AC_CANNOT_PARSE_GENERAL_PARAMETER_IN_COMMAND, 1, FixedAlgorithmNames.PRINT.getValue());
         }
 
         throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_NO_SUCH_COMMAND, algName);
@@ -891,8 +849,8 @@ public abstract class AlgorithmCommandCompiler {
     }
 
     private static void checkIfNewIdentifierOccur(AlgorithmMemory memoryBeforeLoop, AlgorithmMemory currentMemory) throws ParseControlStructureException {
-        for (String identifierName : currentMemory.getMemory().keySet()) {
-            if (!memoryBeforeLoop.getMemory().containsKey(identifierName) && !CompilerUtils.isTechnicalIdentifierName(identifierName)) {
+        for (String identifierName : currentMemory.keySet()) {
+            if (!memoryBeforeLoop.containsKey(identifierName) && !CompilerUtils.isTechnicalIdentifierName(identifierName)) {
                 throw new ParseControlStructureException(AlgorithmCompileExceptionIds.AC_CONTROL_STRUCTURE_FOR_NEW_IDENTIFIER_NOT_ALLOWED, identifierName);
             }
         }
@@ -921,14 +879,14 @@ public abstract class AlgorithmCommandCompiler {
             }
             String returnValueCandidate = line.substring((Keyword.RETURN.getValue() + " ").length());
 
-            if (scopeMemory.getMemory().get(returnValueCandidate) == null) {
+            if (scopeMemory.get(returnValueCandidate) == null) {
 
                 AlgorithmCommandReplacementList algorithmCommandReplacementList = decomposeAssignmentInvolvingAlgorithmCalls(returnValueCandidate, scopeMemory);
                 List<AlgorithmCommand> commands = algorithmCommandReplacementList.getCommands();
                 String returnValueReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
 
-                if (scopeMemory.getMemory().get(returnValueReplaced) != null) {
-                    return Collections.singletonList((AlgorithmCommand) new ReturnCommand(scopeMemory.getMemory().get(returnValueCandidate)));
+                if (scopeMemory.get(returnValueReplaced) != null) {
+                    return Collections.singletonList((AlgorithmCommand) new ReturnCommand(scopeMemory.get(returnValueCandidate)));
                 }
                 if (VALIDATOR.isValidIdentifier(returnValueReplaced)) {
                     throw new ParseReturnException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, returnValueCandidate);

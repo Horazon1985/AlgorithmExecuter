@@ -283,7 +283,7 @@ public final class CompilerUtils {
 
     public static void checkIfAllIdentifiersAreDefined(Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
         for (String var : vars) {
-            if (!memory.getMemory().containsKey(var)) {
+            if (!memory.containsKey(var)) {
                 throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, var);
             }
         }
@@ -291,8 +291,8 @@ public final class CompilerUtils {
 
     public static void areIdentifiersOfCorrectType(IdentifierType type, Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
         for (String var : vars) {
-            if (memory.getMemory().get(var).getType() != type) {
-                throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES, memory.getMemory().get(var).getType(), type);
+            if (memory.get(var).getType() != type) {
+                throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES, memory.get(var).getType(), type);
             }
         }
     }
@@ -522,9 +522,9 @@ public final class CompilerUtils {
 
     public static Map<String, AbstractExpression> extractAbstactExpressionValuesOfIdentifiers(AlgorithmMemory scopeMemory) {
         Map<String, AbstractExpression> valuesMap = new HashMap<>();
-        for (String identifierName : scopeMemory.getMemory().keySet()) {
-            if (scopeMemory.getMemory().get(identifierName).getType() != IdentifierType.STRING) {
-                valuesMap.put(identifierName, (AbstractExpression) scopeMemory.getMemory().get(identifierName).getRuntimeValue());
+        for (String identifierName : scopeMemory.keySet()) {
+            if (scopeMemory.get(identifierName).getType() != IdentifierType.STRING) {
+                valuesMap.put(identifierName, (AbstractExpression) scopeMemory.get(identifierName).getRuntimeValue());
             }
         }
         return valuesMap;
@@ -532,8 +532,8 @@ public final class CompilerUtils {
 
     public static Map<String, IdentifierType> extractTypesOfMemory(AlgorithmMemory memory) {
         Map<String, IdentifierType> valuesMap = new HashMap<>();
-        for (String identifierName : memory.getMemory().keySet()) {
-            valuesMap.put(identifierName, memory.getMemory().get(identifierName).getType());
+        for (String identifierName : memory.keySet()) {
+            valuesMap.put(identifierName, memory.get(identifierName).getType());
         }
         return valuesMap;
     }
@@ -545,7 +545,7 @@ public final class CompilerUtils {
      */
     public static String generateTechnicalIdentifierName(AlgorithmMemory scopeMemory) {
         int i = 1;
-        while (scopeMemory.getMemory().containsKey(GEN_VAR + i)) {
+        while (scopeMemory.containsKey(GEN_VAR + i)) {
             i++;
         }
         return GEN_VAR + i;

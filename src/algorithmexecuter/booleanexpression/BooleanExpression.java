@@ -63,7 +63,7 @@ public abstract class BooleanExpression implements AbstractExpression {
         Set<String> allVars = getContainedVars();
         Set<String> boolVars = new HashSet<>();
         for (String var : allVars) {
-            if (scopeMemory.getMemory().get(var) != null && scopeMemory.getMemory().get(var).getType().equals(IdentifierType.BOOLEAN_EXPRESSION)) {
+            if (scopeMemory.get(var) != null && scopeMemory.get(var).getType().equals(IdentifierType.BOOLEAN_EXPRESSION)) {
                 boolVars.add(var);
             }
         }
@@ -74,7 +74,7 @@ public abstract class BooleanExpression implements AbstractExpression {
         Set<String> allVars = getContainedIndeterminates();
         Set<String> boolVars = new HashSet<>();
         for (String var : allVars) {
-            if (scopeMemory.getMemory().get(var) != null && scopeMemory.getMemory().get(var).getType().equals(IdentifierType.BOOLEAN_EXPRESSION)) {
+            if (scopeMemory.get(var) != null && scopeMemory.get(var).getType().equals(IdentifierType.BOOLEAN_EXPRESSION)) {
                 boolVars.add(var);
             }
         }

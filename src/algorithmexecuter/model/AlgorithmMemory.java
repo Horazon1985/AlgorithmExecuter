@@ -3,9 +3,11 @@ package algorithmexecuter.model;
 import algorithmexecuter.exceptions.AlgorithmCompileException;
 import algorithmexecuter.exceptions.constants.AlgorithmCompileExceptionIds;
 import algorithmexecuter.model.identifier.Identifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AlgorithmMemory {
 
@@ -31,16 +33,32 @@ public class AlgorithmMemory {
         }
     }
 
-    public Map<String, Identifier> getMemory() {
-        return this.memory;
-    }
-
     public Algorithm getAlgorithm() {
         return this.algorithm;
     }
 
     public void setAlgorithm(Algorithm alg) {
         this.algorithm = alg;
+    }
+    
+    public Identifier get(String name) {
+        return this.memory.get(name);
+    }
+
+    public void put(String name, Identifier identifier) {
+        this.memory.put(name, identifier);
+    }
+    
+    public boolean containsKey(String name) {
+        return this.memory.containsKey(name);
+    }
+
+    public Set<String> keySet() {
+        return this.memory.keySet();
+    }
+
+    public Collection<Identifier> values() {
+        return this.memory.values();
     }
 
     @Override
@@ -78,7 +96,7 @@ public class AlgorithmMemory {
     public AlgorithmMemory copyMemory() {
         AlgorithmMemory copyOfMemory = new AlgorithmMemory(this.algorithm);
         for (String identifierName : this.memory.keySet()) {
-            copyOfMemory.getMemory().put(identifierName, this.memory.get(identifierName));
+            copyOfMemory.put(identifierName, this.memory.get(identifierName));
         }
         return copyOfMemory;
     }

@@ -1,6 +1,7 @@
 package algorithmexecuter.model;
 
 import algorithmexecuter.AlgorithmExecuter;
+import algorithmexecuter.enums.FixedAlgorithmNames;
 import algorithmexecuter.model.command.AlgorithmCommand;
 import algorithmexecuter.model.command.IfElseControlStructure;
 import algorithmexecuter.model.command.WhileControlStructure;
@@ -17,10 +18,28 @@ import java.util.List;
 
 public class Algorithm {
 
+    public static final Algorithm[] FIXED_ALGORITHMS;
+    private static final List<Algorithm> FIXED_ALGORITHM_LIST = new ArrayList<>();
+
     private final String name;
     private final Identifier[] inputParameters;
     private final IdentifierType returnType;
     private final List<AlgorithmCommand> commands;
+
+    static {
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.INC.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.DEC.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.BOOLEAN_EXPRESSION)}, null));
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION)}, null));
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.STRING)}, null));
+        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.ENTRY.getValue(),
+                new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION),
+                    Identifier.createIdentifier("i", IdentifierType.MATRIX_EXPRESSION),
+                    Identifier.createIdentifier("j", IdentifierType.MATRIX_EXPRESSION)
+                }, IdentifierType.EXPRESSION));
+        FIXED_ALGORITHMS = FIXED_ALGORITHM_LIST.toArray(new Algorithm[FIXED_ALGORITHM_LIST.size()]);
+    }
 
     private Algorithm(String name, Identifier[] inputParameters, IdentifierType returnType, List<AlgorithmCommand> commands) {
         this.name = name;
@@ -165,13 +184,13 @@ public class Algorithm {
             }
         }
         commandString += ReservedChars.CLOSE_BRACKET.getStringValue() + ReservedChars.BEGIN.getStringValue();
-        
+
         for (AlgorithmCommand command : this.commands) {
             commandString += command.toCommandString();
         }
-        
+
         return commandString + ReservedChars.END.getStringValue();
-        
+
     }
 
 }

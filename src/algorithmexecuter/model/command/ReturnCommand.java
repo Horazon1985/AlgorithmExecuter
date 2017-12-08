@@ -24,7 +24,7 @@ public class ReturnCommand extends AlgorithmCommand {
     
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) {
-        return scopeMemory.getMemory().get(this.identifier.getName());
+        return scopeMemory.get(this.identifier.getName());
     }
     
     @Override

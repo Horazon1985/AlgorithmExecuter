@@ -2,6 +2,7 @@ package algorithmexecuter.model.command;
 
 import abstractexpressions.expression.classes.Expression;
 import algorithmexecuter.AlgorithmCompiler;
+import algorithmexecuter.annotations.Execute;
 import algorithmexecuter.enums.FixedAlgorithmNames;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.enums.ReservedChars;
@@ -14,6 +15,8 @@ import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.output.AlgorithmOutputPrinter;
 import exceptions.EvaluationException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class VoidCommand extends AlgorithmCommand {
 
@@ -68,30 +71,52 @@ public class VoidCommand extends AlgorithmCommand {
             }
         }
         // Nun alle standardmäßig implementierten Void-Methoden ausprobieren.
-        // "inc" = ++
-        if (this.name.equals(FixedAlgorithmNames.INC.getValue()) && this.identifiers.length == 1 && this.identifiers[0].getType() == IdentifierType.EXPRESSION) {
-            inc(this.identifiers[0]);
-            scopeMemory.addToMemoryInRuntime(Identifier.createIdentifier(scopeMemory, this.name, IdentifierType.EXPRESSION));
-            return null;
-        }
-        // "dec" = --
-        if (this.name.equals(FixedAlgorithmNames.DEC.getValue()) && this.identifiers.length == 1 && this.identifiers[0].getType() == IdentifierType.EXPRESSION) {
-            dec(this.identifiers[0]);
-            scopeMemory.addToMemoryInRuntime(Identifier.createIdentifier(scopeMemory, this.name, IdentifierType.EXPRESSION));
-            return null;
-        }
-        // "print" = Konsolenausgabe
-        if (this.name.equals(FixedAlgorithmNames.PRINT.getValue()) && this.identifiers.length == 1) {
-            if (this.identifiers[0].getType() != IdentifierType.STRING) {
-                AlgorithmOutputPrinter.printLine(this.identifiers[0].toString());
-            } else {
-                AlgorithmOutputPrinter.printLine(stringArrayToOutputString((MalString) this.identifiers[0].getRuntimeValue()));
-            }
-            return null;
-        }
-        throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_NO_SUCH_COMMAND);
+        return executeFixedVoidCommand(scopeMemory);
     }
 
+    private Identifier executeFixedVoidCommand(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        Method[] methods = VoidCommand.class.getDeclaredMethods();
+        Execute annotation;
+        for (Method method : methods) {
+            annotation = method.getAnnotation(Execute.class);
+            if (annotation != null && annotation.algorithmName().getValue().equals(this.name)) {
+                try {
+                    method.invoke(this, scopeMemory);
+                    return null;
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                    if (e.getCause() instanceof AlgorithmExecutionException) {
+                        throw (AlgorithmExecutionException) e.getCause();
+                    }
+                }
+            }
+        }
+        throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_NO_SUCH_COMMAND, this.getSignature());
+    }
+
+    @Execute(algorithmName = FixedAlgorithmNames.INC)
+    private void executeInc(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        inc(this.identifiers[0]);
+    }
+
+    @Execute(algorithmName = FixedAlgorithmNames.DEC)
+    private void executeDec(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        dec(this.identifiers[0]);
+    }
+
+    @Execute(algorithmName = FixedAlgorithmNames.PRINT)
+    private void executePrint(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        if (this.identifiers[0].getType() != IdentifierType.STRING) {
+            AlgorithmOutputPrinter.printLine(this.identifiers[0].toString());
+        } else {
+            AlgorithmOutputPrinter.printLine(stringArrayToOutputString((MalString) this.identifiers[0].getRuntimeValue()));
+        }
+    }
+
+    @Execute(algorithmName = FixedAlgorithmNames.ENTRY)
+    private void executeEntry(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        // Nichts tun. Der Rückgabewert wird ohnehin nicht berücksichtigt.
+    }
+    
     private String stringArrayToOutputString(MalString malString) {
         String result = "";
         for (Object obj : malString.getStringValues()) {

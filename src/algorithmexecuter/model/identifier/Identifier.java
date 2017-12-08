@@ -1,9 +1,7 @@
 package algorithmexecuter.model.identifier;
 
-import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.model.AlgorithmMemory;
-import algorithmexecuter.model.utilclasses.MalString;
 import java.util.Objects;
 
 public class Identifier {
@@ -82,7 +80,7 @@ public class Identifier {
 
     public static Identifier createIdentifier(AlgorithmMemory scopeMemory, String identifierName, IdentifierType type) {
         if (scopeMemory.containsIdentifier(identifierName)) {
-            return scopeMemory.getMemory().get(identifierName);
+            return scopeMemory.get(identifierName);
         }
         return new Identifier(type, identifierName);
     }

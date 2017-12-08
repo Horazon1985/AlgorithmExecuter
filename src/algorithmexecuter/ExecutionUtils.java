@@ -8,9 +8,9 @@ public final class ExecutionUtils {
     }
     
     public static void updateMemoryBeforeBlockExecution(AlgorithmMemory memoryBeforBlockExecution, AlgorithmMemory scopeMemory) {
-        for (String identifierName : memoryBeforBlockExecution.getMemory().keySet()) {
-            if (scopeMemory.getMemory().keySet().contains(identifierName)) {
-                memoryBeforBlockExecution.getMemory().put(identifierName, scopeMemory.getMemory().get(identifierName));
+        for (String identifierName : memoryBeforBlockExecution.keySet()) {
+            if (scopeMemory.keySet().contains(identifierName)) {
+                memoryBeforBlockExecution.put(identifierName, scopeMemory.get(identifierName));
             }
         }
     }

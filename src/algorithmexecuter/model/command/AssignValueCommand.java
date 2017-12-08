@@ -169,7 +169,7 @@ public class AssignValueCommand extends AlgorithmCommand {
 
         if (abstrExpr instanceof Expression) {
             Expression exprSimplified = (Expression) abstrExpr;
-            for (Identifier identifier : scopeMemory.getMemory().values()) {
+            for (Identifier identifier : scopeMemory.values()) {
                 if (identifier.getRuntimeValue() instanceof Expression) {
                     exprSimplified = exprSimplified.replaceVariable(identifier.getName(), (Expression) identifier.getRuntimeValue());
                 }
@@ -177,7 +177,7 @@ public class AssignValueCommand extends AlgorithmCommand {
             targetExprSimplified = exprSimplified;
         } else if (abstrExpr instanceof LogicalExpression) {
             LogicalExpression logExprSimplified = (LogicalExpression) abstrExpr;
-            for (Identifier identifier : scopeMemory.getMemory().values()) {
+            for (Identifier identifier : scopeMemory.values()) {
                 if (identifier.getRuntimeValue() instanceof LogicalExpression) {
                     logExprSimplified = logExprSimplified.replaceVariable(identifier.getName(), (LogicalExpression) identifier.getRuntimeValue());
                 }
@@ -185,7 +185,7 @@ public class AssignValueCommand extends AlgorithmCommand {
             targetExprSimplified = logExprSimplified;
         } else if (abstrExpr instanceof MatrixExpression) {
             MatrixExpression matExprSimplified = (MatrixExpression) abstrExpr;
-            for (Identifier identifier : scopeMemory.getMemory().values()) {
+            for (Identifier identifier : scopeMemory.values()) {
                 if (identifier.getRuntimeValue() instanceof Expression) {
                     matExprSimplified = matExprSimplified.replaceVariable(identifier.getName(), (Expression) identifier.getRuntimeValue());
                 } else if (identifier.getRuntimeValue() instanceof MatrixExpression) {
