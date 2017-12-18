@@ -247,7 +247,7 @@ public abstract class BooleanExpression implements AbstractExpression {
 
         // Falls der Ausdruck eine Variable ist
         if (priority == 4) {
-            if (validator.isValidIdentifier(input)) {
+            if (validator.isValidIdentifier(input) && typesMap.get(input) == IdentifierType.BOOLEAN_EXPRESSION) {
                 return new BooleanVariable(input);
             }
         }

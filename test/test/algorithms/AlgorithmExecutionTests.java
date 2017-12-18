@@ -120,6 +120,25 @@ public class AlgorithmExecutionTests {
     }
 
     @Test
+    public void executeAlgorithmsWithStringReturnTypeAndConmplexStringTest() {
+        String input = "string main(){string s=\"x\";string t=\"y\";string result=\"s+t hat den Wert \"+((s+t)+\". Dies wurde eben ausgegeben.\");return result;}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.STRING);
+            assertTrue(result.getName().equals("result"));
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
+            assertEquals("s+t hat den Wert xy. Dies wurde eben ausgegeben.", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+        } catch (AlgorithmCompileException e) {
+            fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    @Test
     public void executeAlgorithmsWithIfElseControlStructureTest() {
         String input = "expression main(){\n"
                 + "	expression a=exp(1);\n"
@@ -601,6 +620,32 @@ public class AlgorithmExecutionTests {
             assertTrue(result.getName().equals("s"));
             assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
             assertEquals("Test!", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    @Test
+    public void executeAlgorithmWithComplexStringTest() {
+        String input = "string main(){\n"
+                + "	string s=\"Aufruf\";\n"
+                + "	string t= s+\"!\";\n"
+                + "	return t;\n"
+                + "}\n"
+                + "\n"
+                + "f(string s){\n"
+                + "	print(s);\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.STRING);
+            assertTrue(result.getName().equals("t"));
+            assertEquals("Aufruf!", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {

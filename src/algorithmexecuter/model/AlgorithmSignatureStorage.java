@@ -21,4 +21,8 @@ public class AlgorithmSignatureStorage {
         Collections.sort(this.algorithmSignatureStorage);
     }
 
+    public void remove (Signature sgn) {
+        this.algorithmSignatureStorage.remove(sgn);
+    }
+    
 }

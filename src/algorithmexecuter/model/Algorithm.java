@@ -1,6 +1,13 @@
 package algorithmexecuter.model;
 
+import abstractexpressions.expression.classes.Constant;
+import abstractexpressions.expression.classes.Expression;
+import abstractexpressions.matrixexpression.classes.Matrix;
+import abstractexpressions.matrixexpression.classes.MatrixExpression;
+import algorithmexecuter.AlgorithmCompiler;
 import algorithmexecuter.AlgorithmExecuter;
+import algorithmexecuter.CompilerUtils;
+import algorithmexecuter.annotations.Execute;
 import algorithmexecuter.enums.FixedAlgorithmNames;
 import algorithmexecuter.model.command.AlgorithmCommand;
 import algorithmexecuter.model.command.IfElseControlStructure;
@@ -13,33 +20,18 @@ import algorithmexecuter.model.command.DoWhileControlStructure;
 import algorithmexecuter.model.command.ForControlStructure;
 import algorithmexecuter.model.identifier.Identifier;
 import exceptions.EvaluationException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Algorithm {
 
-    public static final Algorithm[] FIXED_ALGORITHMS;
-    private static final List<Algorithm> FIXED_ALGORITHM_LIST = new ArrayList<>();
-
     private final String name;
     private final Identifier[] inputParameters;
     private final IdentifierType returnType;
     private final List<AlgorithmCommand> commands;
-
-    static {
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.INC.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.DEC.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.BOOLEAN_EXPRESSION)}, null));
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION)}, null));
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.STRING)}, null));
-        FIXED_ALGORITHM_LIST.add(new Algorithm(FixedAlgorithmNames.ENTRY.getValue(),
-                new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION),
-                    Identifier.createIdentifier("i", IdentifierType.MATRIX_EXPRESSION),
-                    Identifier.createIdentifier("j", IdentifierType.MATRIX_EXPRESSION)
-                }, IdentifierType.EXPRESSION));
-        FIXED_ALGORITHMS = FIXED_ALGORITHM_LIST.toArray(new Algorithm[FIXED_ALGORITHM_LIST.size()]);
-    }
 
     private Algorithm(String name, Identifier[] inputParameters, IdentifierType returnType, List<AlgorithmCommand> commands) {
         this.name = name;
@@ -148,13 +140,18 @@ public class Algorithm {
         if (this.commands.isEmpty()) {
             if (this.returnType == null) {
                 return null;
-            } else {
+            } else if (!isStandardAlgorithm()) {
                 throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_RETURN_TYPE_EXPECTED);
             }
         }
 
         // Prüfung, ob alle Parameter Werte besitzen. Sollte eigentlich stets der Fall sein.
         checkForIdentifierWithoutValues();
+        
+        // Prüfung, ob es sich um einen Standardalgorithmus handelt.
+        if (isStandardAlgorithm()) {
+            return executeFixedAlgorithm(getInitialAlgorithmMemory());
+        }
 
         return AlgorithmExecuter.executeConnectedBlock(getInitialAlgorithmMemory(), this.commands);
     }
@@ -165,6 +162,59 @@ public class Algorithm {
                 throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_ALGORITHM_NOT_ALL_INPUT_PARAMETERS_SET, i, this.getName());
             }
         }
+    }
+
+    private boolean isStandardAlgorithm() {
+        for (Algorithm alg : AlgorithmCompiler.FIXED_ALGORITHMS) {
+            if (alg.getName().equals(this.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private Identifier executeFixedAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        Method[] methods = Algorithm.class.getDeclaredMethods();
+        Execute annotation;
+        for (Method method : methods) {
+            annotation = method.getAnnotation(Execute.class);
+            if (annotation != null && annotation.algorithmName().getValue().equals(this.name)) {
+                try {
+                    return (Identifier) method.invoke(this, scopeMemory);
+                } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                    if (e.getCause() instanceof AlgorithmExecutionException) {
+                        throw (AlgorithmExecutionException) e.getCause();
+                    }
+                }
+            }
+        }
+        throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_NO_SUCH_COMMAND, getSignature());
+    }
+
+    @Execute(algorithmName = FixedAlgorithmNames.ENTRY)
+    private Identifier executeEntry(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+        MatrixExpression matExpr = (MatrixExpression) this.inputParameters[0].getRuntimeValue();
+        Expression i = (Expression) this.inputParameters[1].getRuntimeValue();
+        Expression j = (Expression) this.inputParameters[2].getRuntimeValue();
+        if (!matExpr.isMatrix()) {
+            throw new AlgorithmExecutionException("");
+        }
+        Matrix m = (Matrix) matExpr;
+        if (!i.isIntegerConstant()) {
+            throw new AlgorithmExecutionException("");
+        }
+        if (((Constant) i).getBigIntValue().compareTo(BigInteger.ZERO) < 0 || ((Constant) i).getBigIntValue().compareTo(BigInteger.valueOf(m.getColumnNumber() - 1)) > 0) {
+            throw new AlgorithmExecutionException("");
+        }
+        if (!j.isIntegerConstant()) {
+            throw new AlgorithmExecutionException("");
+        }
+        if (((Constant) j).getBigIntValue().compareTo(BigInteger.ZERO) < 0 || ((Constant) j).getBigIntValue().compareTo(BigInteger.valueOf(m.getRowNumber() - 1)) > 0) {
+            throw new AlgorithmExecutionException("");
+        }
+        Identifier result = Identifier.createIdentifier(CompilerUtils.generateTechnicalIdentifierName(scopeMemory), IdentifierType.EXPRESSION);
+        result.setRuntimeValue(m.getEntry(((Constant) i).getBigIntValue().intValue(), ((Constant) j).getBigIntValue().intValue()));
+        return result;
     }
 
     private AlgorithmMemory getInitialAlgorithmMemory() {

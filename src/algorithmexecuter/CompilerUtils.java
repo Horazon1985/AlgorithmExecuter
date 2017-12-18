@@ -1,7 +1,6 @@
 package algorithmexecuter;
 
 import abstractexpressions.expression.classes.Expression;
-import static abstractexpressions.expression.classes.Expression.VALIDATOR;
 import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.interfaces.IdentifierValidator;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
@@ -27,7 +26,8 @@ import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.command.AssignValueCommand;
 import algorithmexecuter.model.command.DeclareIdentifierCommand;
 import algorithmexecuter.model.utilclasses.MalString;
-import algorithmexecuter.model.utilclasses.Parameter;
+import algorithmexecuter.model.utilclasses.malstring.MalStringVariable;
+import algorithmexecuter.model.utilclasses.ParameterData;
 import exceptions.ExpressionException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -520,7 +520,7 @@ public final class CompilerUtils {
         return assignedIdentifiers;
     }
 
-    public static Map<String, AbstractExpression> extractAbstactExpressionValuesOfIdentifiers(AlgorithmMemory scopeMemory) {
+    public static Map<String, AbstractExpression> extractAbstactExpressionValuesFromIdentifiers(AlgorithmMemory scopeMemory) {
         Map<String, AbstractExpression> valuesMap = new HashMap<>();
         for (String identifierName : scopeMemory.keySet()) {
             if (scopeMemory.get(identifierName).getType() != IdentifierType.STRING) {
@@ -530,12 +530,26 @@ public final class CompilerUtils {
         return valuesMap;
     }
 
-    public static Map<String, IdentifierType> extractTypesOfMemory(AlgorithmMemory memory) {
+    public static Map<String, IdentifierType> extractTypesFromMemory(AlgorithmMemory memory) {
         Map<String, IdentifierType> valuesMap = new HashMap<>();
         for (String identifierName : memory.keySet()) {
             valuesMap.put(identifierName, memory.get(identifierName).getType());
         }
         return valuesMap;
+    }
+
+    public static Map<String, Class<? extends AbstractExpression>> extractClassesOfAbstractExpressionIdentifiersFromMemory(AlgorithmMemory memory) {
+        Map<String, Class<? extends AbstractExpression>> classesMap = new HashMap<>();
+        for (String identifierName : memory.keySet()) {
+            if (memory.get(identifierName).getType() == IdentifierType.EXPRESSION) {
+                classesMap.put(identifierName, Expression.class);
+            } else if (memory.get(identifierName).getType() == IdentifierType.BOOLEAN_EXPRESSION) {
+                classesMap.put(identifierName, BooleanExpression.class);
+            } else if (memory.get(identifierName).getType() == IdentifierType.MATRIX_EXPRESSION) {
+                classesMap.put(identifierName, MatrixExpression.class);
+            }
+        }
+        return classesMap;
     }
 
     /**
@@ -576,7 +590,7 @@ public final class CompilerUtils {
                 areIdentifiersOfCorrectType(type, expr.getContainedVars(), scopeMemory);
                 return expr;
             case BOOLEAN_EXPRESSION:
-                BooleanExpression boolExpr = BooleanExpression.build(input, validator, extractTypesOfMemory(scopeMemory));
+                BooleanExpression boolExpr = BooleanExpression.build(input, validator, extractTypesFromMemory(scopeMemory));
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                 CompilerUtils.checkIfAllIdentifiersAreDefined(boolExpr.getContainedVars(), scopeMemory);
                 CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, boolExpr.getContainedExpressionVars(), scopeMemory);
@@ -596,27 +610,27 @@ public final class CompilerUtils {
         }
     }
 
-    public static Parameter parseParameterWithoutType(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
+    public static ParameterData parseParameterWithoutType(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
         try {
             // Prüfung, ob der Parameter ein Ausdruck ist.
             Expression expr = Expression.build(input, validator);
-            return new Parameter(expr);
+            return new ParameterData(expr);
         } catch (ExpressionException eExpr) {
             // Prüfung, ob der Parameter ein boolscher Ausdruck ist.
-            Map<String, IdentifierType> typeMap = CompilerUtils.extractTypesOfMemory(scopeMemory);
+            Map<String, IdentifierType> typeMap = CompilerUtils.extractTypesFromMemory(scopeMemory);
             try {
                 BooleanExpression boolExpr = BooleanExpression.build(input, validator, typeMap);
-                return new Parameter(boolExpr);
+                return new ParameterData(boolExpr);
             } catch (BooleanExpressionException eBoolExpr) {
                 try {
                     // Prüfung, ob der Parameter ein Matrizenausdruck ist.
                     MatrixExpression matExpr = MatrixExpression.build(input, validator, validator);
-                    return new Parameter(matExpr);
+                    return new ParameterData(matExpr);
                 } catch (ExpressionException eMatExpr) {
                     // Prüfung, ob der Parameter ein String ist.
                     try {
                         MalString malString = CompilerUtils.getMalString(input, scopeMemory);
-                        return new Parameter(malString);
+                        return new ParameterData(malString);
                     } catch (AlgorithmCompileException e) {
                         throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, input);
                     }
@@ -632,6 +646,8 @@ public final class CompilerUtils {
         for (String s : stringValuesAsStrings) {
             if (isValidString(s)) {
                 stringValues.add(s.substring(1, s.length() - 1));
+            } else if (scopeMemory.containsIdentifier(s) && scopeMemory.get(s).getType().equals(IdentifierType.STRING)) {
+                stringValues.add(new MalStringVariable(scopeMemory.get(s).getName()));
             } else {
                 // Öffnende Klammer am Anfang und schließende Klammer am Ende beseitigen.
                 boolean stringWasSurroundedByBracket = false;
@@ -642,16 +658,19 @@ public final class CompilerUtils {
 
                 AbstractExpression abstrExpr = null;
                 try {
-                    abstrExpr = Expression.build(s, VALIDATOR);
+                    AlgorithmCompiler.VALIDATOR.setKnownVariables(extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory));
+                    abstrExpr = Expression.build(s, AlgorithmCompiler.VALIDATOR);
+                    AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
                     CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, abstrExpr.getContainedVars(), scopeMemory);
                     stringValues.add(abstrExpr);
                     continue;
                 } catch (ExpressionException e) {
+                    AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
                 }
                 try {
-                    abstrExpr = BooleanExpression.build(s, VALIDATOR, CompilerUtils.extractTypesOfMemory(scopeMemory));
+                    abstrExpr = BooleanExpression.build(s, AlgorithmCompiler.VALIDATOR, extractTypesFromMemory(scopeMemory));
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
                     CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, ((BooleanExpression) abstrExpr).getContainedExpressionVars(), scopeMemory);
@@ -662,7 +681,9 @@ public final class CompilerUtils {
                 } catch (BooleanExpressionException e) {
                 }
                 try {
-                    abstrExpr = MatrixExpression.build(s, VALIDATOR, VALIDATOR);
+                    AlgorithmCompiler.VALIDATOR.setKnownVariables(extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory));
+                    abstrExpr = MatrixExpression.build(s, AlgorithmCompiler.VALIDATOR, AlgorithmCompiler.VALIDATOR);
+                    AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
                     CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, ((MatrixExpression) abstrExpr).getContainedExpressionVars(), scopeMemory);
@@ -670,6 +691,7 @@ public final class CompilerUtils {
                     stringValues.add(abstrExpr);
                     continue;
                 } catch (ExpressionException e) {
+                    AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
                 }
                 if (abstrExpr == null) {
                     // Letzte Möglichkeit: s war von Klammern umgeben und innen steht ein zusammengesetzter String.

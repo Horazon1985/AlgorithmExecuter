@@ -62,7 +62,7 @@ public class ForControlStructure extends ControlStructure {
 
         AlgorithmExecuter.executeBlock(currentMemory, this.initialization);
         AlgorithmExecuter.executeBlock(currentMemory, this.endLoopCommands);
-        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(currentMemory);
+        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(currentMemory);
         while (this.endLoopCondition.evaluate(valuesMap)) {
             try {
                 result = AlgorithmExecuter.executeBlock(currentMemory, this.commandBlocks[0]);
@@ -76,7 +76,7 @@ public class ForControlStructure extends ControlStructure {
             AlgorithmExecuter.executeBlock(currentMemory, this.loopAssignment);
             AlgorithmExecuter.executeBlock(currentMemory, this.endLoopCommands);
             // Identifierwerte aktualisieren.
-            valuesMap = CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(currentMemory);
+            valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(currentMemory);
         }
 
         // Speicher vor der Ausführung des Blocks aktualisieren.

@@ -53,7 +53,7 @@ public class DoWhileControlStructure extends ControlStructure {
             } catch (AlgorithmContinueException e) {
             }
             // Identifierwerte aktualisieren.
-            valuesMap = CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(scopeMemory);
+            valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory);
         } while (this.condition.evaluate(valuesMap));
         return result;
     }

@@ -1,6 +1,7 @@
 package algorithmexecuter;
 
 import abstractexpressions.interfaces.IdentifierValidator;
+import algorithmexecuter.enums.FixedAlgorithmNames;
 import algorithmexecuter.exceptions.AlgorithmCompileException;
 import algorithmexecuter.model.command.AlgorithmCommand;
 import algorithmexecuter.model.command.AssignValueCommand;
@@ -16,10 +17,13 @@ import algorithmexecuter.model.AlgorithmSignatureStorage;
 import algorithmexecuter.model.AlgorithmStorage;
 import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.command.ForControlStructure;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class AlgorithmCompiler {
+
+    public static final Algorithm[] FIXED_ALGORITHMS;
 
     public final static IdentifierValidator VALIDATOR = new IdentifierValidatorImpl();
 
@@ -27,9 +31,50 @@ public abstract class AlgorithmCompiler {
 
     protected final static AlgorithmSignatureStorage ALGORITHM_SIGNATURES = new AlgorithmSignatureStorage();
 
-    private static void parseAlgorithmSignatures(String input) throws AlgorithmCompileException {
-        ALGORITHM_SIGNATURES.clearAlgorithmSignatureStorage();
+    static {
+        // 1. Standardalgorithmen definieren.
+        List<Algorithm> fixedAlgorithms = new ArrayList<>();
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.INC.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.DEC.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, null));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.BOOLEAN_EXPRESSION)}, null));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION)}, null));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.PRINT.getValue(), new Identifier[]{Identifier.createIdentifier("a", IdentifierType.STRING)}, null));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.ENTRY.getValue(),
+                new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION),
+                    Identifier.createIdentifier("i", IdentifierType.EXPRESSION),
+                    Identifier.createIdentifier("j", IdentifierType.EXPRESSION)
+                }, IdentifierType.EXPRESSION));
+        FIXED_ALGORITHMS = fixedAlgorithms.toArray(new Algorithm[fixedAlgorithms.size()]);
 
+        // 2. Standardalgorithmen zu den "bekannten" Algorithmen hinzufügen
+        ALGORITHMS.addAll(fixedAlgorithms);
+
+        // 3. Signaturen von Standardalgorithmen zu den "bekannten" Signaturen hinzufügen.
+        fixedAlgorithms.forEach((alg) -> {
+            ALGORITHM_SIGNATURES.add(alg.getSignature());
+        });
+    }
+
+    private static void initStorages() {
+        ALGORITHMS.clearAlgorithmStorage();
+        for (Algorithm alg : FIXED_ALGORITHMS) {
+            ALGORITHMS.add(alg);
+        }
+        ALGORITHM_SIGNATURES.clearAlgorithmSignatureStorage();
+        for (Algorithm alg : FIXED_ALGORITHMS) {
+            ALGORITHM_SIGNATURES.add(alg.getSignature());
+        }
+    }
+
+    private static void removeStandardAlgorithmsFromStorage() {
+        for (Algorithm alg : FIXED_ALGORITHMS) {
+            ALGORITHMS.remove(alg);
+            ALGORITHM_SIGNATURES.remove(alg.getSignature());
+        }
+    }
+
+    private static void parseAlgorithmSignatures(String input) throws AlgorithmCompileException {
         if (input.isEmpty()) {
             return;
         }
@@ -107,7 +152,7 @@ public abstract class AlgorithmCompiler {
     }
 
     public static void parseAlgorithmFile(String input) throws AlgorithmCompileException {
-        ALGORITHMS.clearAlgorithmStorage();
+        initStorages();
 
         if (input.isEmpty()) {
             return;
@@ -139,7 +184,7 @@ public abstract class AlgorithmCompiler {
                 lastEndOfAlgorithm = i;
             }
         }
-        
+
         if (bracketCounter > 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.END.getValue());
         }
@@ -151,8 +196,11 @@ public abstract class AlgorithmCompiler {
         CompilerUtils.checkIfMainAlgorithmExists(ALGORITHMS);
         // Prüfung, ob ein Main-Algorithmus parameterlos ist.
         CompilerUtils.checkIfMainAlgorithmContainsNoParameters(CompilerUtils.getMainAlgorithm(ALGORITHMS));
-        // Zum Schluss: bei Bezeichnerzuordnungen Algorithmensignaturen durch Algorithmenreferenzen ersetzen.
+        // Bei Bezeichnerzuordnungen Algorithmensignaturen durch Algorithmenreferenzen ersetzen.
         replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands();
+
+        // Zum Schluss: Standardalgorithmen wieder aus dem Storage entfernen.
+        removeStandardAlgorithmsFromStorage();
     }
 
     private static Algorithm parseAlgorithm(String input) throws AlgorithmCompileException {
@@ -352,6 +400,14 @@ public abstract class AlgorithmCompiler {
                     if (alg.getSignature().equals(signature)) {
                         calledAlg = alg;
                         break;
+                    }
+                }
+                if (calledAlg == null) {
+                    for (Algorithm alg : FIXED_ALGORITHMS) {
+                        if (alg.getSignature().equals(signature)) {
+                            calledAlg = alg;
+                            break;
+                        }
                     }
                 }
                 // Ab hier ist calledAlg != null (dies wurde durch andere, vorherige Prüfungen sichergestellt).

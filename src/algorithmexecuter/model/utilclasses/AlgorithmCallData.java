@@ -5,9 +5,9 @@ import algorithmexecuter.model.Signature;
 public class AlgorithmCallData {
 
     private final Signature signature;
-    private final Parameter[] parameterValues;
+    private final ParameterData[] parameterValues;
 
-    public AlgorithmCallData(Signature signature, Parameter[] parameterValues) {
+    public AlgorithmCallData(Signature signature, ParameterData[] parameterValues) {
         this.signature = signature;
         this.parameterValues = parameterValues;
     }
@@ -16,7 +16,7 @@ public class AlgorithmCallData {
         return signature;
     }
 
-    public Parameter[] getParameterValues() {
+    public ParameterData[] getParameterValues() {
         return parameterValues;
     }
 

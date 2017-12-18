@@ -630,7 +630,7 @@ public class AlgorithmCompileTests {
             fail(input + " konnte nicht geparst werden.");
         }
     }
-    
+
     @Test
     public void parseAlgorithmWithAlgorithmCallContainingStringArgumentTest2() {
         String input = "expression main(){\n"
@@ -668,6 +668,35 @@ public class AlgorithmCompileTests {
         }
     }
 
+    @Test
+    public void parseAlgorithmWithPrintTest() {
+        String input = "expression main(){\n"
+                + "	string s=\"Aufruf\";\n"
+                + "	f(s+\"!\");\n"
+                + "	return 5;\n"
+                + "}\n"
+                + "\n"
+                + "f(string s){\n"
+                + "	print(s);\n"
+                + "}";
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
+            assertEquals(mainAlg.getName(), "main");
+            assertEquals(mainAlg.getInputParameters().length, 0);
+            assertEquals(mainAlg.getCommands().size(), 5);
+            assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(2).isVoidCommand());
+            assertEquals("f", ((VoidCommand) mainAlg.getCommands().get(2)).getName());
+            assertTrue(mainAlg.getCommands().get(3).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(4).isReturnCommand());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        }
+    }
+    
     @Test
     public void parseAlgorithmWithCompileErrorCodeTest() {
         String input = "main(){expression a=exp(1)}";

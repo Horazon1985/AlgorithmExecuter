@@ -20,6 +20,7 @@ import algorithmexecuter.enums.ReservedChars;
 import algorithmexecuter.model.AlgorithmMemory;
 import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.utilclasses.MalString;
+import algorithmexecuter.model.utilclasses.malstring.MalStringVariable;
 import exceptions.EvaluationException;
 import java.util.HashSet;
 import java.util.Set;
@@ -134,6 +135,9 @@ public class AssignValueCommand extends AlgorithmCommand {
                 for (Object obj : malString.getStringValues()) {
                     if (obj instanceof String) {
                         resultValue += obj;
+                    } else if (obj instanceof MalStringVariable) {
+                        String value = (String) ((MalString) scopeMemory.get(((MalStringVariable) obj).getVariableName()).getRuntimeValue()).getStringValues()[0];
+                        resultValue += value;
                     } else if (obj instanceof AbstractExpression) {
                         resultValue += simplifyTargetExpression((AbstractExpression) obj, scopeMemory);
                     }
@@ -155,7 +159,7 @@ public class AssignValueCommand extends AlgorithmCommand {
         scopeMemory.addToMemoryInRuntime(this.identifierSrc);
         return null;
     }
-
+    
     private void checkForUnknownIdentifier(AlgorithmMemory scopeMemory, Set<String> varsInTargetExpr) throws AlgorithmExecutionException {
         for (String var : varsInTargetExpr) {
             if (!scopeMemory.containsIdentifier(var)) {
@@ -194,7 +198,7 @@ public class AssignValueCommand extends AlgorithmCommand {
             }
             targetExprSimplified = matExprSimplified;
         } else {
-            targetExprSimplified = new BooleanConstant(((BooleanExpression) abstrExpr).evaluate(CompilerUtils.extractAbstactExpressionValuesOfIdentifiers(scopeMemory)));
+            targetExprSimplified = new BooleanConstant(((BooleanExpression) abstrExpr).evaluate(CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory)));
         }
 
         if (targetExprSimplified instanceof Expression) {
