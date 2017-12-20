@@ -229,6 +229,30 @@ public class AlgorithmExecutionTests {
         }
     }
 
+        @Test
+    public void executeAlgorithmsWithIfElseControlStructureAndStringComparisonTest() {
+        String input = "expression main(){\n"
+                + "	string s=\"Teststring\";\n"
+                + "	if(s==\"Teststring\"){\n"
+                + "		return 2;\n"
+                + "	}\n"
+                + "	return 3;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.EXPRESSION);
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.TWO));
+        } catch (AlgorithmCompileException e) {
+            fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    
     @Test
     public void executeAlgorithmWithBooleanExpressionTest() {
         String input = "booleanexpression main(){\n"

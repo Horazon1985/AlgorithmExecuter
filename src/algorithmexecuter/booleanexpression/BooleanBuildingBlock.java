@@ -23,7 +23,7 @@ public class BooleanBuildingBlock extends BooleanExpression {
 
     @Override
     public boolean contains(String var) {
-        return this.left.contains(var) && this.right.contains(var);
+        return this.left.contains(var) || this.right.contains(var);
     }
 
     @Override
