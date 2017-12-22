@@ -1,6 +1,5 @@
 package algorithmexecuter.model.command;
 
-import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.booleanexpression.BooleanExpression;
@@ -39,13 +38,10 @@ public class WhileControlStructure extends ControlStructure {
 
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
-        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory);
         Identifier result = null;
-        while (this.condition.evaluate(valuesMap)) {
+        while (this.condition.evaluate(scopeMemory)) {
             try {
                 result = AlgorithmExecuter.executeConnectedBlock(scopeMemory, this.commands);
-                // Identifierwerte aktualisieren.
-                valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory);
                 if (result != null) {
                     return result;
                 }

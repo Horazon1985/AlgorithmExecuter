@@ -91,7 +91,7 @@ public abstract class AlgorithmOutputPrinter {
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
         if (identifier.getType().equals(IdentifierType.STRING)) {
             String printedValue = "";
-            for (Object obj : ((MalString) identifier.getRuntimeValue()).getStringValues()) {
+            for (Object obj : ((MalString) identifier.getRuntimeValue()).getMalStringSummands()) {
                 printedValue += obj.toString();
             }
             println(doc, keyWord, Translator.translateOutputMessage(AP_OUTPUT_OF_ALGORITHM, alg.getName(), printedValue));

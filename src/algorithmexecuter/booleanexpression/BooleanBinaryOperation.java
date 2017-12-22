@@ -1,8 +1,7 @@
 package algorithmexecuter.booleanexpression;
 
-import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.enums.ComparingOperators;
-import java.util.Map;
+import algorithmexecuter.model.AlgorithmMemory;
 import java.util.Set;
 
 public class BooleanBinaryOperation extends BooleanExpression {
@@ -29,14 +28,14 @@ public class BooleanBinaryOperation extends BooleanExpression {
     }
 
     @Override
-    public boolean evaluate(Map<String, AbstractExpression> valuesMap) {
+    public boolean evaluate(AlgorithmMemory scopeMemory) {
         switch (this.type) {
             case AND:
-                return this.left.evaluate(valuesMap) && this.right.evaluate(valuesMap);
+                return this.left.evaluate(scopeMemory) && this.right.evaluate(scopeMemory);
             case OR:
-                return this.left.evaluate(valuesMap) || this.right.evaluate(valuesMap);
+                return this.left.evaluate(scopeMemory) || this.right.evaluate(scopeMemory);
             default:
-                return this.left.evaluate(valuesMap) == this.right.evaluate(valuesMap);
+                return this.left.evaluate(scopeMemory) == this.right.evaluate(scopeMemory);
         }
     }
 

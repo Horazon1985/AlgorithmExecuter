@@ -21,6 +21,8 @@ import algorithmexecuter.model.command.VoidCommand;
 import java.util.List;
 import algorithmexecuter.lang.translator.Translator;
 import algorithmexecuter.model.utilclasses.MalString;
+import algorithmexecuter.model.utilclasses.malstring.MalStringAbstractExpression;
+import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -98,9 +100,9 @@ public class AlgorithmCompileTests {
             assertEquals(mainAlg.getCommands().size(), 3);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
             assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
-            assertEquals(2, ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues().length);
-            assertEquals("a hat den Wert ", ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues()[0]);
-            assertEquals(Variable.create("a"), ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getStringValues()[1]);
+            assertEquals(2, ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getMalStringSummands().length);
+            assertEquals("a hat den Wert ", ((MalStringCharSequence) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getMalStringSummands()[0]).getStringValue());
+            assertEquals(Variable.create("a"), ((MalStringAbstractExpression) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(1)).getTargetValue()).getMalStringSummands()[1]).getAbstractExpression());
             assertTrue(mainAlg.getCommands().get(2).isReturnCommand());
             assertEquals("s", ((ReturnCommand) mainAlg.getCommands().get(2)).getIdentifier().getName());
         } catch (AlgorithmCompileException e) {
@@ -121,10 +123,10 @@ public class AlgorithmCompileTests {
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
             assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
             assertTrue(mainAlg.getCommands().get(2).isAssignValueCommand());
-            assertEquals(3, ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues().length);
-            assertEquals("a+b hat den Wert ", ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues()[0]);
-            assertTrue(Variable.create("a").add(Variable.create("b")).equals((Expression) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues()[1]));
-            assertEquals(". Dies wurde eben ausgegeben.", ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getStringValues()[2]);
+            assertEquals(3, ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getMalStringSummands().length);
+            assertEquals("a+b hat den Wert ", ((MalStringCharSequence) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getMalStringSummands()[0]).getStringValue());
+            assertTrue(Variable.create("a").add(Variable.create("b")).equals((Expression) ((MalStringAbstractExpression) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getMalStringSummands()[1]).getAbstractExpression()));
+            assertEquals(". Dies wurde eben ausgegeben.", ((MalStringCharSequence) ((MalString) ((AssignValueCommand) mainAlg.getCommands().get(2)).getTargetValue()).getMalStringSummands()[2]).getStringValue());
             assertTrue(mainAlg.getCommands().get(3).isReturnCommand());
             assertEquals("s", ((ReturnCommand) mainAlg.getCommands().get(3)).getIdentifier().getName());
         } catch (AlgorithmCompileException e) {

@@ -386,7 +386,7 @@ public abstract class AlgorithmCompiler {
     }
 
     private static void checkIfAllIdentifierAreInitialized(Algorithm alg) throws AlgorithmCompileException {
-        CompilerUtils.checkIfAllIdentifierAreInitialized(alg.getCommands(), alg);
+        CompilerUtils.checkIfAllUsedIdentifiersAreInitialized(alg.getCommands(), alg);
     }
 
     private static void replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands(List<AlgorithmCommand> commands) {

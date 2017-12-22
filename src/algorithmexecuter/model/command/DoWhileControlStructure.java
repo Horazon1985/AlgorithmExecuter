@@ -1,6 +1,5 @@
 package algorithmexecuter.model.command;
 
-import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.booleanexpression.BooleanExpression;
@@ -40,7 +39,6 @@ public class DoWhileControlStructure extends ControlStructure {
 
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
-        Map<String, AbstractExpression> valuesMap;
         Identifier result = null;
         do {
             try {
@@ -53,8 +51,7 @@ public class DoWhileControlStructure extends ControlStructure {
             } catch (AlgorithmContinueException e) {
             }
             // Identifierwerte aktualisieren.
-            valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory);
-        } while (this.condition.evaluate(valuesMap));
+        } while (this.condition.evaluate(scopeMemory));
         return result;
     }
 

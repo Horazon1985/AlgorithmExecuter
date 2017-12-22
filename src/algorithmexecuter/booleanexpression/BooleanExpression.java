@@ -6,14 +6,18 @@ import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.interfaces.IdentifierValidator;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
 import abstractexpressions.matrixexpression.classes.MatrixVariable;
+import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.enums.ComparingOperators;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.enums.Keyword;
 import algorithmexecuter.enums.Operators;
 import algorithmexecuter.enums.ReservedChars;
+import algorithmexecuter.exceptions.AlgorithmCompileException;
 import algorithmexecuter.exceptions.BooleanExpressionException;
 import algorithmexecuter.exceptions.constants.AlgorithmCompileExceptionIds;
 import algorithmexecuter.model.AlgorithmMemory;
+import algorithmexecuter.model.identifier.Identifier;
+import algorithmexecuter.model.utilclasses.MalString;
 import exceptions.ExpressionException;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,7 +25,7 @@ import java.util.Set;
 
 public abstract class BooleanExpression implements AbstractExpression {
 
-    public abstract boolean evaluate(Map<String, AbstractExpression> valuesMap);
+    public abstract boolean evaluate(AlgorithmMemory scopeMemory);
 
     @Override
     public Set<String> getContainedVars() {
@@ -218,13 +222,26 @@ public abstract class BooleanExpression implements AbstractExpression {
                 // Es kommt genau ein Vergleichsoperator in input vor.
                 String[] comparison = input.split(comparisonType.getValue());
                 /* 
-                Operatoren wie ">=", ">", ... machen nur bei gewöhnlichen 
-                Ausdrücken Sinn. "==" dagegen macht auch bei Matrizenausdrücken Sinn.
+                Es wird nach folgenden Regeln eine Instanz von BooleanComparisonBlock gebildet: 
+                (1) Alle Operatoren machen bei gewöhnlichen Ausdrücken Sinn. 
+                (2) Bei boolschen Ausdrücken, Matrizenausdrücken und Strings machen nur "==" und "!=" Sinn.
                  */
-                AbstractExpression left = parseAbstractExpression(comparison[0], validator, typesMap);
-                AbstractExpression right = parseAbstractExpression(comparison[1], validator, typesMap);
+                Object left = parseMalExpression(comparison[0], validator, typesMap);
+                Object right = parseMalExpression(comparison[1], validator, typesMap);
                 if (left != null && right != null) {
-                    return new BooleanBuildingBlock(left, right, comparisonType);
+                    if (left instanceof Expression && right instanceof Expression) {
+                        return new BooleanComparisonBlock(left, right, comparisonType);
+                    }
+                    if (left instanceof BooleanExpression && right instanceof BooleanExpression && (comparisonType == ComparingOperators.EQUALS || comparisonType == ComparingOperators.NOT_EQUALS)) {
+                        return new BooleanComparisonBlock(left, right, comparisonType);
+                    }
+                    if (left instanceof MatrixExpression && right instanceof MatrixExpression && (comparisonType == ComparingOperators.EQUALS || comparisonType == ComparingOperators.NOT_EQUALS)) {
+                        return new BooleanComparisonBlock(left, right, comparisonType);
+                    }
+                    if (left instanceof MalString && right instanceof MalString && (comparisonType == ComparingOperators.EQUALS || comparisonType == ComparingOperators.NOT_EQUALS)) {
+                        return new BooleanComparisonBlock(left, right, comparisonType);
+                    }
+                    throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, null, null);
                 }
             }
         }
@@ -259,7 +276,11 @@ public abstract class BooleanExpression implements AbstractExpression {
         return input.contains(op.getValue()) && input.length() - input.replaceAll(op.getValue(), "").length() == op.getValue().length();
     }
 
-    private static AbstractExpression parseAbstractExpression(String input, IdentifierValidator validator, Map<String, IdentifierType> typesMap) {
+    /**
+     * Versucht, den Parameter input zu parsen. Die Typen, gegen die geparst
+     * wird, sind: Expression, BooleanExpression, MatrixExpression, MalString.
+     */
+    private static Object parseMalExpression(String input, IdentifierValidator validator, Map<String, IdentifierType> typesMap) {
         // In valuesMap werden nur Variablen aufgenommen.
         AbstractExpression parsedInput;
         try {
@@ -294,8 +315,23 @@ public abstract class BooleanExpression implements AbstractExpression {
             }
         } catch (BooleanExpressionException e) {
         }
+
+        try {
+            return CompilerUtils.getMalString(input, typesMap);
+        } catch (AlgorithmCompileException e) {
+        }
+
         return null;
     }
+    
+    private static AlgorithmMemory createHelpMemory(Map<String, IdentifierType> typesMap) {
+        AlgorithmMemory memory = new AlgorithmMemory(null);
+        for (String varName : typesMap.keySet()) {
+            memory.put(varName, Identifier.createIdentifier(varName, typesMap.get(varName)));
+        }
+        return memory;
+    }
+    
 
     private static boolean doesValuesMapContainAllVarsOfCorrectType(AbstractExpression abstrExpr, Map<String, IdentifierType> typesMap) {
         Set<String> vars = abstrExpr.getContainedVars();
@@ -326,7 +362,7 @@ public abstract class BooleanExpression implements AbstractExpression {
     }
 
     public boolean isBuildingBlock() {
-        return this instanceof BooleanBuildingBlock;
+        return this instanceof BooleanComparisonBlock;
     }
 
     public BooleanExpression not() {

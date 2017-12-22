@@ -28,6 +28,9 @@ import algorithmexecuter.model.command.DeclareIdentifierCommand;
 import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.model.utilclasses.malstring.MalStringVariable;
 import algorithmexecuter.model.utilclasses.ParameterData;
+import algorithmexecuter.model.utilclasses.malstring.MalStringAbstractExpression;
+import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
+import algorithmexecuter.model.utilclasses.malstring.MalStringSummand;
 import exceptions.ExpressionException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -263,6 +266,12 @@ public final class CompilerUtils {
         return returnType;
     }
 
+    /**
+     * Prüft, ob die Signaturen in signatures eine Signatur des Hauptalgorithmus
+     * enthalten.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkIfMainAlgorithmSignatureExists(AlgorithmSignatureStorage signatures) throws AlgorithmCompileException {
         for (Signature sgn : signatures.getAlgorithmSignatureStorage()) {
             if (sgn.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
@@ -272,6 +281,11 @@ public final class CompilerUtils {
         throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_DOES_NOT_EXIST);
     }
 
+    /**
+     * Prüft, ob algorithms den Hauptalgorithmus enthalten.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkIfMainAlgorithmExists(AlgorithmStorage algorithms) throws AlgorithmCompileException {
         for (Algorithm alg : algorithms.getAlgorithmStorage()) {
             if (alg.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
@@ -281,6 +295,11 @@ public final class CompilerUtils {
         throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_DOES_NOT_EXIST);
     }
 
+    /**
+     * Prüft, ob alle Bezeichner mit Namen im Set vars auch deklariert wurden.
+     *
+     * @throws ParseAssignValueException
+     */
     public static void checkIfAllIdentifiersAreDefined(Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
         for (String var : vars) {
             if (!memory.containsKey(var)) {
@@ -289,7 +308,12 @@ public final class CompilerUtils {
         }
     }
 
-    public static void areIdentifiersOfCorrectType(IdentifierType type, Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
+    /**
+     * Prüft, ob die alle Bezeichner mit Namen im Set vars vom Typ type sind.
+     *
+     * @throws ParseAssignValueException
+     */
+    public static void checkIfIdentifiersAreOfCorrectType(IdentifierType type, Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
         for (String var : vars) {
             if (memory.get(var).getType() != type) {
                 throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES, memory.get(var).getType(), type);
@@ -367,18 +391,33 @@ public final class CompilerUtils {
         return linesAsList.toArray(new String[linesAsList.size()]);
     }
 
+    /**
+     * Prüft, ob die Signatur des Hauptalgorithmus keinen Parameter enthält.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkIfMainAlgorithmSignatureContainsNoParameters(Signature mainAlgSignature) throws AlgorithmCompileException {
         if (mainAlgSignature.getName().equals(FixedAlgorithmNames.MAIN.getValue()) && mainAlgSignature.getParameterTypes().length != 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_NOT_ALLOWED_TO_CONTAIN_PARAMETERS);
         }
     }
 
+    /**
+     * Prüft, ob der Hauptalgorithmus keinen Parameter enthält.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkIfMainAlgorithmContainsNoParameters(Algorithm mainAlg) throws AlgorithmCompileException {
         if (mainAlg.getName().equals(FixedAlgorithmNames.MAIN.getValue()) && mainAlg.getInputParameters().length != 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_NOT_ALLOWED_TO_CONTAIN_PARAMETERS);
         }
     }
 
+    /**
+     * Prüft, ob die Liste der Befehle commands nur einfache return enthält.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkForOnlySimpleReturns(List<AlgorithmCommand> commands) throws AlgorithmCompileException {
         for (int i = 0; i < commands.size(); i++) {
             if (commands.get(i).isReturnCommand() && ((ReturnCommand) commands.get(i)).getIdentifier() != null) {
@@ -392,6 +431,11 @@ public final class CompilerUtils {
         }
     }
 
+    /**
+     * Prüft, ob die Liste der Befehle commands stets Rückgabebefehle enthalten.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkForContainingReturnCommand(List<AlgorithmCommand> commands, IdentifierType returnType) throws AlgorithmCompileException {
         if (returnType == null) {
             return;
@@ -415,6 +459,12 @@ public final class CompilerUtils {
         }
     }
 
+    /**
+     * Prüft, ob die Liste der Befehle commands stets Rückgabebefehle vom
+     * geforderten Typ (oder Untertyp) type enthält.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkForCorrectReturnType(List<AlgorithmCommand> commands, IdentifierType returnType) throws AlgorithmCompileException {
         Identifier returnIdentifier;
         for (int i = 0; i < commands.size(); i++) {
@@ -435,6 +485,12 @@ public final class CompilerUtils {
         }
     }
 
+    /**
+     * Prüft, ob der Codeblock commands im Algorithmus alg nicht erreichbaren
+     * Code enthält.
+     *
+     * @throws AlgorithmCompileException
+     */
     public static void checkForUnreachableCodeInBlock(List<AlgorithmCommand> commands, Algorithm alg) throws AlgorithmCompileException {
         for (int i = 0; i < commands.size(); i++) {
             if (commands.get(i).isReturnCommand() && i < commands.size() - 1) {
@@ -471,9 +527,57 @@ public final class CompilerUtils {
         return ifPartContainsReturnStatement && elsePartContainsReturnStatement;
     }
 
-    public static void checkIfAllIdentifierAreInitialized(List<AlgorithmCommand> commands, Algorithm alg) throws AlgorithmCompileException {
+    /**
+     * Prüft, ob im Algorithmus alg Identifier verwendet werden, welche
+     * möglicherweise nicht initialisiert wurden.
+     *
+     * @throws AlgorithmCompileException
+     */
+    public static void checkIfAllUsedIdentifiersAreInitialized(List<AlgorithmCommand> commands, Algorithm alg) throws AlgorithmCompileException {
+        // Map mit Namen von Bezeichnern, die bereits deklariert wurden. 
+        // Der boolsche Wert zu jedem Key gibt an, ob der entsprechende Bezeichner bereits initialisiert wurde.
         Map<String, Boolean> declaredIdentifiers = new HashMap<>();
+
         for (AlgorithmCommand command : commands) {
+
+            // Prüfung, ob die rechte Seite einer Zuweisung nur bereits definierte Bezeichner verwendet.
+            if (command.isAssignValueCommand()) {
+                Object targetValue = ((AssignValueCommand) command).getTargetValue();
+                Identifier[] algorithmParameters = ((AssignValueCommand) command).getTargetAlgorithmArguments();
+                if (targetValue != null) {
+                    // Fall: Wertzuordnung.
+                    Set<String> usedIdentifier = getUsedIdentifierNames(targetValue);
+                    for (String identifierName : usedIdentifier) {
+                        if (declaredIdentifiers.get(identifierName) != null && !declaredIdentifiers.get(identifierName)) {
+                            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED, identifierName);
+                        }
+                    }
+                } else if (algorithmParameters != null) {
+                    // Fall: Algorithmusaufruf.
+                    for (Identifier param : algorithmParameters) {
+                        Set<String> usedIdentifier = getUsedIdentifierNames(param);
+                        for (String identifierName : usedIdentifier) {
+                            if (declaredIdentifiers.get(identifierName) != null && !declaredIdentifiers.get(identifierName)) {
+                                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED, identifierName);
+                            }
+                        }
+                    }
+                }
+            }
+            if (command.isReturnCommand()) {
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            }
+            // Ermittlung aller Bezeichner, welche bereits deklariert und initialisiert wurden.
             if (command.isDeclareIDentifierCommand()) {
                 declaredIdentifiers.put(((DeclareIdentifierCommand) command).getIdentifierSrc().getName(), false);
             } else if (command.isAssignValueCommand()
@@ -487,13 +591,43 @@ public final class CompilerUtils {
                     }
                 }
             }
+
         }
 
-        for (String identifierName : declaredIdentifiers.keySet()) {
-            if (!declaredIdentifiers.get(identifierName)) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED, identifierName);
+    }
+
+    private static Set<String> getUsedIdentifierNames(Object targetValue) {
+        if (targetValue instanceof AbstractExpression) {
+            return getUsedIdentifierNamesInCaseOfAbstractExpression((AbstractExpression) targetValue);
+        }
+        if (targetValue instanceof MalString) {
+            Set<String> allUsedIdentifierNames = new HashSet<>();
+            for (MalStringSummand summand : ((MalString) targetValue).getMalStringSummands()) {
+                if (summand instanceof MalStringVariable) {
+                    allUsedIdentifierNames.add(((MalStringVariable) summand).getVariableName());
+                } else if (summand instanceof MalStringAbstractExpression) {
+                    AbstractExpression abstrExpr = ((MalStringAbstractExpression) summand).getAbstractExpression();
+                    allUsedIdentifierNames.addAll(getUsedIdentifierNamesInCaseOfAbstractExpression(abstrExpr));
+                }
             }
         }
+        return new HashSet<>();
+    }
+
+    private static Set<String> getUsedIdentifierNamesInCaseOfAbstractExpression(AbstractExpression targetValue) {
+        if (targetValue instanceof Expression) {
+            return ((Expression) targetValue).getContainedVars();
+        }
+        if (targetValue instanceof MatrixExpression) {
+            Set<String> allVars = ((MatrixExpression) targetValue).getContainedExpressionVars();
+            Set<String> matrixVars = ((MatrixExpression) targetValue).getContainedMatrixVars();
+            allVars.addAll(matrixVars);
+            return allVars;
+        }
+        if (targetValue instanceof BooleanExpression) {
+
+        }
+        return new HashSet<>();
     }
 
     private static Set<String> getIdentifiersWhichValueIsAssigned(IfElseControlStructure ifElseControlStructure) {
@@ -520,16 +654,6 @@ public final class CompilerUtils {
         return assignedIdentifiers;
     }
 
-    public static Map<String, AbstractExpression> extractAbstactExpressionValuesFromIdentifiers(AlgorithmMemory scopeMemory) {
-        Map<String, AbstractExpression> valuesMap = new HashMap<>();
-        for (String identifierName : scopeMemory.keySet()) {
-            if (scopeMemory.get(identifierName).getType() != IdentifierType.STRING) {
-                valuesMap.put(identifierName, (AbstractExpression) scopeMemory.get(identifierName).getRuntimeValue());
-            }
-        }
-        return valuesMap;
-    }
-
     public static Map<String, IdentifierType> extractTypesFromMemory(AlgorithmMemory memory) {
         Map<String, IdentifierType> valuesMap = new HashMap<>();
         for (String identifierName : memory.keySet()) {
@@ -541,12 +665,20 @@ public final class CompilerUtils {
     public static Map<String, Class<? extends AbstractExpression>> extractClassesOfAbstractExpressionIdentifiersFromMemory(AlgorithmMemory memory) {
         Map<String, Class<? extends AbstractExpression>> classesMap = new HashMap<>();
         for (String identifierName : memory.keySet()) {
-            if (memory.get(identifierName).getType() == IdentifierType.EXPRESSION) {
-                classesMap.put(identifierName, Expression.class);
-            } else if (memory.get(identifierName).getType() == IdentifierType.BOOLEAN_EXPRESSION) {
-                classesMap.put(identifierName, BooleanExpression.class);
-            } else if (memory.get(identifierName).getType() == IdentifierType.MATRIX_EXPRESSION) {
-                classesMap.put(identifierName, MatrixExpression.class);
+            if (memory.get(identifierName).getType() != null) {
+                switch (memory.get(identifierName).getType()) {
+                    case EXPRESSION:
+                        classesMap.put(identifierName, Expression.class);
+                        break;
+                    case BOOLEAN_EXPRESSION:
+                        classesMap.put(identifierName, BooleanExpression.class);
+                        break;
+                    case MATRIX_EXPRESSION:
+                        classesMap.put(identifierName, MatrixExpression.class);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         return classesMap;
@@ -587,22 +719,22 @@ public final class CompilerUtils {
                 Expression expr = Expression.build(input, validator);
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                 checkIfAllIdentifiersAreDefined(expr.getContainedVars(), scopeMemory);
-                areIdentifiersOfCorrectType(type, expr.getContainedVars(), scopeMemory);
+                checkIfIdentifiersAreOfCorrectType(type, expr.getContainedVars(), scopeMemory);
                 return expr;
             case BOOLEAN_EXPRESSION:
                 BooleanExpression boolExpr = BooleanExpression.build(input, validator, extractTypesFromMemory(scopeMemory));
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                 CompilerUtils.checkIfAllIdentifiersAreDefined(boolExpr.getContainedVars(), scopeMemory);
-                CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, boolExpr.getContainedExpressionVars(), scopeMemory);
-                CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, boolExpr.getContainedBooleanVars(scopeMemory), scopeMemory);
-                CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.MATRIX_EXPRESSION, boolExpr.getContainedMatrixVars(), scopeMemory);
+                CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, boolExpr.getContainedExpressionVars(), scopeMemory);
+                CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, boolExpr.getContainedBooleanVars(scopeMemory), scopeMemory);
+                CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, boolExpr.getContainedMatrixVars(), scopeMemory);
                 return boolExpr;
             case MATRIX_EXPRESSION:
                 MatrixExpression matExpr = MatrixExpression.build(input, validator, validator);
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                 CompilerUtils.checkIfAllIdentifiersAreDefined(matExpr.getContainedVars(), scopeMemory);
-                CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, matExpr.getContainedExpressionVars(), scopeMemory);
-                CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.MATRIX_EXPRESSION, matExpr.getContainedMatrixVars(), scopeMemory);
+                CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, matExpr.getContainedExpressionVars(), scopeMemory);
+                CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, matExpr.getContainedMatrixVars(), scopeMemory);
                 return matExpr;
             default:
                 // Fall: String. 
@@ -642,12 +774,12 @@ public final class CompilerUtils {
     ///////////////////// Methoden für die Zerlegung eines Strings ///////////////////////
     public static MalString getMalString(String input, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
         List<String> stringValuesAsStrings = decomposeByConcat(input);
-        List stringValues = new ArrayList();
+        List<MalStringSummand> malStringSummands = new ArrayList<>();
         for (String s : stringValuesAsStrings) {
             if (isValidString(s)) {
-                stringValues.add(s.substring(1, s.length() - 1));
+                malStringSummands.add(new MalStringCharSequence(s.substring(1, s.length() - 1)));
             } else if (scopeMemory.containsIdentifier(s) && scopeMemory.get(s).getType().equals(IdentifierType.STRING)) {
-                stringValues.add(new MalStringVariable(scopeMemory.get(s).getName()));
+                malStringSummands.add(new MalStringVariable(scopeMemory.get(s).getName()));
             } else {
                 // Öffnende Klammer am Anfang und schließende Klammer am Ende beseitigen.
                 boolean stringWasSurroundedByBracket = false;
@@ -663,8 +795,8 @@ public final class CompilerUtils {
                     AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
-                    CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, abstrExpr.getContainedVars(), scopeMemory);
-                    stringValues.add(abstrExpr);
+                    CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, abstrExpr.getContainedVars(), scopeMemory);
+                    malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
                     continue;
                 } catch (ExpressionException e) {
                     AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
@@ -673,10 +805,10 @@ public final class CompilerUtils {
                     abstrExpr = BooleanExpression.build(s, AlgorithmCompiler.VALIDATOR, extractTypesFromMemory(scopeMemory));
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
-                    CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, ((BooleanExpression) abstrExpr).getContainedExpressionVars(), scopeMemory);
-                    CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, ((BooleanExpression) abstrExpr).getContainedBooleanVars(scopeMemory), scopeMemory);
-                    CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((BooleanExpression) abstrExpr).getContainedMatrixVars(), scopeMemory);
-                    stringValues.add(abstrExpr);
+                    CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, ((BooleanExpression) abstrExpr).getContainedExpressionVars(), scopeMemory);
+                    CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, ((BooleanExpression) abstrExpr).getContainedBooleanVars(scopeMemory), scopeMemory);
+                    CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((BooleanExpression) abstrExpr).getContainedMatrixVars(), scopeMemory);
+                    malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
                     continue;
                 } catch (BooleanExpressionException e) {
                 }
@@ -686,9 +818,9 @@ public final class CompilerUtils {
                     AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
-                    CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, ((MatrixExpression) abstrExpr).getContainedExpressionVars(), scopeMemory);
-                    CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((MatrixExpression) abstrExpr).getContainedMatrixVars(), scopeMemory);
-                    stringValues.add(abstrExpr);
+                    CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, ((MatrixExpression) abstrExpr).getContainedExpressionVars(), scopeMemory);
+                    CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((MatrixExpression) abstrExpr).getContainedMatrixVars(), scopeMemory);
+                    malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
                     continue;
                 } catch (ExpressionException e) {
                     AlgorithmCompiler.VALIDATOR.unsetKnownVariables();
@@ -699,8 +831,8 @@ public final class CompilerUtils {
                         List<String> substrings = decomposeByConcat(s);
                         if (substrings.size() > 1) {
                             MalString subMalString = getMalString(s, scopeMemory);
-                            for (Object obj : subMalString.getStringValues()) {
-                                stringValues.add(obj);
+                            for (MalStringSummand obj : subMalString.getMalStringSummands()) {
+                                malStringSummands.add(obj);
                             }
                         }
                     } else {
@@ -710,7 +842,17 @@ public final class CompilerUtils {
             }
         }
 
-        return new MalString(stringValues.toArray());
+        return new MalString(malStringSummands.toArray(new MalStringSummand[malStringSummands.size()]));
+    }
+
+    public static MalString getMalString(String input, Map<String, IdentifierType> typesMap) throws AlgorithmCompileException {
+        // Hier wird ein "Hilfsspeicher" erschaffen, damit die getMalString-Methode 
+        // mit der Signatur getMalString(String,AlgorithmMemory) anwendbar ist.
+        AlgorithmMemory memory = new AlgorithmMemory(null);
+        for (String varName : typesMap.keySet()) {
+            memory.put(varName, Identifier.createIdentifier(varName, typesMap.get(varName)));
+        }
+        return getMalString(input, memory);
     }
 
     private static List<String> decomposeByConcat(String input) throws AlgorithmCompileException {

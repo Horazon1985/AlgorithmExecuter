@@ -1,6 +1,5 @@
 package algorithmexecuter.model.command;
 
-import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.booleanexpression.BooleanExpression;
@@ -48,8 +47,7 @@ public class IfElseControlStructure extends ControlStructure {
 
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
-        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory);
-        if (this.condition.evaluate(valuesMap)) {
+        if (this.condition.evaluate(scopeMemory)) {
             return AlgorithmExecuter.executeConnectedBlock(scopeMemory, this.commandsIfPart);
         }
         return AlgorithmExecuter.executeConnectedBlock(scopeMemory, this.commandsElsePart);

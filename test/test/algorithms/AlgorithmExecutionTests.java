@@ -9,6 +9,7 @@ import algorithmexecuter.exceptions.AlgorithmCompileException;
 import algorithmexecuter.model.identifier.Identifier;
 import algorithmexecuter.model.Algorithm;
 import algorithmexecuter.model.utilclasses.MalString;
+import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import algorithmexecuter.output.AlgorithmOutputPrinter;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +35,8 @@ public class AlgorithmExecutionTests {
 
     @Test
     public void executeEmptyMainAlgorithmTest() {
-        String input = "main(){}";
+        String input = "main(){\n"
+                + "}";
         Algorithm mainAlg = null;
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
@@ -83,7 +85,11 @@ public class AlgorithmExecutionTests {
 
     @Test
     public void executeAlgorithmsWithStringReturnTypeTest() {
-        String input = "string main(){expression a=3;string s=\"a hat den Wert \"+a;return s;}";
+        String input = "string main(){\n"
+                + "	expression a=3;\n"
+                + "	string s=\"a hat den Wert \"+a;\n"
+                + "	return s;\n"
+                + "}";
         Algorithm mainAlg = null;
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
@@ -91,8 +97,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
-            assertEquals("a hat den Wert 3", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getMalStringSummands().length);
+            assertEquals("a hat den Wert 3", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -102,7 +108,12 @@ public class AlgorithmExecutionTests {
 
     @Test
     public void executeAlgorithmsWithStringReturnTypeAndBracketsInsideStringTest() {
-        String input = "string main(){expression a=3;expression b=5;string s=\"a+b hat den Wert \"+((a+b)+\". Dies wurde eben ausgegeben.\");return s;}";
+        String input = "string main(){\n"
+                + "	expression a=3;\n"
+                + "	expression b=5;\n"
+                + "	string s=\"a+b hat den Wert \"+((a+b)+\". Dies wurde eben ausgegeben.\");\n"
+                + "	return s;\n"
+                + "}";
         Algorithm mainAlg = null;
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
@@ -110,8 +121,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
-            assertEquals("a+b hat den Wert 8. Dies wurde eben ausgegeben.", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getMalStringSummands().length);
+            assertEquals("a+b hat den Wert 8. Dies wurde eben ausgegeben.", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -121,7 +132,12 @@ public class AlgorithmExecutionTests {
 
     @Test
     public void executeAlgorithmsWithStringReturnTypeAndConmplexStringTest() {
-        String input = "string main(){string s=\"x\";string t=\"y\";string result=\"s+t hat den Wert \"+((s+t)+\". Dies wurde eben ausgegeben.\");return result;}";
+        String input = "string main(){\n"
+                + "	string s=\"x\";\n"
+                + "	string t=\"y\";\n"
+                + "	string result=\"s+t hat den Wert \"+((s+t)+\". Dies wurde eben ausgegeben.\");\n"
+                + "	return result;\n"
+                + "}";
         Algorithm mainAlg = null;
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
@@ -129,8 +145,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("result"));
-            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
-            assertEquals("s+t hat den Wert xy. Dies wurde eben ausgegeben.", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getMalStringSummands().length);
+            assertEquals("s+t hat den Wert xy. Dies wurde eben ausgegeben.", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         } catch (AlgorithmCompileException e) {
             fail("Der Algorithmus " + input + " konnte nicht kompiliert werden.");
         } catch (Exception e) {
@@ -229,11 +245,11 @@ public class AlgorithmExecutionTests {
         }
     }
 
-        @Test
+    @Test
     public void executeAlgorithmsWithIfElseControlStructureAndStringComparisonTest() {
         String input = "expression main(){\n"
                 + "	string s=\"Teststring\";\n"
-                + "	if(s==\"Teststring\"){\n"
+                + "	if(s+\"!\"==\"Teststring!\"){\n"
                 + "		return 2;\n"
                 + "	}\n"
                 + "	return 3;\n"
@@ -252,7 +268,6 @@ public class AlgorithmExecutionTests {
         }
     }
 
-    
     @Test
     public void executeAlgorithmWithBooleanExpressionTest() {
         String input = "booleanexpression main(){\n"
@@ -271,6 +286,29 @@ public class AlgorithmExecutionTests {
             assertTrue(result.getType() == IdentifierType.BOOLEAN_EXPRESSION);
             assertTrue(result.getName().equals("#1"));
             assertTrue(((BooleanConstant) result.getRuntimeValue()).getValue());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    @Test
+    public void executeAlgorithmWithUsageOfAnUndefinedIdentifierTest() {
+        String input = "expression main(){\n"
+                + "	expression a;\n"
+                + "	expression b=a;\n"
+                + "	expression c=5;\n"
+                + "	return c;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.EXPRESSION);
+            assertTrue(result.getName().equals("b"));
+//            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("13")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -642,8 +680,8 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
-            assertEquals(1, ((MalString) result.getRuntimeValue()).getStringValues().length);
-            assertEquals("Test!", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getMalStringSummands().length);
+            assertEquals("Test!", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -669,7 +707,7 @@ public class AlgorithmExecutionTests {
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("t"));
-            assertEquals("Aufruf!", ((MalString) result.getRuntimeValue()).getStringValues()[0]);
+            assertEquals("Aufruf!", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {

@@ -1,7 +1,6 @@
 package algorithmexecuter.booleanexpression;
 
-import abstractexpressions.interfaces.AbstractExpression;
-import java.util.Map;
+import algorithmexecuter.model.AlgorithmMemory;
 import java.util.Set;
 
 public class BooleanVariable extends BooleanExpression {
@@ -32,9 +31,9 @@ public class BooleanVariable extends BooleanExpression {
     }
 
     @Override
-    public boolean evaluate(Map<String, AbstractExpression> valuesMap) {
-        if (valuesMap.containsKey(this.name) && valuesMap.get(this.name) instanceof BooleanConstant) {
-            return ((BooleanConstant) valuesMap.get(this.name)).getValue();
+    public boolean evaluate(AlgorithmMemory scopeMemory) {
+        if (scopeMemory.containsKey(this.name) && scopeMemory.get(this.name).getRuntimeValue() instanceof BooleanConstant) {
+            return ((BooleanConstant) scopeMemory.get(this.name).getRuntimeValue()).getValue();
         }
         return false;
     }

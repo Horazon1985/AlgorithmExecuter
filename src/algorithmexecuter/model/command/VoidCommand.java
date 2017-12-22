@@ -119,7 +119,7 @@ public class VoidCommand extends AlgorithmCommand {
     
     private String stringArrayToOutputString(MalString malString) {
         String result = "";
-        for (Object obj : malString.getStringValues()) {
+        for (Object obj : malString.getMalStringSummands()) {
             result += obj;
         }
         return result;

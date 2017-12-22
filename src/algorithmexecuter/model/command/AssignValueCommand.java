@@ -20,6 +20,8 @@ import algorithmexecuter.enums.ReservedChars;
 import algorithmexecuter.model.AlgorithmMemory;
 import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.utilclasses.MalString;
+import algorithmexecuter.model.utilclasses.malstring.MalStringAbstractExpression;
+import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import algorithmexecuter.model.utilclasses.malstring.MalStringVariable;
 import exceptions.EvaluationException;
 import java.util.HashSet;
@@ -96,13 +98,15 @@ public class AssignValueCommand extends AlgorithmCommand {
             if (this.targetValue instanceof MalString) {
                 String values = "(";
                 MalString malString = (MalString) this.targetValue;
-                for (int i = 0; i < malString.getStringValues().length; i++) {
-                    if (malString.getStringValues()[i] instanceof String) {
-                        values += "\"" + malString.getStringValues()[i] + "\"";
+                for (int i = 0; i < malString.getMalStringSummands().length; i++) {
+                    if (malString.getMalStringSummands()[i] instanceof MalStringCharSequence) {
+                        values += "\"" + ((MalStringCharSequence) malString.getMalStringSummands()[i]).getStringValue() + "\"";
+                    } else if (malString.getMalStringSummands()[i] instanceof MalStringVariable) {
+                        values += ((MalStringVariable) malString.getMalStringSummands()[i]).getVariableName();
                     } else {
-                        values += malString.getStringValues()[i].toString();
+                        values += malString.getMalStringSummands()[i].toString();
                     }
-                    if (i < malString.getStringValues().length - 1) {
+                    if (i < malString.getMalStringSummands().length - 1) {
                         values += ", ";
                     }
                 }
@@ -132,14 +136,14 @@ public class AssignValueCommand extends AlgorithmCommand {
             if (this.targetValue instanceof MalString) {
                 MalString malString = (MalString) this.targetValue;
                 String resultValue = "";
-                for (Object obj : malString.getStringValues()) {
-                    if (obj instanceof String) {
-                        resultValue += obj;
+                for (Object obj : malString.getMalStringSummands()) {
+                    if (obj instanceof MalStringCharSequence) {
+                        resultValue += ((MalStringCharSequence) obj).getStringValue();
                     } else if (obj instanceof MalStringVariable) {
-                        String value = (String) ((MalString) scopeMemory.get(((MalStringVariable) obj).getVariableName()).getRuntimeValue()).getStringValues()[0];
+                        String value = ((MalStringCharSequence) ((MalString) scopeMemory.get(((MalStringVariable) obj).getVariableName()).getRuntimeValue()).getMalStringSummands()[0]).getStringValue();
                         resultValue += value;
-                    } else if (obj instanceof AbstractExpression) {
-                        resultValue += simplifyTargetExpression((AbstractExpression) obj, scopeMemory);
+                    } else if (obj instanceof MalStringAbstractExpression) {
+                        resultValue += simplifyTargetExpression(((MalStringAbstractExpression) obj).getAbstractExpression(), scopeMemory);
                     }
                 }
                 this.identifierSrc.setRuntimeValue(new MalString(resultValue));
@@ -159,7 +163,7 @@ public class AssignValueCommand extends AlgorithmCommand {
         scopeMemory.addToMemoryInRuntime(this.identifierSrc);
         return null;
     }
-    
+
     private void checkForUnknownIdentifier(AlgorithmMemory scopeMemory, Set<String> varsInTargetExpr) throws AlgorithmExecutionException {
         for (String var : varsInTargetExpr) {
             if (!scopeMemory.containsIdentifier(var)) {
@@ -198,7 +202,7 @@ public class AssignValueCommand extends AlgorithmCommand {
             }
             targetExprSimplified = matExprSimplified;
         } else {
-            targetExprSimplified = new BooleanConstant(((BooleanExpression) abstrExpr).evaluate(CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(scopeMemory)));
+            targetExprSimplified = new BooleanConstant(((BooleanExpression) abstrExpr).evaluate(scopeMemory));
         }
 
         if (targetExprSimplified instanceof Expression) {
@@ -221,13 +225,15 @@ public class AssignValueCommand extends AlgorithmCommand {
         if (this.targetValue != null) {
             if (this.targetValue instanceof MalString) {
                 MalString malString = (MalString) this.targetValue;
-                for (int i = 0; i < malString.getStringValues().length; i++) {
-                    if (malString.getStringValues()[i] instanceof String) {
-                        commandString += "\"" + malString.getStringValues()[i] + "\"";
+                for (int i = 0; i < malString.getMalStringSummands().length; i++) {
+                    if (malString.getMalStringSummands()[i] instanceof MalStringCharSequence) {
+                        commandString += "\"" + ((MalStringCharSequence) malString.getMalStringSummands()[i]).getStringValue() + "\"";
+                    } else if (malString.getMalStringSummands()[i] instanceof MalStringVariable) {
+                        commandString += ((MalStringVariable) malString.getMalStringSummands()[i]).getVariableName();
                     } else {
-                        commandString += malString.getStringValues()[i].toString();
+                        commandString += malString.getMalStringSummands()[i].toString();
                     }
-                    if (i < malString.getStringValues().length - 1) {
+                    if (i < malString.getMalStringSummands().length - 1) {
                         commandString += Operators.CONCAT.getValue();
                     }
                 }

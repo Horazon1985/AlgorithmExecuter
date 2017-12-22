@@ -1,6 +1,6 @@
 package algorithmexecuter.booleanexpression;
 
-import abstractexpressions.interfaces.AbstractExpression;
+import algorithmexecuter.model.AlgorithmMemory;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +30,7 @@ public class BooleanConstant extends BooleanExpression {
     }
 
     @Override
-    public boolean evaluate(Map<String, AbstractExpression> valuesMap) {
+    public boolean evaluate(AlgorithmMemory scopeMemory) {
         return value;
     }
 

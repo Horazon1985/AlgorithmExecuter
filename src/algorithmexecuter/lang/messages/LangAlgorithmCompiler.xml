@@ -215,6 +215,12 @@
         <Ukrainian>???</Ukrainian>
         <Russian>???</Russian>
     </object>
+    <object id = "AC_COMPARISON_OPERATOR_NOT_APPLICABLE_FOR_FOLLOWING_TYPES">
+        <German>Der Vergleichsoperator '[0]' ist auf die folgenden beiden Typen nicht anwendbar: [1] und [2].</German>
+        <English>The comparison operator '[0]' is not applicable to the following two types: [1] and [2].</English>
+        <Ukrainian>???</Ukrainian>
+        <Russian>???</Russian>
+    </object>
 
     <object id = "AC_UNKNOWN_ERROR">
         <German>Unbekannter Fehler.</German>

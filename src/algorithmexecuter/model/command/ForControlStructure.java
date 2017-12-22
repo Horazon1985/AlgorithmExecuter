@@ -1,6 +1,5 @@
 package algorithmexecuter.model.command;
 
-import abstractexpressions.interfaces.AbstractExpression;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.ExecutionUtils;
@@ -62,8 +61,7 @@ public class ForControlStructure extends ControlStructure {
 
         AlgorithmExecuter.executeBlock(currentMemory, this.initialization);
         AlgorithmExecuter.executeBlock(currentMemory, this.endLoopCommands);
-        Map<String, AbstractExpression> valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(currentMemory);
-        while (this.endLoopCondition.evaluate(valuesMap)) {
+        while (this.endLoopCondition.evaluate(currentMemory)) {
             try {
                 result = AlgorithmExecuter.executeBlock(currentMemory, this.commandBlocks[0]);
                 if (result != null) {
@@ -76,7 +74,6 @@ public class ForControlStructure extends ControlStructure {
             AlgorithmExecuter.executeBlock(currentMemory, this.loopAssignment);
             AlgorithmExecuter.executeBlock(currentMemory, this.endLoopCommands);
             // Identifierwerte aktualisieren.
-            valuesMap = CompilerUtils.extractAbstactExpressionValuesFromIdentifiers(currentMemory);
         }
 
         // Speicher vor der Ausführung des Blocks aktualisieren.

@@ -300,22 +300,22 @@ public abstract class AlgorithmCommandCompiler {
                             argument = Expression.build(params[i], VALIDATOR);
                             // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                             CompilerUtils.checkIfAllIdentifiersAreDefined(argument.getContainedVars(), scopeMemory);
-                            CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, argument.getContainedVars(), scopeMemory);
+                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, argument.getContainedVars(), scopeMemory);
                             break;
                         case BOOLEAN_EXPRESSION:
                             argument = BooleanExpression.build(params[i], VALIDATOR, CompilerUtils.extractTypesFromMemory(scopeMemory));
                             // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                             CompilerUtils.checkIfAllIdentifiersAreDefined(argument.getContainedVars(), scopeMemory);
-                            CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, ((BooleanExpression) argument).getContainedExpressionVars(), scopeMemory);
-                            CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, ((BooleanExpression) argument).getContainedBooleanVars(scopeMemory), scopeMemory);
-                            CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((BooleanExpression) argument).getContainedMatrixVars(), scopeMemory);
+                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, ((BooleanExpression) argument).getContainedExpressionVars(), scopeMemory);
+                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, ((BooleanExpression) argument).getContainedBooleanVars(scopeMemory), scopeMemory);
+                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((BooleanExpression) argument).getContainedMatrixVars(), scopeMemory);
                             break;
                         case MATRIX_EXPRESSION:
                             argument = MatrixExpression.build(params[i], VALIDATOR, VALIDATOR);
                             // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                             CompilerUtils.checkIfAllIdentifiersAreDefined(((MatrixExpression) argument).getContainedVars(), scopeMemory);
-                            CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.EXPRESSION, ((MatrixExpression) argument).getContainedExpressionVars(), scopeMemory);
-                            CompilerUtils.areIdentifiersOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((MatrixExpression) argument).getContainedMatrixVars(), scopeMemory);
+                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, ((MatrixExpression) argument).getContainedExpressionVars(), scopeMemory);
+                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((MatrixExpression) argument).getContainedMatrixVars(), scopeMemory);
                             break;
                         case STRING:
                             malString = CompilerUtils.getMalString(params[i], scopeMemory);
