@@ -212,14 +212,14 @@
     <object id = "AC_NOT_A_VALID_STRING">
         <German>Kein gültiger String: [0]</German>
         <English>Not a valid string: [0]</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Недозволена строка: [0]</Ukrainian>
+        <Russian>Неразрешенная строка: [0]</Russian>
     </object>
     <object id = "AC_COMPARISON_OPERATOR_NOT_APPLICABLE_FOR_FOLLOWING_TYPES">
         <German>Der Vergleichsoperator '[0]' ist auf die folgenden beiden Typen nicht anwendbar: [1] und [2].</German>
         <English>The comparison operator '[0]' is not applicable to the following two types: [1] and [2].</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Оператор порівняння '[0]' не можна застосувати до наступних типів: [1] і [2].</Ukrainian>
+        <Russian>Оператор сравнения '[0]' невозможно применить к следующим типам: [1] и [2].</Russian>
     </object>
 
     <object id = "AC_UNKNOWN_ERROR">

@@ -1,12 +1,14 @@
 package algorithmexecuter.output;
 
 import algorithmexecuter.enums.IdentifierType;
+import algorithmexecuter.exceptions.constants.AlgorithmPrinterExceptionIds;
 import algorithmexecuter.model.identifier.Identifier;
 import algorithmexecuter.model.Algorithm;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import algorithmexecuter.lang.translator.Translator;
 import algorithmexecuter.model.utilclasses.MalString;
+import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import javax.swing.JTextPane;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
@@ -14,14 +16,6 @@ import javax.swing.text.StyledDocument;
 public class AlgorithmOutputPrinter {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss.SSS");
-
-    private static final String AP_START_COMPILING_ALGORITHM = "AP_START_COMPILING_ALGORITHM";
-    private static final String AP_COMPILING_ALGORITHM_SUCCESSFUL = "AP_COMPILING_ALGORITHM_SUCCESSFUL";
-    private static final String AP_START_EXECUTING_ALGORITHM = "AP_START_EXECUTING_ALGORITHM";
-    private static final String AP_OUTPUT_OF_ALGORITHM = "AP_OUTPUT_OF_ALGORITHM";
-    private static final String AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL = "AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL";
-    private static final String AP_EXECUTION_OF_ALGORITHM_ABORTED = "AP_EXECUTION_OF_ALGORITHM_ABORTED";
-    private static final String AP_EXCEPTION_IN_ALGORITHM_OCCURRED = "AP_EXCEPTION_IN_ALGORITHM_OCCURRED";
 
     private JTextPane outputArea;
 
@@ -34,7 +28,7 @@ public class AlgorithmOutputPrinter {
         return instance;
 
     }
-    
+
     /**
      * Setzt als Instanz einen Mock mockPrinter. Zugleich wird das Ausgabefeld
      * durch eine neu instanziierte JTextPane gemockt.
@@ -72,7 +66,7 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AP_START_COMPILING_ALGORITHM));
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_START_COMPILING_ALGORITHM));
     }
 
     public void printEndParsingAlgorithms() {
@@ -81,7 +75,7 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AP_COMPILING_ALGORITHM_SUCCESSFUL));
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_COMPILING_ALGORITHM_SUCCESSFUL));
     }
 
     public void printStartExecutingAlgorithms() {
@@ -90,7 +84,7 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AP_START_EXECUTING_ALGORITHM));
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_START_EXECUTING_ALGORITHM));
     }
 
     public void printLine(String s) {
@@ -109,13 +103,10 @@ public class AlgorithmOutputPrinter {
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
         if (identifier.getType() == IdentifierType.STRING) {
-            String printedValue = "";
-            for (Object obj : ((MalString) identifier.getRuntimeValue()).getMalStringSummands()) {
-                printedValue += obj.toString();
-            }
-            println(doc, keyWord, Translator.translateOutputMessage(AP_OUTPUT_OF_ALGORITHM, alg.getName(), printedValue));
+            String printedValue = ((MalStringCharSequence) ((MalString) identifier.getRuntimeValue()).getMalStringSummands()[0]).getStringValue();
+            println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_OUTPUT_OF_ALGORITHM, alg.getName(), printedValue));
         } else {
-            println(doc, keyWord, Translator.translateOutputMessage(AP_OUTPUT_OF_ALGORITHM, alg.getName(), identifier.getRuntimeValue()));
+            println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_OUTPUT_OF_ALGORITHM, alg.getName(), identifier.getRuntimeValue()));
         }
     }
 
@@ -125,7 +116,7 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL));
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXECUTION_OF_ALGORITHM_SUCCESSFUL));
     }
 
     public void printAbortAlgorithm() {
@@ -134,7 +125,7 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AP_EXECUTION_OF_ALGORITHM_ABORTED));
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXECUTION_OF_ALGORITHM_ABORTED));
     }
 
     public void printException(Exception e) {
@@ -143,7 +134,16 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AP_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
+    }
+
+    public void printUnexpectedException(Exception e) {
+        if (this.outputArea == null) {
+            return;
+        }
+        StyledDocument doc = this.outputArea.getStyledDocument();
+        SimpleAttributeSet keyWord = new SimpleAttributeSet();
+        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_UNEXPECTED_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
     }
 
     private static String withDate(String s) {

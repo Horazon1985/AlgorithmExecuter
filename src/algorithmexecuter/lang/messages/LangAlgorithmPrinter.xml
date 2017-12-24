@@ -41,4 +41,10 @@
         <Ukrainian>Виникла наступна помилка: [0]</Ukrainian>
         <Russian>Возникла следующая ошибка: [0]</Russian>
     </object>
+    <object id = "AP_UNEXPECTED_EXCEPTION_IN_ALGORITHM_OCCURRED">
+        <German>Folgender unerwarteter Fehler trat auf: [0]</German>
+        <English>Following unexpected exception ocurred: [0]</English>
+        <Ukrainian>Виникла наступна несподівана помилка: [0]</Ukrainian>
+        <Russian>Возникла следующая неожиданная ошибка: [0]</Russian>
+    </object>
 </objects>
