@@ -698,13 +698,28 @@ public class AlgorithmCompileTests {
             fail(input + " konnte nicht geparst werden.");
         }
     }
-    
+
     @Test
     public void parseAlgorithmWithCompileErrorCodeTest() {
         String input = "main(){expression a=exp(1)}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz fehlerhaftem Code kompiliert.");
+        } catch (AlgorithmCompileException e) {
+        }
+    }
+
+    @Test
+    public void parseAlgorithmWithUninitializedIdentifierTest() {
+        String input = "expression main(){\n"
+                + "	expression a;\n"
+                + "	expression b=a;\n"
+                + "	expression c=5;\n"
+                + "	return c;\n"
+                + "}";
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz Benutzung eines nicht initialisierten Bezeichners kompiliert.");
         } catch (AlgorithmCompileException e) {
         }
     }

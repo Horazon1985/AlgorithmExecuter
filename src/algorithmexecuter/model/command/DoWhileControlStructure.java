@@ -1,7 +1,6 @@
 package algorithmexecuter.model.command;
 
 import algorithmexecuter.AlgorithmExecuter;
-import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.booleanexpression.BooleanExpression;
 import algorithmexecuter.enums.Keyword;
 import algorithmexecuter.enums.ReservedChars;
@@ -14,7 +13,6 @@ import exceptions.EvaluationException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class DoWhileControlStructure extends ControlStructure {
 

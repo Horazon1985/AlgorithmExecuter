@@ -13,6 +13,7 @@ import algorithmexecuter.model.Algorithm;
 import algorithmexecuter.model.AlgorithmMemory;
 import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.utilclasses.MalString;
+import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import algorithmexecuter.output.AlgorithmOutputPrinter;
 import exceptions.EvaluationException;
 import java.lang.reflect.InvocationTargetException;
@@ -106,9 +107,9 @@ public class VoidCommand extends AlgorithmCommand {
     @Execute(algorithmName = FixedAlgorithmNames.PRINT)
     private void executePrint(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
         if (this.identifiers[0].getType() != IdentifierType.STRING) {
-            AlgorithmOutputPrinter.printLine(this.identifiers[0].toString());
+            AlgorithmOutputPrinter.getInstance().printLine(this.identifiers[0].toString());
         } else {
-            AlgorithmOutputPrinter.printLine(stringArrayToOutputString((MalString) this.identifiers[0].getRuntimeValue()));
+            AlgorithmOutputPrinter.getInstance().printLine(((MalStringCharSequence) ((MalString) this.identifiers[0].getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         }
     }
 
@@ -117,14 +118,6 @@ public class VoidCommand extends AlgorithmCommand {
         // Nichts tun. Der Rückgabewert wird ohnehin nicht berücksichtigt.
     }
     
-    private String stringArrayToOutputString(MalString malString) {
-        String result = "";
-        for (Object obj : malString.getMalStringSummands()) {
-            result += obj;
-        }
-        return result;
-    }
-
     //////////////////////// Liste vordefinierter Void-Befehle ////////////////////////
     public static void inc(Identifier identifier) throws AlgorithmExecutionException {
         if (identifier.getRuntimeValue() != null) {

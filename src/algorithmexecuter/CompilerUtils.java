@@ -420,7 +420,7 @@ public final class CompilerUtils {
      */
     public static void checkForOnlySimpleReturns(List<AlgorithmCommand> commands) throws AlgorithmCompileException {
         for (int i = 0; i < commands.size(); i++) {
-            if (commands.get(i).isReturnCommand() && ((ReturnCommand) commands.get(i)).getIdentifier() != null) {
+            if (commands.get(i).isReturnCommand() && ((ReturnCommand) commands.get(i)).getIdentifier() != Identifier.NULL_IDENTIFIER) {
                 throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_VOID_ALGORITHM_MUST_CONTAIN_ONLY_SIMPLE_RETURNS);
             }
             if (commands.get(i).isControlStructure()) {
@@ -468,12 +468,13 @@ public final class CompilerUtils {
     public static void checkForCorrectReturnType(List<AlgorithmCommand> commands, IdentifierType returnType) throws AlgorithmCompileException {
         Identifier returnIdentifier;
         for (int i = 0; i < commands.size(); i++) {
-            if (commands.get(i).isReturnCommand() && ((ReturnCommand) commands.get(i)).getIdentifier() != null) {
+            if (commands.get(i).isReturnCommand()) {
                 returnIdentifier = ((ReturnCommand) commands.get(i)).getIdentifier();
-                if (returnIdentifier == null) {
+                if (returnType == null && returnIdentifier != Identifier.NULL_IDENTIFIER
+                        || returnType != null && returnIdentifier == Identifier.NULL_IDENTIFIER) {
                     throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
                 }
-                if (!returnType.isSameOrGeneralTypeOf(returnIdentifier.getType())) {
+                if (returnType != null && !returnType.isSameOrGeneralTypeOf(returnIdentifier.getType())) {
                     throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
                 }
             }
@@ -563,22 +564,15 @@ public final class CompilerUtils {
                         }
                     }
                 }
-            }
-            if (command.isReturnCommand()) {
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-            }
-            // Ermittlung aller Bezeichner, welche bereits deklariert und initialisiert wurden.
-            if (command.isDeclareIDentifierCommand()) {
+            } else if (command.isReturnCommand()) {
+                Identifier identifier = ((ReturnCommand) command).getIdentifier();
+                if (identifier != null) {
+                    String identifierName = identifier.getName();
+                    if (declaredIdentifiers.get(identifierName) != null && !declaredIdentifiers.get(identifierName)) {
+                        throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED, identifierName);
+                    }
+                }
+            } else if (command.isDeclareIDentifierCommand()) {
                 declaredIdentifiers.put(((DeclareIdentifierCommand) command).getIdentifierSrc().getName(), false);
             } else if (command.isAssignValueCommand()
                     && declaredIdentifiers.keySet().contains(((AssignValueCommand) command).getIdentifierSrc().getName())) {

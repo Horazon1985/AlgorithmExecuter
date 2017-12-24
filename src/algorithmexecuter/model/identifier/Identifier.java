@@ -6,9 +6,22 @@ import java.util.Objects;
 
 public class Identifier {
 
+    /**
+     * Dummy-Bezeichner für den Fall, dass man einen Bezeichner zurückgeben
+     * muss, welcher keine Rolle spielt (dies dient bei der Ausfürhung eines
+     * Algorithmus der formalen Unterscheidung, ob man null oder einen formalen
+     * Bezeichner, welcher keine Rolle spielt, zurückgibt).
+     */
+    public static final Identifier NULL_IDENTIFIER = new Identifier();
+
     private final IdentifierType type;
     private final String name;
     private Object runtimeValue;
+
+    private Identifier() {
+        this.type = null;
+        this.name = null;
+    }
 
     private Identifier(IdentifierType type, String name) {
         this.type = type;
@@ -67,7 +80,7 @@ public class Identifier {
         }
         return true;
     }
-    
+
     @Override
     public String toString() {
         return "Identifier[type = " + this.type + ", name = " + this.name
@@ -84,5 +97,5 @@ public class Identifier {
         }
         return new Identifier(type, identifierName);
     }
-    
+
 }

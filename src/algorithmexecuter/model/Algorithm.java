@@ -139,24 +139,24 @@ public class Algorithm {
         // Leeren Algorithmus nur im void-Fall akzeptieren.
         if (this.commands.isEmpty()) {
             if (this.returnType == null) {
-                return null;
+                return Identifier.NULL_IDENTIFIER;
             } else if (!isStandardAlgorithm()) {
                 throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_RETURN_TYPE_EXPECTED);
             }
         }
 
         // Prüfung, ob alle Parameter Werte besitzen. Sollte eigentlich stets der Fall sein.
-        checkForIdentifierWithoutValues();
+        checkForInputIdentifierWithoutValues();
         
         // Prüfung, ob es sich um einen Standardalgorithmus handelt.
         if (isStandardAlgorithm()) {
-            return executeFixedAlgorithm(getInitialAlgorithmMemory());
+            return executeStandardAlgorithm(getInitialAlgorithmMemory());
         }
 
         return AlgorithmExecuter.executeConnectedBlock(getInitialAlgorithmMemory(), this.commands);
     }
 
-    private void checkForIdentifierWithoutValues() throws AlgorithmExecutionException {
+    private void checkForInputIdentifierWithoutValues() throws AlgorithmExecutionException {
         for (int i = 0; i < this.inputParameters.length; i++) {
             if (this.inputParameters[i].getRuntimeValue() == null) {
                 throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_ALGORITHM_NOT_ALL_INPUT_PARAMETERS_SET, i, this.getName());
@@ -173,7 +173,7 @@ public class Algorithm {
         return false;
     }
     
-    private Identifier executeFixedAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+    private Identifier executeStandardAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
         Method[] methods = Algorithm.class.getDeclaredMethods();
         Execute annotation;
         for (Method method : methods) {

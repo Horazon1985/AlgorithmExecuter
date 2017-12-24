@@ -24,6 +24,9 @@ public class ReturnCommand extends AlgorithmCommand {
     
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) {
+        if (this.identifier == Identifier.NULL_IDENTIFIER) {
+            return Identifier.NULL_IDENTIFIER;
+        }
         return scopeMemory.get(this.identifier.getName());
     }
     

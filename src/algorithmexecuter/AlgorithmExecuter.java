@@ -25,7 +25,7 @@ public abstract class AlgorithmExecuter {
         try {
             mainAlg = CompilerUtils.getMainAlgorithm(new AlgorithmStorage(algorithms));
             Identifier result = mainAlg.execute();
-            AlgorithmOutputPrinter.printOutput(mainAlg, result);
+            AlgorithmOutputPrinter.getInstance().printOutput(mainAlg, result);
             return result;
         } catch (AlgorithmCompileException e) {
             throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_MAIN_NOT_FOUND);
@@ -38,9 +38,6 @@ public abstract class AlgorithmExecuter {
      * der Blockausführung werden die in diesem Block deklarierten Bezeichner
      * wieder verworfen.
      *
-     * @param memoryBeforeBlockExecution
-     * @param commands
-     * @return
      * @throws AlgorithmExecutionException
      * @throws EvaluationException
      */
@@ -66,7 +63,7 @@ public abstract class AlgorithmExecuter {
         }
         // Speicher vor der Ausführung des Blocks aktualisieren.
         ExecutionUtils.updateMemoryBeforeBlockExecution(memoryBeforeBlockExecution, scopeMemory);
-        return resultIdentifier;
+        return null;
     }
 
     /**
@@ -75,9 +72,6 @@ public abstract class AlgorithmExecuter {
      * der Blockausführung werden die in diesem Block deklarierten Bezeichner
      * jedoch nicht wieder verworfen.
      *
-     * @param scopeMemory
-     * @param commands
-     * @return
      * @throws AlgorithmExecutionException
      * @throws EvaluationException
      */
@@ -95,7 +89,7 @@ public abstract class AlgorithmExecuter {
                 return resultIdentifier;
             }
         }
-        return resultIdentifier;
+        return null;
     }
 
 }

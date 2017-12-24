@@ -1,6 +1,6 @@
 <objects>
     <object id = "AP_START_COMPILING_ALGORITHM">
-        <German>Kompiliere Algoirithmus ...</German>
+        <German>Kompiliere Algorithmus ...</German>
         <English>Start compiling algorithm ...</English>
         <Ukrainian>Алгоритм компілюєтся ...</Ukrainian>
         <Russian>Алгоритм компилируется ...</Russian>

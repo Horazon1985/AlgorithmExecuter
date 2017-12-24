@@ -890,9 +890,9 @@ public abstract class AlgorithmCommandCompiler {
     }
 
     private static List<AlgorithmCommand> parseReturnCommand(String line, AlgorithmMemory scopeMemory, Algorithm alg) throws AlgorithmCompileException, NotDesiredCommandException {
-        if (line.startsWith(Keyword.RETURN.getValue() + " ")) {
-            if (line.equals(Keyword.RETURN.getValue() + ReservedChars.LINE_SEPARATOR)) {
-                return Collections.singletonList((AlgorithmCommand) new ReturnCommand(null));
+        if (line.startsWith(Keyword.RETURN.getValue())) {
+            if (line.equals(Keyword.RETURN.getValue())) {
+                return Collections.singletonList((AlgorithmCommand) new ReturnCommand(Identifier.NULL_IDENTIFIER));
             }
             String returnValueCandidate = line.substring((Keyword.RETURN.getValue() + " ").length());
 

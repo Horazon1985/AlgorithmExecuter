@@ -20,17 +20,18 @@ import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class AlgorithmExecutionTests {
 
     @BeforeClass
     public static void init() {
-        AlgorithmOutputPrinter.setOutputArea(new JTextPane());
+        AlgorithmOutputPrinter.getInstance().setOutputArea(new JTextPane());
     }
 
     @Before
     public void teardown() {
-        AlgorithmOutputPrinter.clearOutput();
+        AlgorithmOutputPrinter.getInstance().clearOutput();
     }
 
     @Test
@@ -45,7 +46,7 @@ public class AlgorithmExecutionTests {
             mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
             assertTrue(mainAlg.getCommands().isEmpty());
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
-            assertTrue(result == null);
+            assertTrue(result == Identifier.NULL_IDENTIFIER);
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -286,29 +287,6 @@ public class AlgorithmExecutionTests {
             assertTrue(result.getType() == IdentifierType.BOOLEAN_EXPRESSION);
             assertTrue(result.getName().equals("#1"));
             assertTrue(((BooleanConstant) result.getRuntimeValue()).getValue());
-        } catch (AlgorithmCompileException e) {
-            fail(input + " konnte nicht geparst werden.");
-        } catch (Exception e) {
-            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
-        }
-    }
-
-    @Test
-    public void executeAlgorithmWithUsageOfAnUndefinedIdentifierTest() {
-        String input = "expression main(){\n"
-                + "	expression a;\n"
-                + "	expression b=a;\n"
-                + "	expression c=5;\n"
-                + "	return c;\n"
-                + "}";
-        Algorithm mainAlg = null;
-        try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
-            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
-            assertTrue(result.getType() == IdentifierType.EXPRESSION);
-            assertTrue(result.getName().equals("b"));
-//            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("13")));
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -715,4 +693,36 @@ public class AlgorithmExecutionTests {
         }
     }
 
+    @Test
+    public void executeVoidAlgorithmWithEarlyReturnTest() {
+        String input = "main(){\n"
+                + "	expression a=1;\n"
+                + "     print(\"Das soll ausgegeben werden!\");\n"
+                + "	if(a>0){\n"
+                + "         return;\n"
+                + "     }\n"
+                + "     print(\"Das soll nicht ausgegeben werden!\");\n"
+                + "}";
+        Algorithm mainAlg = null;
+
+        // AlgorithmOutputPrinter wird gemockt, damit man die Aufrufe der Methode printLine() nachverfolgen kann. 
+        AlgorithmOutputPrinter printerMock = Mockito.mock(AlgorithmOutputPrinter.class);
+        AlgorithmOutputPrinter.setMockInstance(printerMock);
+        
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result == Identifier.NULL_IDENTIFIER);
+            
+            Mockito.verify(printerMock, Mockito.times(1)).printLine("Das soll ausgegeben werden!");
+            Mockito.verify(printerMock, Mockito.never()).printLine("Das soll nicht ausgegeben werden!");
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+    
+    
 }
