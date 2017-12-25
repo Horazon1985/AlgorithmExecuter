@@ -15,7 +15,8 @@ public abstract class AlgorithmCompileExceptionIds {
     public static final String AC_BRACKET_EXPECTED = "AC_BRACKET_EXPECTED";    
     public static final String AC_EXPECTED = "AC_EXPECTED";
     public static final String AC_CANNOT_FIND_SYMBOL = "AC_CANNOT_FIND_SYMBOL";  
-    public static final String AC_CANNOT_PARSE_GENERAL_PARAMETER_IN_COMMAND = "AC_CANNOT_PARSE_GENERAL_PARAMETER_IN_COMMAND";
+    public static final String AC_SOME_PARAMETER_COULD_NOT_BE_PARSED_IN_COMMAND = "AC_SOME_PARAMETER_COULD_NOT_BE_PARSED_IN_COMMAND";
+    public static final String AC_WRONG_NUMBER_OF_PARAMETERS_IN_COMMAND = "AC_WRONG_NUMBER_OF_PARAMETERS_IN_COMMAND";
     public static final String AC_NO_SUCH_COMMAND = "AC_NO_SUCH_COMMAND";
     public static final String AC_ILLEGAL_CHARACTER = "AC_ILLEGAL_CHARACTER";    
     public static final String AC_COMMAND_COUND_NOT_BE_PARSED = "AC_COMMAND_COUND_NOT_BE_PARSED";    
@@ -39,7 +40,5 @@ public abstract class AlgorithmCompileExceptionIds {
     public static final String AC_BOOLEAN_EXPRESSION_CANNOT_BE_INTERPRETED = "AC_BOOLEAN_EXPRESSION_CANNOT_BE_INTERPRETED";
     public static final String AC_NOT_A_VALID_STRING = "AC_NOT_A_VALID_STRING";
     public static final String AC_COMPARISON_OPERATOR_NOT_APPLICABLE_FOR_FOLLOWING_TYPES = "AC_COMPARISON_OPERATOR_NOT_APPLICABLE_FOR_FOLLOWING_TYPES";
-    
-    public static final String AC_UNKNOWN_ERROR = "AC_UNKNOWN_ERROR";    
     
 }

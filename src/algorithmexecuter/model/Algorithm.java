@@ -197,20 +197,22 @@ public class Algorithm {
         Expression i = (Expression) this.inputParameters[1].getRuntimeValue();
         Expression j = (Expression) this.inputParameters[2].getRuntimeValue();
         if (!matExpr.isMatrix()) {
-            throw new AlgorithmExecutionException("");
+            throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_MATRIXEXPRESSION_COULD_NOT_BE_SIMPLIFIED_TO_A_MATRIX, matExpr);
         }
         Matrix m = (Matrix) matExpr;
         if (!i.isIntegerConstant()) {
-            throw new AlgorithmExecutionException("");
+            throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_INDEX_IS_NOT_AN_INTEGER, i);
         }
-        if (((Constant) i).getBigIntValue().compareTo(BigInteger.ZERO) < 0 || ((Constant) i).getBigIntValue().compareTo(BigInteger.valueOf(m.getColumnNumber() - 1)) > 0) {
-            throw new AlgorithmExecutionException("");
+        BigInteger indexI = ((Constant) i).getBigIntValue();
+        if (indexI.compareTo(BigInteger.ZERO) < 0 || indexI.compareTo(BigInteger.valueOf(m.getColumnNumber() - 1)) > 0) {
+            throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_INDEX_OUT_OF_BOUNDS, indexI);
         }
         if (!j.isIntegerConstant()) {
-            throw new AlgorithmExecutionException("");
+            throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_INDEX_IS_NOT_AN_INTEGER, j);
         }
-        if (((Constant) j).getBigIntValue().compareTo(BigInteger.ZERO) < 0 || ((Constant) j).getBigIntValue().compareTo(BigInteger.valueOf(m.getRowNumber() - 1)) > 0) {
-            throw new AlgorithmExecutionException("");
+        BigInteger indexJ = ((Constant) j).getBigIntValue();
+        if (indexJ.compareTo(BigInteger.ZERO) < 0 || indexJ.compareTo(BigInteger.valueOf(m.getRowNumber() - 1)) > 0) {
+            throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_INDEX_OUT_OF_BOUNDS, indexJ);
         }
         Identifier result = Identifier.createIdentifier(CompilerUtils.generateTechnicalIdentifierName(scopeMemory), IdentifierType.EXPRESSION);
         result.setRuntimeValue(m.getEntry(((Constant) i).getBigIntValue().intValue(), ((Constant) j).getBigIntValue().intValue()));

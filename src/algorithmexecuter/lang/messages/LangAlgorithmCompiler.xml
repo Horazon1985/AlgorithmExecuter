@@ -77,11 +77,17 @@
         <Ukrainian>Не можливо знайти символ: '[0]'.</Ukrainian>
         <Russian>Не возможно найти символ: '[0]'.</Russian>
     </object>
-     <object id = "AC_CANNOT_PARSE_GENERAL_PARAMETER_IN_COMMAND">
-        <German>Der [0]. Parameter im Befehl '[1]' konnte nicht geparst werden.</German>
-        <English>The [0]. parameter in command '[1]' could not be parsed.</English>
-        <Ukrainian>Неможливо проаналізувати [0]. параметр у команді '[1]'.</Ukrainian>
-        <Russian>Невозможно проанализировать [0]. параметр в команде '[1]'.</Russian>
+    <object id = "AC_SOME_PARAMETER_COULD_NOT_BE_PARSED_IN_COMMAND">
+        <German>Mindestens ein Parameter im Befehl '[0]' konnte nicht geparst werden.</German>
+        <English>At least one parameter in command '[0]' could not be parsed.</English>
+        <Ukrainian>Неможливо проаналізувати щонайменше один параметр у команді '[0]'.</Ukrainian>
+        <Russian>Невозможно проанализировать как минимум один параметр в команде '[0]'.</Russian>
+    </object>
+    <object id = "AC_WRONG_NUMBER_OF_PARAMETERS_IN_COMMAND">
+        <German>Falsche Anzahl von Parametern im Befehl '[0]'.</German>
+        <English>Wrong number of parameters in command '[0]'.</English>
+        <Ukrainian>Невірна кількість параметрів у команді '[0]'.</Ukrainian>
+        <Russian>Неправильное количество параметров в команде '[0]'.</Russian>
     </object>
     <object id = "AC_NO_SUCH_COMMAND">
         <German>Ein Befehl mit der Signatur '[0]' wurde nicht gefunden.</German>
@@ -222,10 +228,4 @@
         <Russian>Оператор сравнения '[0]' невозможно применить к следующим типам: [1] и [2].</Russian>
     </object>
 
-    <object id = "AC_UNKNOWN_ERROR">
-        <German>Unbekannter Fehler.</German>
-        <English>Unknown error.</English>
-        <Ukrainian>Невідома помилка.</Ukrainian>
-        <Russian>Неизвестная ошибка.</Russian>
-    </object>
 </objects>

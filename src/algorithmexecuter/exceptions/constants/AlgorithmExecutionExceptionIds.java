@@ -8,5 +8,8 @@ public abstract class AlgorithmExecutionExceptionIds {
     public static final String AE_UNKNOWN_IDENTIFIER = "AE_UNKNOWN_IDENTIFIER";
     public static final String AE_RETURN_TYPE_EXPECTED = "AE_RETURN_TYPE_EXPECTED";
     public static final String AE_NULL_POINTER = "AE_NULL_POINTER";
+    public static final String AE_MATRIXEXPRESSION_COULD_NOT_BE_SIMPLIFIED_TO_A_MATRIX = "AE_MATRIXEXPRESSION_COULD_NOT_BE_SIMPLIFIED_TO_A_MATRIX";
+    public static final String AE_INDEX_IS_NOT_AN_INTEGER = "AE_INDEX_IS_NOT_AN_INTEGER";
+    public static final String AE_INDEX_OUT_OF_BOUNDS = "AE_INDEX_OUT_OF_BOUNDS";
     
 }

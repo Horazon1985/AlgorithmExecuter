@@ -414,30 +414,26 @@ public abstract class AlgorithmCommandCompiler {
 
         // Struktur des Aufrufs ermitteln.
         String algName = null;
+        int numberOfParameters;
         try {
             CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(lineReplaced);
             algName = algParseData.getName();
+            numberOfParameters = algParseData.getParameters().length;
         } catch (AlgorithmCompileException e) {
             throw new NotDesiredCommandException();
         }
 
-        // 1. Auf vom Benutzer definierte Algorithmen prüfen.
+        // Auf 1. vom Benutzer definierte Algorithmen und 2. auf Standardalgorithmen prüfen.
+        boolean algorithmWithRequiredNameFound = false;
+        boolean algorithmWithRequiredNameAndCorrectNumberOfParametersFound = false;
         for (Signature sgn : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
             if (sgn.getName().equals(algName)) {
-                try {
-                    Identifier[] parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
-                    commands.add(new VoidCommand(algName, parameters));
-                    return commands;
-                } catch (ParseAssignValueException e) {
-                    throw new ParseVoidException(e);
-                }
+                algorithmWithRequiredNameFound = true;
+            } else {
+                continue;
             }
-        }
-
-        // 2. Auf Standardbefehle überprüfen.
-        for (Algorithm alg : AlgorithmCompiler.FIXED_ALGORITHMS) {
-            Signature sgn = alg.getSignature();
-            if (sgn.getName().equals(algName)) {
+            if (sgn.getParameterTypes().length == numberOfParameters) {
+                algorithmWithRequiredNameAndCorrectNumberOfParametersFound = true;
                 try {
                     Identifier[] parameters = getParameterFromAlgorithmCall(line, sgn, commands, scopeMemory);
                     commands.add(new VoidCommand(algName, parameters));
@@ -447,6 +443,16 @@ public abstract class AlgorithmCommandCompiler {
             }
         }
 
+        if (algorithmWithRequiredNameAndCorrectNumberOfParametersFound) {
+            // Es gab einen Algorithmus mit dem richtigen Namen und der korrekten Anzahl von Parametern.
+            // Es lag also ein Kompilierfehler bein den Parametern vor.
+            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_SOME_PARAMETER_COULD_NOT_BE_PARSED_IN_COMMAND, algName);
+        }
+        if (algorithmWithRequiredNameFound) {
+            // Es gab zwar einen Algorithmus mit dem richtigen Namen, nur entweder waren die Parameter falsch oder die Signatur war unpassend.
+            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_NUMBER_OF_PARAMETERS_IN_COMMAND, algName);
+        }
+        // Ein Algorithmus mit entsprechendem Namen wurde nicht gefunden.
         throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_NO_SUCH_COMMAND, algName);
     }
 
@@ -905,7 +911,7 @@ public abstract class AlgorithmCommandCompiler {
                 if (scopeMemory.get(returnValueReplaced) != null) {
                     return Collections.singletonList((AlgorithmCommand) new ReturnCommand(scopeMemory.get(returnValueCandidate)));
                 }
-                if (VALIDATOR.isValidKnownIdentifier(returnValueReplaced,CompilerUtils.extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory))) {
+                if (VALIDATOR.isValidKnownIdentifier(returnValueReplaced, CompilerUtils.extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory))) {
                     throw new ParseReturnException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, returnValueCandidate);
                 }
                 String genVarForReturn = CompilerUtils.generateTechnicalIdentifierName(scopeMemory);

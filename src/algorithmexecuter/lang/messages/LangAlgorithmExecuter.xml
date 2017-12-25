@@ -35,5 +35,27 @@
         <Ukrainian>Ідентифікатор '[0]' має значення null.</Ukrainian>
         <Russian>Идентификатор '[0]' имеет значение null.</Russian>
     </object>
+    <object id = "AE_MATRIXEXPRESSION_COULD_NOT_BE_SIMPLIFIED_TO_A_MATRIX">
+        <German>Der Matrizenausdruck [0] konnte nicht explizit zu einer Matrix vereinfacht werden.</German>
+        <English>The matrix expression [0] could not be explicitely simplified to a matrix.</English>
+        <Ukrainian>Матричний вираз [0] не вдалося явно спростити до матриці.</Ukrainian>
+        <Russian>Матричное выражение [0] не удалось явно упростить к матрице.</Russian>
+    </object>
+    <object id = "AE_INDEX_IS_NOT_AN_INTEGER">
+        <German>Der Index [0] ist keine ganze Zahl.</German>
+        <English>The index [0] is not an integer.</English>
+        <Ukrainian>Індекс [0] не є цілим числом.</Ukrainian>
+        <Russian>Индекс [0] не является целым числом.</Russian>
+    </object>
+        <object id = "AE_INDEX_OUT_OF_BOUNDS">
+        <German>Ungültiger Index: [0].</German>
+        <English>Invalid index: [0].</English>
+        <Ukrainian>Недійсний індекс: [0].</Ukrainian>
+        <Russian>Недействительный индекс: [0].</Russian>
+    </object>
+    
+    
+    
+    
     
 </objects>
