@@ -6,11 +6,13 @@ import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.booleanexpression.BooleanConstant;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.exceptions.AlgorithmCompileException;
+import algorithmexecuter.exceptions.AlgorithmExecutionException;
 import algorithmexecuter.model.identifier.Identifier;
 import algorithmexecuter.model.Algorithm;
 import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import algorithmexecuter.output.AlgorithmOutputPrinter;
+import exceptions.EvaluationException;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JTextPane;
@@ -724,5 +726,25 @@ public class AlgorithmExecutionTests {
         }
     }
     
+    @Test
+    public void executeAlgorithmWithNotDefinedMatrixTest() {
+        String input = "matrixexpression main(){\n"
+                + "	matrixexpression a=[3,0;-2,1];\n"
+                + "	for(expression i=0,i<4,i=i+1){\n"
+                + "		a=3*a+2;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        } catch (AlgorithmCompileException | AlgorithmExecutionException e) {
+            fail(input + " konnte trotz nicht wohldefinierter Matriux ausgeführt werden.");
+        } catch (EvaluationException e) {
+        }
+    }
     
 }

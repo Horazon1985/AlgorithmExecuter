@@ -460,8 +460,17 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmCallingAnotherAlgorithmTest() {
-        String input = "expression main(){expression a = 15; expression b = 25; expression ggt = computeggt(a, b); return ggt;} "
-                + "expression computeggt(expression a, expression b){expression result = gcd(a, b); return result;}";
+        String input = "expression main(){\n"
+                + "	expression a=15;\n"
+                + "	expression b=25;\n"
+                + "	expression ggt=computeggt(a,b);\n"
+                + "	return ggt;\n"
+                + "}\n"
+                + "\n"
+                + "expression computeggt(expression a,expression b){\n"
+                + "	expression result=gcd(a,b);\n"
+                + "	return result;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -700,6 +709,30 @@ public class AlgorithmCompileTests {
     }
 
     @Test
+    public void parseAlgorithmWithEntryTest() {
+        String input = "matrixexpression main(){\n"
+                + "	matrixexpression a=[3,0;-2,1];\n"
+                + "	return [entry(a,1,1);1];\n"
+                + "}";
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            assertEquals(mainAlg.getReturnType(), IdentifierType.MATRIX_EXPRESSION);
+            assertEquals(mainAlg.getName(), "main");
+            assertEquals(mainAlg.getInputParameters().length, 0);
+            assertEquals(mainAlg.getCommands().size(), 6);
+            assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(2).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(3).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(4).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(5).isReturnCommand());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        }
+    }
+
+    @Test
     public void parseAlgorithmWithCompileErrorCodeTest() {
         String input = "main(){expression a=exp(1)}";
         try {
@@ -785,22 +818,6 @@ public class AlgorithmCompileTests {
             fail("Der Algorithmus " + input + " wurde trotz doppelt fehlerhafter For-Struktur kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ")"));
-        }
-    }
-
-    @Test
-    public void parseAlgorithmWithWrongAssignmentTest() {
-        String input = "matrixexpression main(){\n"
-                + "	matrixexpression a=[3,0;-2,1];\n"
-                + "	for(expression i=0,i<4,i=i+1){\n"
-                + "		a=3*a+2;\n"
-                + "	}\n"
-                + "	return a;\n"
-                + "}";
-        try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            fail("Der Algorithmus " + input + " wurde trotz fehlerhafter Zuweisung kompiliert.");
-        } catch (AlgorithmCompileException e) {
         }
     }
 

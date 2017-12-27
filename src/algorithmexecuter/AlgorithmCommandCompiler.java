@@ -30,7 +30,6 @@ import algorithmexecuter.exceptions.ParseAssignValueException;
 import algorithmexecuter.exceptions.ParseControlStructureException;
 import algorithmexecuter.exceptions.ParseKeywordException;
 import algorithmexecuter.exceptions.ParseReturnException;
-import algorithmexecuter.exceptions.ParseVoidException;
 import algorithmexecuter.model.identifier.Identifier;
 import algorithmexecuter.model.AlgorithmMemory;
 import algorithmexecuter.model.Algorithm;
@@ -182,6 +181,12 @@ public abstract class AlgorithmCommandCompiler {
         // Rechte Seite behandeln.
         Identifier identifier = Identifier.createIdentifier(scopeMemory, identifierName, type);
         if (type != null) {
+
+            // Klammern links und rechts um den Rückgabewert entfernen.
+            while (rightSide.startsWith(ReservedChars.OPEN_BRACKET.getStringValue()) && rightSide.endsWith(ReservedChars.CLOSE_BRACKET.getStringValue())) {
+                rightSide = rightSide.substring(1, rightSide.length() - 1);
+            }
+
             AlgorithmCommandReplacementData algorithmCommandReplacementList = decomposeAssignmentInvolvingAlgorithmCalls(rightSide, scopeMemory);
             List<AlgorithmCommand> commands = algorithmCommandReplacementList.getCommands();
             String rightSideReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
@@ -297,25 +302,19 @@ public abstract class AlgorithmCommandCompiler {
                 try {
                     switch (calledAlgSignature.getParameterTypes()[i]) {
                         case EXPRESSION:
-                            argument = Expression.build(params[i], VALIDATOR);
+                            argument = CompilerUtils.buildExpressionWithScopeMemory(params[i], VALIDATOR, scopeMemory);
                             // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                             CompilerUtils.checkIfAllIdentifiersAreDefined(argument.getContainedVars(), scopeMemory);
-                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, argument.getContainedVars(), scopeMemory);
                             break;
                         case BOOLEAN_EXPRESSION:
-                            argument = BooleanExpression.build(params[i], VALIDATOR, CompilerUtils.extractTypesFromMemory(scopeMemory));
+                            argument = CompilerUtils.buildBooleanExpressionWithScopeMemory(params[i], VALIDATOR, scopeMemory);
                             // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                             CompilerUtils.checkIfAllIdentifiersAreDefined(argument.getContainedVars(), scopeMemory);
-                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, ((BooleanExpression) argument).getContainedExpressionVars(), scopeMemory);
-                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.BOOLEAN_EXPRESSION, ((BooleanExpression) argument).getContainedBooleanVars(scopeMemory), scopeMemory);
-                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((BooleanExpression) argument).getContainedMatrixVars(), scopeMemory);
                             break;
                         case MATRIX_EXPRESSION:
-                            argument = MatrixExpression.build(params[i], VALIDATOR, VALIDATOR);
+                            argument = CompilerUtils.buildMatrixExpressionWithScopeMemory(params[i], VALIDATOR, scopeMemory);
                             // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                             CompilerUtils.checkIfAllIdentifiersAreDefined(((MatrixExpression) argument).getContainedVars(), scopeMemory);
-                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.EXPRESSION, ((MatrixExpression) argument).getContainedExpressionVars(), scopeMemory);
-                            CompilerUtils.checkIfIdentifiersAreOfCorrectType(IdentifierType.MATRIX_EXPRESSION, ((MatrixExpression) argument).getContainedMatrixVars(), scopeMemory);
                             break;
                         case STRING:
                             malString = CompilerUtils.getMalString(params[i], scopeMemory);
@@ -556,8 +555,7 @@ public abstract class AlgorithmCommandCompiler {
         List<AlgorithmCommand> commands = algorithmCommandReplacementList.getCommands();
         String booleanConditionReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
 
-        Map<String, IdentifierType> typesMap = CompilerUtils.extractTypesFromMemory(memory);
-        condition = BooleanExpression.build(booleanConditionReplaced, VALIDATOR, typesMap);
+        condition = CompilerUtils.buildBooleanExpressionWithScopeMemory(booleanConditionReplaced, VALIDATOR, memory);
         CompilerUtils.checkIfAllIdentifiersAreDefined(condition.getContainedVars(), memory);
 
         // Prüfung, ob line mit "if(boolsche Bedingung){ ..." beginnt.
@@ -673,8 +671,7 @@ public abstract class AlgorithmCommandCompiler {
         List<AlgorithmCommand> commands = algorithmCommandReplacementList.getCommands();
         String booleanConditionReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
 
-        Map<String, IdentifierType> typesMap = CompilerUtils.extractTypesFromMemory(memory);
-        condition = BooleanExpression.build(booleanConditionReplaced, VALIDATOR, typesMap);
+        condition = CompilerUtils.buildBooleanExpressionWithScopeMemory(booleanConditionReplaced, VALIDATOR, memory);
         CompilerUtils.checkIfAllIdentifiersAreDefined(condition.getContainedVars(), memory);
 
         // Prüfung, ob line mit "while(boolsche Bedingung){ ..." beginnt.
@@ -766,8 +763,7 @@ public abstract class AlgorithmCommandCompiler {
         List<AlgorithmCommand> commands = algorithmCommandReplacementList.getCommands();
         String booleanConditionReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
 
-        Map<String, IdentifierType> typesMap = CompilerUtils.extractTypesFromMemory(memory);
-        condition = BooleanExpression.build(booleanConditionReplaced, VALIDATOR, typesMap);
+        condition = CompilerUtils.buildBooleanExpressionWithScopeMemory(booleanConditionReplaced, VALIDATOR, memory);
         CompilerUtils.checkIfAllIdentifiersAreDefined(condition.getContainedVars(), memory);
 
         DoWhileControlStructure doWhileControlStructure = new DoWhileControlStructure(commandsDoPart, condition);
@@ -823,8 +819,7 @@ public abstract class AlgorithmCommandCompiler {
         List<AlgorithmCommand> commandsEndLoopCondition = algorithmCommandReplacementList.getCommands();
         String booleanConditionReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
 
-        Map<String, IdentifierType> typesMap = CompilerUtils.extractTypesFromMemory(currentMemory);
-        endLoopCondition = BooleanExpression.build(booleanConditionReplaced, VALIDATOR, typesMap);
+        endLoopCondition = CompilerUtils.buildBooleanExpressionWithScopeMemory(booleanConditionReplaced, VALIDATOR, currentMemory);
         CompilerUtils.checkIfAllIdentifiersAreDefined(endLoopCondition.getContainedVars(), currentMemory);
 
         AlgorithmMemory memoryBeforeLoop = currentMemory.copyMemory();
@@ -902,6 +897,11 @@ public abstract class AlgorithmCommandCompiler {
             }
             String returnValueCandidate = line.substring((Keyword.RETURN.getValue() + " ").length());
 
+            // Klammern links und rechts um den Rückgabewert entfernen.
+            while (returnValueCandidate.startsWith(ReservedChars.OPEN_BRACKET.getStringValue()) && returnValueCandidate.endsWith(ReservedChars.CLOSE_BRACKET.getStringValue())) {
+                returnValueCandidate = returnValueCandidate.substring(1, returnValueCandidate.length() - 1);
+            }
+
             if (scopeMemory.get(returnValueCandidate) == null) {
 
                 AlgorithmCommandReplacementData algorithmCommandReplacementList = decomposeAssignmentInvolvingAlgorithmCalls(returnValueCandidate, scopeMemory);
@@ -911,7 +911,7 @@ public abstract class AlgorithmCommandCompiler {
                 if (scopeMemory.get(returnValueReplaced) != null) {
                     return Collections.singletonList((AlgorithmCommand) new ReturnCommand(scopeMemory.get(returnValueCandidate)));
                 }
-                if (VALIDATOR.isValidKnownIdentifier(returnValueReplaced, CompilerUtils.extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory))) {
+                if (VALIDATOR.isValidKnownIdentifier(returnValueReplaced, alg.getReturnType().getClassOf(), CompilerUtils.extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory))) {
                     throw new ParseReturnException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, returnValueCandidate);
                 }
                 String genVarForReturn = CompilerUtils.generateTechnicalIdentifierName(scopeMemory);

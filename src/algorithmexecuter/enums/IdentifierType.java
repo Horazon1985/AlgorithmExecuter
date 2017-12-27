@@ -10,20 +10,20 @@ public enum IdentifierType {
     EXPRESSION("expression"), BOOLEAN_EXPRESSION("booleanexpression"), MATRIX_EXPRESSION("matrixexpression"), STRING("string");
 
     private final String value;
-    
-    IdentifierType(String value){
+
+    IdentifierType(String value) {
         this.value = value;
     }
-    
+
     public String getValue() {
         return this.value;
     }
-    
+
     @Override
     public String toString() {
         return this.value;
     }
-    
+
     public boolean isSameOrGeneralTypeOf(IdentifierType type) {
         if (type == EXPRESSION && (this == EXPRESSION || this == MATRIX_EXPRESSION)) {
             return true;
@@ -42,6 +42,19 @@ public enum IdentifierType {
             return MATRIX_EXPRESSION;
         }
         return STRING;
+    }
+
+    public Class getClassOf() {
+        switch (this) {
+            case EXPRESSION:
+                return Expression.class;
+            case BOOLEAN_EXPRESSION:
+                return Expression.class;
+            case MATRIX_EXPRESSION:
+                return Expression.class;
+            default:
+                return String.class;
+        }
     }
 
 }

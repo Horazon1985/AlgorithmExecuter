@@ -10,17 +10,17 @@ import java.util.Map;
 public class IdentifierValidatorImpl implements IdentifierValidator {
 
     Map<String, Class<? extends AbstractExpression>> knownVariables;
-    
+
     @Override
     public void setKnownVariables(Map<String, Class<? extends AbstractExpression>> knownVariables) {
         this.knownVariables = knownVariables;
     }
-    
+
     @Override
     public void unsetKnownVariables() {
         this.knownVariables = null;
     }
-    
+
     /**
      * Prüft, ob der Name identifier ein gültiger Bezeichner ist. Gültig
      * bedeutet, dass er entweder<br>
@@ -31,12 +31,12 @@ public class IdentifierValidatorImpl implements IdentifierValidator {
      */
     @Override
     public boolean isValidIdentifier(String identifierName) {
-        
+
         // Wenn bekannte Variables explizit gesetzt wurden, dann soll danach ausgewertet werden.
         if (this.knownVariables != null) {
             return this.knownVariables.containsKey(identifierName);
         }
-        
+
         // Prüfung, ob es kein Keyword ist.
         for (Keyword keyword : Keyword.values()) {
             if (keyword.getValue().equals(identifierName)) {
@@ -77,14 +77,27 @@ public class IdentifierValidatorImpl implements IdentifierValidator {
             return true;
         }
     }
-    
+
     /**
-     * Prüft, ob der Name identifier ein gültiger bereits bekannter Bezeichner ist.
+     * Prüft, ob der Name identifier ein gültiger (bereits bekannter) Bezeichner
+     * ist vom geforderten Typ ist.
      */
-    
     @Override
-    public boolean isValidKnownIdentifier(String identifierName, Map<String, Class<? extends AbstractExpression>> knownVariables) {
-        return knownVariables.containsKey(identifierName);
+    public boolean isValidIdentifierOfRequiredType(String identifierName, Class requiredClass) {
+        // Wenn bekannte Variables explizit gesetzt wurden, dann soll danach ausgewertet werden.
+        if (this.knownVariables != null) {
+            return this.knownVariables.containsKey(identifierName) && this.knownVariables.get(identifierName).equals(requiredClass);
+        }
+        return isValidIdentifier(identifierName);
+    }
+
+    /**
+     * Prüft, ob der Name identifier ein gültiger bereits bekannter Bezeichner
+     * ist.
+     */
+    @Override
+    public boolean isValidKnownIdentifier(String identifierName, Class requiredClass, Map<String, Class<? extends AbstractExpression>> knownVariables) {
+        return knownVariables.containsKey(identifierName) && knownVariables.get(identifierName).equals(requiredClass);
     }
 
 }
