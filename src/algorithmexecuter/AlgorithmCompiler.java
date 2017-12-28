@@ -45,6 +45,10 @@ public abstract class AlgorithmCompiler {
                     Identifier.createIdentifier("i", IdentifierType.EXPRESSION),
                     Identifier.createIdentifier("j", IdentifierType.EXPRESSION)
                 }, IdentifierType.EXPRESSION));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.APPROX.getValue(),
+                new Identifier[]{Identifier.createIdentifier("a", IdentifierType.EXPRESSION)}, IdentifierType.EXPRESSION));
+        fixedAlgorithms.add(new Algorithm(FixedAlgorithmNames.APPROX.getValue(),
+                new Identifier[]{Identifier.createIdentifier("a", IdentifierType.MATRIX_EXPRESSION)}, IdentifierType.MATRIX_EXPRESSION));
         FIXED_ALGORITHMS = fixedAlgorithms.toArray(new Algorithm[fixedAlgorithms.size()]);
 
         // 2. Standardalgorithmen zu den "bekannten" Algorithmen hinzufügen

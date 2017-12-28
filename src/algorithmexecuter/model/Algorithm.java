@@ -2,6 +2,8 @@ package algorithmexecuter.model;
 
 import abstractexpressions.expression.classes.Constant;
 import abstractexpressions.expression.classes.Expression;
+import abstractexpressions.expression.classes.Variable;
+import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.matrixexpression.classes.Matrix;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
 import algorithmexecuter.AlgorithmCompiler;
@@ -147,7 +149,7 @@ public class Algorithm {
 
         // Prüfung, ob alle Parameter Werte besitzen. Sollte eigentlich stets der Fall sein.
         checkForInputIdentifierWithoutValues();
-        
+
         // Prüfung, ob es sich um einen Standardalgorithmus handelt.
         if (isStandardAlgorithm()) {
             return executeStandardAlgorithm(getInitialAlgorithmMemory());
@@ -172,8 +174,8 @@ public class Algorithm {
         }
         return false;
     }
-    
-    private Identifier executeStandardAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
+
+    private Identifier executeStandardAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
         Method[] methods = Algorithm.class.getDeclaredMethods();
         Execute annotation;
         for (Method method : methods) {
@@ -184,6 +186,8 @@ public class Algorithm {
                 } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                     if (e.getCause() instanceof AlgorithmExecutionException) {
                         throw (AlgorithmExecutionException) e.getCause();
+                    } else if (e.getCause() instanceof EvaluationException) {
+                        throw (EvaluationException) e.getCause();
                     }
                 }
             }
@@ -216,6 +220,49 @@ public class Algorithm {
         }
         Identifier result = Identifier.createIdentifier(CompilerUtils.generateTechnicalIdentifierName(scopeMemory), IdentifierType.EXPRESSION);
         result.setRuntimeValue(m.getEntry(((Constant) i).getBigIntValue().intValue(), ((Constant) j).getBigIntValue().intValue()));
+        return result;
+    }
+
+    @Execute(algorithmName = FixedAlgorithmNames.APPROX)
+    private Identifier executeApprox(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
+        AbstractExpression abstrExpr = (AbstractExpression) this.inputParameters[0].getRuntimeValue();
+        AbstractExpression approximatedAbstrExpr = null;
+
+        if (abstrExpr instanceof Expression) {
+            Expression expr = (Expression) abstrExpr;
+            /*
+             Falls expr selbstdefinierte Funktionen enthält, dann zunächst expr so
+             darstellen, dass es nur vordefinierte Funktionen beinhaltet.
+             */
+            expr = expr.replaceSelfDefinedFunctionsByPredefinedFunctions();
+            // Zunächst wird, soweit es geht, EXAKT vereinfacht, danach approximativ ausgewertet.
+            expr = expr.simplify();
+            expr = expr.turnToApproximate().simplify();
+            /*
+             Dies dient dazu, dass alle Variablen wieder "präzise" sind. Sie
+             werden nur dann approximativ ausgegeben, wenn sie nicht präzise
+             (precise = false) sind.
+             */
+            Variable.setAllPrecise(true);
+            approximatedAbstrExpr = expr;
+        } else {
+            MatrixExpression matExpr = (MatrixExpression) abstrExpr;
+            // Mit Werten belegte Variablen müssen durch ihren exakten Ausdruck ersetzt werden.
+            matExpr = matExpr.simplifyByInsertingDefinedVars();
+            // Zunächst wird, soweit es geht, EXAKT vereinfacht, danach approximativ ausgewertet.
+            matExpr = matExpr.simplify();
+            matExpr = matExpr.turnToApproximate().simplify();
+            /*
+             Dies dient dazu, dass alle Variablen wieder "präzise" sind. Sie
+             werden nur dann approximativ ausgegeben, wenn sie nicht präzise
+             (precise = false) sind.
+             */
+            Variable.setAllPrecise(true);
+            approximatedAbstrExpr = matExpr;
+        }
+
+        Identifier result = Identifier.createIdentifier(CompilerUtils.generateTechnicalIdentifierName(scopeMemory), IdentifierType.identifierTypeOf(approximatedAbstrExpr));
+        result.setRuntimeValue(approximatedAbstrExpr);
         return result;
     }
 
