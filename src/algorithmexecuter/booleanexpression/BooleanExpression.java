@@ -340,7 +340,7 @@ public abstract class BooleanExpression implements AbstractExpression {
             if (!typesMap.containsKey(var)) {
                 return false;
             }
-            if (!type.isSameOrGeneralTypeOf(typesMap.get(var))) {
+            if (!type.isSameOrSuperTypeOf(typesMap.get(var))) {
                 return false;
             }
         }

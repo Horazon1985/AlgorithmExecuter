@@ -7,6 +7,7 @@ public abstract class AlgorithmCompileExceptionIds {
     public static final String AC_FILE_MUST_CONTAIN_A_BEGIN = "AC_FILE_MUST_CONTAIN_A_BEGIN";    
     public static final String AC_FILE_MUST_CONTAIN_AN_END = "AC_FILE_MUST_CONTAIN_AN_END";    
     public static final String AC_END_BEFORE_BEGIN = "AC_END_BEFORE_BEGIN";    
+    public static final String AC_INVALID_ALGORITHM_NAME = "AC_INVALID_ALGORITHM_NAME";    
     public static final String AC_ALGORITHM_ALREADY_EXISTS = "AC_ALGORITHM_ALREADY_EXISTS";    
     public static final String AC_ALGORITHM_MUST_START_WITH_BEGIN = "AC_ALGORITHM_MUST_START_WITH_BEGIN";    
     public static final String AC_ALGORITHM_MUST_END_WITH_END = "AC_ALGORITHM_MUST_END_WITH_END";    

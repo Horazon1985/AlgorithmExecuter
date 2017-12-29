@@ -29,6 +29,12 @@
         <Ukrainian>Кінець блока чи алгоритма ('}') міститься перед його початком ('{')).</Ukrainian>
         <Russian>Конец блока или алгоритма ('}') расположен перед его началом ('{')</Russian>
     </object>
+    <object id = "AC_INVALID_ALGORITHM_NAME">
+        <German>Ungültiger Algorithmenname: '[0]'.</German>
+        <German>Invalid algorithm name: '[0]'.</German>
+        <Ukrainian>???: '[0]'.</Ukrainian>
+        <Russian>???: '[0]'.</Russian>
+    </object>
     <object id = "AC_ALGORITHM_ALREADY_EXISTS">
         <German>Algorithmus mit Signatur [0] existiert bereits.</German>
         <German>Algorithm with signature [0] already exists.</German>

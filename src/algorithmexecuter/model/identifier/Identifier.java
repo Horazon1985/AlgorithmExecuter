@@ -1,5 +1,6 @@
 package algorithmexecuter.model.identifier;
 
+import algorithmexecuter.ExecutionUtils;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.model.AlgorithmMemory;
 import java.util.Objects;
@@ -14,7 +15,7 @@ public class Identifier {
      */
     public static final Identifier NULL_IDENTIFIER = new Identifier();
 
-    private final IdentifierType type;
+    private IdentifierType type;
     private final String name;
     private Object runtimeValue;
 
@@ -41,7 +42,7 @@ public class Identifier {
     }
 
     public void setRuntimeValue(Object value) {
-        this.runtimeValue = value;
+        this.runtimeValue = ExecutionUtils.castToSameOrSuperType(value, this.type);
     }
 
     public void setValueFromGivenIdentifier(Identifier identifier) {
@@ -93,7 +94,12 @@ public class Identifier {
 
     public static Identifier createIdentifier(AlgorithmMemory scopeMemory, String identifierName, IdentifierType type) {
         if (scopeMemory.containsIdentifier(identifierName)) {
-            return scopeMemory.get(identifierName);
+            Identifier identifier = scopeMemory.get(identifierName);
+            // Falls notwendig, Cast zum Supertyp durchführen.
+            if (!type.equals(identifier.getType()) && type.isSameOrSuperTypeOf(identifier.getType())) {
+                identifier.type = type;
+            }
+            return identifier;
         }
         return new Identifier(type, identifierName);
     }

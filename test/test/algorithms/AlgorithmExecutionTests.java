@@ -1,6 +1,8 @@
 package test.algorithms;
 
 import abstractexpressions.expression.classes.Expression;
+import abstractexpressions.matrixexpression.classes.Matrix;
+import abstractexpressions.matrixexpression.classes.MatrixExpression;
 import algorithmexecuter.AlgorithmCompiler;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.booleanexpression.BooleanConstant;
@@ -13,6 +15,8 @@ import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import algorithmexecuter.output.AlgorithmOutputPrinter;
 import exceptions.EvaluationException;
+import java.awt.Dimension;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.JTextPane;
@@ -710,13 +714,13 @@ public class AlgorithmExecutionTests {
         // AlgorithmOutputPrinter wird gemockt, damit man die Aufrufe der Methode printLine() nachverfolgen kann. 
         AlgorithmOutputPrinter printerMock = Mockito.mock(AlgorithmOutputPrinter.class);
         AlgorithmOutputPrinter.setMockInstance(printerMock);
-        
+
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result == Identifier.NULL_IDENTIFIER);
-            
+
             Mockito.verify(printerMock, Mockito.times(1)).printLine("Das soll ausgegeben werden!");
             Mockito.verify(printerMock, Mockito.never()).printLine("Das soll nicht ausgegeben werden!");
         } catch (AlgorithmCompileException e) {
@@ -725,7 +729,86 @@ public class AlgorithmExecutionTests {
             fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
         }
     }
-    
+
+    @Test
+    public void executeAlgorithmWithApproxMatrixTest() {
+        String input = "matrixexpression main(){\n"
+                + "	matrixexpression a=[5/3;sin(1)];\n"
+                + "	a=a+[1/3;0];\n"
+                + "	a=approx(a);\n"
+                + "	return a;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.MATRIX_EXPRESSION);
+            assertTrue(result.getName().equals("a"));
+            assertTrue(((MatrixExpression) result.getRuntimeValue()).isMatrix());
+            assertEquals(new Dimension(1, 2), ((MatrixExpression) result.getRuntimeValue()).getDimension());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
+    @Test
+    public void executeAlgorithmWithDifferentTypeCastCasesTest() {
+        String input = "matrixexpression main(){\n"
+                + "	matrixexpression a=[7];\n"
+                + "	matrixexpression b=f();\n"
+                + "	matrixexpression c=a+b;\n"
+                + "	return c;\n"
+                + "}\n"
+                + "\n"
+                + "matrixexpression f(){\n"
+                + "	expression a=5;\n"
+                + "	return a;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.MATRIX_EXPRESSION);
+            assertTrue(result.getName().equals("c"));
+            assertTrue(((MatrixExpression) result.getRuntimeValue()).isMatrix());
+            assertTrue(new Matrix(BigDecimal.valueOf(12)).equals((Matrix) result.getRuntimeValue()));
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+
+        input = "matrixexpression main(){\n"
+                + "	matrixexpression a=[7];\n"
+                + "	expression b=f();\n"
+                + "	matrixexpression c=b*a;\n"
+                + "	return c;\n"
+                + "}\n"
+                + "\n"
+                + "expression f(){\n"
+                + "	expression a=5;\n"
+                + "	return a;\n"
+                + "}";
+        mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.MATRIX_EXPRESSION);
+            assertTrue(result.getName().equals("c"));
+            assertTrue(((MatrixExpression) result.getRuntimeValue()).isMatrix());
+            assertTrue(new Matrix(BigDecimal.valueOf(35)).equals((Matrix) result.getRuntimeValue()));
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+
     @Test
     public void executeAlgorithmWithNotDefinedMatrixTest() {
         String input = "matrixexpression main(){\n"
@@ -746,5 +829,5 @@ public class AlgorithmExecutionTests {
         } catch (EvaluationException e) {
         }
     }
-    
+
 }

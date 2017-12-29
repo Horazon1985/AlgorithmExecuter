@@ -22,15 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class AlgorithmCompiler {
-
+    
     public static final Algorithm[] FIXED_ALGORITHMS;
-
+    
     public final static IdentifierValidator VALIDATOR = new IdentifierValidatorImpl();
-
+    
     public final static AlgorithmStorage ALGORITHMS = new AlgorithmStorage();
-
+    
     protected final static AlgorithmSignatureStorage ALGORITHM_SIGNATURES = new AlgorithmSignatureStorage();
-
+    
     static {
         // 1. Standardalgorithmen definieren.
         List<Algorithm> fixedAlgorithms = new ArrayList<>();
@@ -59,7 +59,7 @@ public abstract class AlgorithmCompiler {
             ALGORITHM_SIGNATURES.add(alg.getSignature());
         });
     }
-
+    
     private static void initStorages() {
         ALGORITHMS.clearAlgorithmStorage();
         for (Algorithm alg : FIXED_ALGORITHMS) {
@@ -70,23 +70,23 @@ public abstract class AlgorithmCompiler {
             ALGORITHM_SIGNATURES.add(alg.getSignature());
         }
     }
-
+    
     private static void removeStandardAlgorithmsFromStorage() {
         for (Algorithm alg : FIXED_ALGORITHMS) {
             ALGORITHMS.remove(alg);
             ALGORITHM_SIGNATURES.remove(alg.getSignature());
         }
     }
-
+    
     private static void parseAlgorithmSignatures(String input) throws AlgorithmCompileException {
         if (input.isEmpty()) {
             return;
         }
-
+        
         int bracketCounter = 0;
         boolean beginPassed = false;
         int lastEndOfAlgorithm = -1;
-
+        
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == ReservedChars.BEGIN.getValue()) {
                 bracketCounter++;
@@ -100,7 +100,7 @@ public abstract class AlgorithmCompiler {
                 lastEndOfAlgorithm = i;
             }
         }
-
+        
         if (bracketCounter > 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.END.getValue());
         }
@@ -112,11 +112,11 @@ public abstract class AlgorithmCompiler {
         CompilerUtils.checkIfMainAlgorithmSignatureExists(ALGORITHM_SIGNATURES);
         // Prüfung, ob die Signatur ein Main-Algorithmus parameterlos ist.
         CompilerUtils.checkIfMainAlgorithmSignatureContainsNoParameters(CompilerUtils.getMainAlgorithmSignature(ALGORITHM_SIGNATURES));
-
+        
     }
-
+    
     private static Signature parseAlgorithmSignature(String input) throws AlgorithmCompileException {
-
+        
         int indexBeginParameters = input.indexOf(ReservedChars.OPEN_BRACKET.getValue());
         if (indexBeginParameters < 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_FILE_MUST_CONTAIN_A_BEGIN);
@@ -137,27 +137,31 @@ public abstract class AlgorithmCompiler {
         String candidateForSignature = input.substring(0, input.indexOf(ReservedChars.BEGIN.getValue()));
         CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(candidateForSignature);
         String algName = algParseData.getName();
-        String[] parametersAsStrings = algParseData.getParameters();
 
+        // Prüfung, ob der Algorithmenname gültig ist.
+        CompilerUtils.checkIfAlgorithmNameIsValid(algName);        
+        
+        String[] parametersAsStrings = algParseData.getParameters();
+        
         Identifier[] parameters = getIdentifiersFromParameterStrings(parametersAsStrings, new AlgorithmMemory(null));
 
         // Prüfung, ob Algorithmusparameter nicht doppelt vorkommen.
         checkForTwiceOccurringParameters(parameters);
-
+        
         Signature signature = CompilerUtils.getSignature(returnType, algName, parameters);
 
         // Falls ein Algorithmus mit derselben Signatur bereits vorhanden ist, Fehler werfen.
         if (containsAlgorithmWithSameSignature(signature)) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_ALGORITHM_ALREADY_EXISTS, signature);
         }
-
+        
         return signature;
-
+        
     }
-
+    
     public static void parseAlgorithmFile(String input) throws AlgorithmCompileException {
         initStorages();
-
+        
         if (input.isEmpty()) {
             return;
         }
@@ -170,11 +174,11 @@ public abstract class AlgorithmCompiler {
         bekannt sind, auch wenn diese Compilerfehler enthalten.
          */
         parseAlgorithmSignatures(input);
-
+        
         int bracketCounter = 0;
         boolean beginPassed = false;
         int lastEndOfAlgorithm = -1;
-
+        
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == ReservedChars.BEGIN.getValue()) {
                 bracketCounter++;
@@ -188,7 +192,7 @@ public abstract class AlgorithmCompiler {
                 lastEndOfAlgorithm = i;
             }
         }
-
+        
         if (bracketCounter > 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.END.getValue());
         }
@@ -206,9 +210,9 @@ public abstract class AlgorithmCompiler {
         // Zum Schluss: Standardalgorithmen wieder aus dem Storage entfernen.
         removeStandardAlgorithmsFromStorage();
     }
-
+    
     private static Algorithm parseAlgorithm(String input) throws AlgorithmCompileException {
-
+        
         int indexBeginParameters = input.indexOf(ReservedChars.OPEN_BRACKET.getValue());
         if (indexBeginParameters < 0) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_FILE_MUST_CONTAIN_A_BEGIN);
@@ -230,11 +234,11 @@ public abstract class AlgorithmCompiler {
         CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(candidateForSignature);
         String algName = algParseData.getName();
         String[] parametersAsStrings = algParseData.getParameters();
-
+        
         AlgorithmMemory memory = new AlgorithmMemory(null);
-
+        
         Identifier[] parameters = getIdentifiersFromParameterStrings(parametersAsStrings, memory);
-
+        
         Signature signature = CompilerUtils.getSignature(returnType, algName, parameters);
 
         // Falls ein Algorithmus mit derselben Signatur bereits vorhanden ist, Fehler werfen.
@@ -244,10 +248,10 @@ public abstract class AlgorithmCompiler {
 
         // Algorithmusparameter zum Variablenpool hinzufügen.
         addParametersToMemoryInCompileTime(parameters, memory);
-
+        
         Algorithm alg = new Algorithm(algName, parameters, returnType);
         memory.setAlgorithm(alg);
-
+        
         int indexEndParameters = input.indexOf(ReservedChars.CLOSE_BRACKET.getValue());
 
         /* 
@@ -264,9 +268,9 @@ public abstract class AlgorithmCompiler {
         }
         // Öffnende {-Klammer und schließende }-Klammer am Anfang und am Ende beseitigen.
         input = input.substring(1, input.length() - 1);
-
+        
         input = putSeparatorAfterBlockEnding(input);
-
+        
         if (!input.isEmpty()) {
             // Alle Zeilen innerhalb des Algorithmus kompilieren.
             List<AlgorithmCommand> commands = AlgorithmCommandCompiler.parseConnectedBlockWithoutKeywords(input, memory, alg);
@@ -276,16 +280,16 @@ public abstract class AlgorithmCompiler {
 
         // Plausibilitätschecks.
         checkAlgorithmForPlausibility(alg);
-
+        
         return alg;
     }
-
+    
     private static void replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands() {
         for (Algorithm alg : ALGORITHMS.getAlgorithmStorage()) {
             replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands(alg.getCommands());
         }
     }
-
+    
     private static void checkForTwiceOccurringParameters(Identifier[] parameter) throws AlgorithmCompileException {
         for (int i = 0; i < parameter.length; i++) {
             for (int j = i + 1; j < parameter.length; j++) {
@@ -295,13 +299,13 @@ public abstract class AlgorithmCompiler {
             }
         }
     }
-
+    
     private static Identifier[] getIdentifiersFromParameterStrings(String[] parameterStrings, AlgorithmMemory memory) throws AlgorithmCompileException {
         Identifier[] resultIdentifiers = new Identifier[parameterStrings.length];
         IdentifierType parameterType;
         String parameterName;
         for (int i = 0; i < parameterStrings.length; i++) {
-
+            
             parameterType = null;
             for (IdentifierType type : IdentifierType.values()) {
                 if (parameterStrings[i].startsWith(type.toString() + " ")) {
@@ -323,17 +327,17 @@ public abstract class AlgorithmCompiler {
                 throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, parameterName);
             }
             resultIdentifiers[i] = Identifier.createIdentifier(parameterName, parameterType);
-
+            
         }
         return resultIdentifiers;
     }
-
+    
     private static void addParametersToMemoryInCompileTime(Identifier[] parameters, AlgorithmMemory memory) throws AlgorithmCompileException {
         for (Identifier parameter : parameters) {
             memory.addToMemoryInCompileTime(parameter);
         }
     }
-
+    
     private static boolean containsAlgorithmWithSameSignature(Signature signature) {
         Signature algSignature;
         for (Algorithm alg : ALGORITHMS.getAlgorithmStorage()) {
@@ -345,7 +349,7 @@ public abstract class AlgorithmCompiler {
         }
         return false;
     }
-
+    
     private static String putSeparatorAfterBlockEnding(String input) {
         String inputWithSeparators = input.replaceAll("\\}", "\\};");
         // Ausnahme: if (...) {...} else {...}: Semikolon zwischen dem if- und dem else-Block entfernen.
@@ -354,7 +358,7 @@ public abstract class AlgorithmCompiler {
         inputWithSeparators = inputWithSeparators.replaceAll("\\}" + String.valueOf(ReservedChars.LINE_SEPARATOR.getValue()) + Keyword.WHILE.getValue(), "\\}" + Keyword.WHILE.getValue());
         return inputWithSeparators;
     }
-
+    
     private static void checkAlgorithmForPlausibility(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob der Main-Algorithmen keine Parameter enthält.
         checkIfMainAlgorithmContainsNoParameters(alg);
@@ -367,32 +371,32 @@ public abstract class AlgorithmCompiler {
         // Prüfung, ob es bei (beliebigen) Algorithmen keinen Code hinter einem Return gibt.
         checkIfAlgorithmContainsNoDeadCode(alg);
     }
-
+    
     private static void checkIfMainAlgorithmContainsNoParameters(Algorithm alg) throws AlgorithmCompileException {
         CompilerUtils.checkIfMainAlgorithmContainsNoParameters(alg);
     }
-
+    
     private static void checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(Algorithm alg) throws AlgorithmCompileException {
         if (alg.getReturnType() == null) {
             CompilerUtils.checkForOnlySimpleReturns(alg.getCommands());
         }
     }
-
+    
     private static void checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob Wertrückgabe immer erfolgt.
         CompilerUtils.checkForContainingReturnCommand(alg.getCommands(), alg.getReturnType());
         // Prüfung auf korrekten Rückgabewert.
         CompilerUtils.checkForCorrectReturnType(alg.getCommands(), alg.getReturnType());
     }
-
+    
     private static void checkIfAlgorithmContainsNoDeadCode(Algorithm alg) throws AlgorithmCompileException {
         CompilerUtils.checkForUnreachableCodeInBlock(alg.getCommands(), alg);
     }
-
+    
     private static void checkIfAllIdentifierAreInitialized(Algorithm alg) throws AlgorithmCompileException {
         CompilerUtils.checkIfAllUsedIdentifiersAreInitialized(alg.getCommands(), alg);
     }
-
+    
     private static void replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands(List<AlgorithmCommand> commands) {
         AssignValueCommand assignValueCommand;
         for (AlgorithmCommand command : commands) {
@@ -429,5 +433,5 @@ public abstract class AlgorithmCompiler {
             }
         }
     }
-
+    
 }

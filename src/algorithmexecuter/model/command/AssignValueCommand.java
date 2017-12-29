@@ -59,7 +59,7 @@ public class AssignValueCommand extends AlgorithmCommand {
     }
 
     private boolean areTypesCompatible(Identifier identifierSrc, IdentifierType targetType) {
-        return identifierSrc.getType().isSameOrGeneralTypeOf(targetType);
+        return identifierSrc.getType().isSameOrSuperTypeOf(targetType);
     }
 
     public Object getTargetValue() {
@@ -149,27 +149,15 @@ public class AssignValueCommand extends AlgorithmCommand {
                 this.identifierSrc.setRuntimeValue(new MalString(resultValue));
             } else if (this.targetValue instanceof AbstractExpression) {
                 AbstractExpression abstrExpr = (AbstractExpression) this.targetValue;
-                Set<String> varsInTargetExpr = abstrExpr.getContainedIndeterminates();
-                checkForUnknownIdentifier(scopeMemory, varsInTargetExpr);
                 AbstractExpression targetExprSimplified = simplifyTargetExpression(abstrExpr, scopeMemory);
                 this.identifierSrc.setRuntimeValue(targetExprSimplified);
             }
         } else {
             this.targetAlgorithm.initInputParameter(this.targetAlgorithmArguments);
-            Set<String> varsInTargetExpr = getVarsFromAlgorithmParameters(this.targetAlgorithm);
-            checkForUnknownIdentifier(scopeMemory, varsInTargetExpr);
             this.identifierSrc.setValueFromGivenIdentifier(this.targetAlgorithm.execute());
         }
         scopeMemory.addToMemoryInRuntime(this.identifierSrc);
         return null;
-    }
-
-    private void checkForUnknownIdentifier(AlgorithmMemory scopeMemory, Set<String> varsInTargetExpr) throws AlgorithmExecutionException {
-        for (String var : varsInTargetExpr) {
-            if (!scopeMemory.containsIdentifier(var)) {
-                throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_UNKNOWN_IDENTIFIER);
-            }
-        }
     }
 
     private AbstractExpression simplifyTargetExpression(AbstractExpression abstrExpr, AlgorithmMemory scopeMemory) throws EvaluationException {

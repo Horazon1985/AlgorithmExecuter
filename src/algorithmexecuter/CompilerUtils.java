@@ -1,9 +1,14 @@
 package algorithmexecuter;
 
 import abstractexpressions.expression.classes.Expression;
+import abstractexpressions.expression.classes.TypeFunction;
+import abstractexpressions.expression.classes.TypeOperator;
 import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.interfaces.IdentifierValidator;
+import abstractexpressions.matrixexpression.classes.Matrix;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
+import abstractexpressions.matrixexpression.classes.TypeMatrixFunction;
+import abstractexpressions.matrixexpression.classes.TypeMatrixOperator;
 import algorithmexecuter.booleanexpression.BooleanExpression;
 import algorithmexecuter.enums.FixedAlgorithmNames;
 import algorithmexecuter.model.command.AlgorithmCommand;
@@ -70,6 +75,10 @@ public final class CompilerUtils {
 
     }
 
+    /**
+     * Gibt den Parameter input vorformatiert zurück, damit er für einen
+     * Kompilierungsprozess geeignet ist.
+     */
     public static String preprocessAlgorithm(String input) {
         String outputFormatted = input;
         outputFormatted = removeLeadingWhitespaces(outputFormatted);
@@ -120,6 +129,10 @@ public final class CompilerUtils {
         return result;
     }
 
+    /**
+     * Gibt die Signatur eines Algorithmus zurück, welche durch die
+     * Eingabeparameter vollständig festgelegt ist.
+     */
     public static Signature getSignature(IdentifierType returnType, String algName, Identifier[] parameters) {
         IdentifierType[] types = new IdentifierType[parameters.length];
         for (int i = 0; i < parameters.length; i++) {
@@ -128,6 +141,11 @@ public final class CompilerUtils {
         return new Signature(returnType, algName, types);
     }
 
+    /**
+     * Gibt ein AlgorithmParseData-Objekt zurück, falls input einen (formalen)
+     * Algorithmusaufruf darstellt, also einen String der Form
+     * 'algorithmusname(param1, ..., paramN)'.
+     */
     public static AlgorithmParseData getAlgorithmParseData(String input) throws AlgorithmCompileException {
         String[] algNameAndParams = CompilerUtils.getAlgorithmNameAndParameters(input);
         String algName = algNameAndParams[0];
@@ -255,6 +273,11 @@ public final class CompilerUtils {
 
     }
 
+    /**
+     * Falls input einen Algorithmus als String darstellt, so wird der
+     * Rückgabetyp zurückgegeben, falls dieser gültig ist. Ansonsten wird null
+     * zurückgegeben.
+     */
     public static IdentifierType getReturnTypeFromAlgorithmDeclaration(String input) {
         IdentifierType returnType = null;
         for (IdentifierType type : IdentifierType.values()) {
@@ -264,6 +287,57 @@ public final class CompilerUtils {
             }
         }
         return returnType;
+    }
+
+    /**
+     * Prüft, ob algName ein gültiger Algorithmusname ist.
+     * 
+     * @throws AlgorithmCompileException
+     */
+    public static void checkIfAlgorithmNameIsValid(String algName) throws AlgorithmCompileException {
+        for (TypeFunction type : TypeFunction.values()) {
+            if (algName.equals(type.name())) {
+                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            }
+        }
+        for (TypeMatrixFunction type : TypeMatrixFunction.values()) {
+            if (algName.equals(type.name())) {
+                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            }
+        }
+        for (TypeOperator type : TypeOperator.values()) {
+            if (algName.equals(type.name())) {
+                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            }
+        }
+        for (TypeMatrixOperator type : TypeMatrixOperator.values()) {
+            if (algName.equals(type.name())) {
+                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            }
+        }
+        int asciiValue;
+        for (int i = 0; i < algName.length(); i++) {
+            asciiValue = (int) algName.charAt(i);
+            if (!isNumber(asciiValue) && !isSmallLetter(asciiValue) && !isCapitalLetter(asciiValue) && !isUnderscore(asciiValue)) {
+                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            }
+        }
+    }
+    
+    private static boolean isNumber(int asciiValue) {
+        return asciiValue >= 48 && asciiValue <= 57;
+    }
+
+    private static boolean isSmallLetter(int asciiValue) {
+        return asciiValue >= 97 && asciiValue <= 122;
+    }
+
+    private static boolean isCapitalLetter(int asciiValue) {
+        return asciiValue >= 65 && asciiValue <= 90;
+    }
+
+    private static boolean isUnderscore(int asciiValue) {
+        return asciiValue == 95;
     }
 
     /**
@@ -461,7 +535,7 @@ public final class CompilerUtils {
                         || returnType != null && returnIdentifier == Identifier.NULL_IDENTIFIER) {
                     throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
                 }
-                if (returnType != null && !returnType.isSameOrGeneralTypeOf(returnIdentifier.getType())) {
+                if (returnType != null && !returnType.isSameOrSuperTypeOf(returnIdentifier.getType())) {
                     throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
                 }
             }
@@ -861,6 +935,7 @@ public final class CompilerUtils {
                 && input.replaceAll(ReservedChars.STRING_DELIMITER.getStringValue(), "").length() == input.length() - 2;
     }
 
+    ////////////////////////////////// Parsen von abstrakten Ausdrücken unter Zuhilfenahme bereits bekannter Bezeichner im Speicher //////////////////////////////////
     public static Expression buildExpressionWithScopeMemory(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws ExpressionException {
         validator.setKnownVariables(extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory));
         try {

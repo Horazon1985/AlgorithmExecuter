@@ -24,7 +24,7 @@ public enum IdentifierType {
         return this.value;
     }
 
-    public boolean isSameOrGeneralTypeOf(IdentifierType type) {
+    public boolean isSameOrSuperTypeOf(IdentifierType type) {
         if (type == EXPRESSION && (this == EXPRESSION || this == MATRIX_EXPRESSION)) {
             return true;
         }
