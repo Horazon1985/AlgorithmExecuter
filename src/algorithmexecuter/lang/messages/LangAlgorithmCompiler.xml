@@ -198,10 +198,10 @@
         <Russian>Идентификатор '[0]', вероятно,  не был инициализирован.</Russian>
     </object>
     <object id = "AC_BOOLEAN_EXPRESSION_EMPTY_OR_INCOMPLETE">
-        <German>Der boolsche Ausdruck oder ein Teilausdruck ist leer oder unvollständig.</German>
-        <English>The boolean expression or a part of the expression is either empty or incomplete.</English>
-        <Ukrainian>Булів вираз або частина виразу порожня або неповна.</Ukrainian>
-        <Russian>Булево выражение или часть выражения пуста либо неполна.</Russian>
+        <German>Der boolsche Ausdruck ist leer, fehlerhaft oder unvollständig.</German>
+        <English>The boolean expression is either empty, incorrect or incomplete.</English>
+        <Ukrainian>Булів вираз порожня ??? або неповна.</Ukrainian>
+        <Russian>Булево выражение ???.</Russian>
     </object>
     <object id = "AC_LEFT_SIDE_OF_BOOLEAN_BINARY_EXPRESSION_IS_EMPTY">
         <German>Linke Seite eines boolschen binären Operators ist leer.</German>
