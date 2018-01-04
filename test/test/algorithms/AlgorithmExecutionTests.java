@@ -1,5 +1,6 @@
 package test.algorithms;
 
+import abstractexpressions.expression.classes.Constant;
 import abstractexpressions.expression.classes.Expression;
 import abstractexpressions.matrixexpression.classes.Matrix;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
@@ -40,6 +41,8 @@ public class AlgorithmExecutionTests {
         AlgorithmOutputPrinter.getInstance().clearOutput();
     }
 
+    ////////////////////////// Allgemeine Tests //////////////////////////
+    
     @Test
     public void executeEmptyMainAlgorithmTest() {
         String input = "main(){\n"
@@ -60,6 +63,8 @@ public class AlgorithmExecutionTests {
         }
     }
 
+    ////////////////////////// Tests: Zuweisungen //////////////////////////
+    
     @Test
     public void parseAlgorithmCallingAnotherAlgorithmTest() {
         String input = "expression main(){\n"
@@ -161,6 +166,57 @@ public class AlgorithmExecutionTests {
         }
     }
 
+    @Test
+    public void executeAlgorithmCallingAlgorithmOfStringTypeTest() {
+        String input = "string main(){\n"
+                + "	expression a=5;\n"
+                + "	string s=f(a); \n"
+                + "	return s;\n"
+                + "}\n"
+                + "\n"
+                + "string f(expression a){\n"
+                + "	return \"Test!\";\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.STRING);
+            assertTrue(result.getName().equals("s"));
+            assertEquals(1, ((MalString) result.getRuntimeValue()).getMalStringSummands().length);
+            assertEquals("Test!", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+    
+    @Test
+    public void executeAlgorithmWithComplexStringTest() {
+        String input = "string main(){\n"
+                + "	string s=\"Aufruf\";\n"
+                + "	string t= s+\"!\";\n"
+                + "	return t;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.STRING);
+            assertTrue(result.getName().equals("t"));
+            assertEquals("Aufruf!", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
+    
+    ////////////////////////// Tests: Kontrollstrukturen //////////////////////////
+    
     @Test
     public void executeAlgorithmsWithIfElseControlStructureTest() {
         String input = "expression main(){\n"
@@ -496,7 +552,34 @@ public class AlgorithmExecutionTests {
             fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
         }
     }
+    
+    @Test
+    public void executeAlgorithmWithWhileLoopAndNewAssignmentInsideLoopTest() {
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	while(a<8){\n"
+                + "		expression b=1;\n"
+                + "		a=a+b;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
+        Algorithm mainAlg = null;
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
+            assertTrue(result.getType() == IdentifierType.EXPRESSION);
+            assertTrue(result.getName().equals("a"));
+            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("8")));
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        } catch (Exception e) {
+            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
+        }
+    }
 
+    ////////////////////////// Tests: Kontrollstrukturen mit break, continue, return //////////////////////////
+    
     @Test
     public void executeAlgorithmWithForLoopAndBreakTest() {
         String input = "expression main(){\n"
@@ -552,29 +635,37 @@ public class AlgorithmExecutionTests {
     }
 
     @Test
-    public void executeAlgorithmWithWhileLoopAndNewAssignmentInsideLoopTest() {
-        String input = "expression main(){\n"
-                + "	expression a=5;\n"
-                + "	while(a<8){\n"
-                + "		expression b=1;\n"
-                + "		a=a+b;\n"
-                + "	}\n"
-                + "	return a;\n"
+    public void executeVoidAlgorithmWithEarlyReturnTest() {
+        String input = "main(){\n"
+                + "	expression a=1;\n"
+                + "     print(\"Das soll ausgegeben werden!\");\n"
+                + "	if(a>0){\n"
+                + "         return;\n"
+                + "     }\n"
+                + "     print(\"Das soll nicht ausgegeben werden!\");\n"
                 + "}";
         Algorithm mainAlg = null;
+
+        // AlgorithmOutputPrinter wird gemockt, damit man die Aufrufe der Methode printLine() nachverfolgen kann. 
+        AlgorithmOutputPrinter printerMock = Mockito.mock(AlgorithmOutputPrinter.class);
+        AlgorithmOutputPrinter.setMockInstance(printerMock);
+
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
-            assertTrue(result.getType() == IdentifierType.EXPRESSION);
-            assertTrue(result.getName().equals("a"));
-            assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.build("8")));
+            assertTrue(result == Identifier.NULL_IDENTIFIER);
+
+            Mockito.verify(printerMock, Mockito.times(1)).printLine("Das soll ausgegeben werden!");
+            Mockito.verify(printerMock, Mockito.never()).printLine("Das soll nicht ausgegeben werden!");
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
             fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
         }
     }
+    
+    ////////////////////////// Tests: Komplexe Berechnungen //////////////////////////
 
     @Test
     public void executeEuclideanAlgorithmTest() {
@@ -646,90 +737,8 @@ public class AlgorithmExecutionTests {
         }
     }
 
-    @Test
-    public void executeAlgorithmCallingAlgorithmOfStringTypeTest() {
-        String input = "string main(){\n"
-                + "	expression a=5;\n"
-                + "	string s=f(a); \n"
-                + "	return s;\n"
-                + "}\n"
-                + "\n"
-                + "string f(expression a){\n"
-                + "	return \"Test!\";\n"
-                + "}";
-        Algorithm mainAlg = null;
-        try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
-            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
-            assertTrue(result.getType() == IdentifierType.STRING);
-            assertTrue(result.getName().equals("s"));
-            assertEquals(1, ((MalString) result.getRuntimeValue()).getMalStringSummands().length);
-            assertEquals("Test!", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
-        } catch (AlgorithmCompileException e) {
-            fail(input + " konnte nicht geparst werden.");
-        } catch (Exception e) {
-            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
-        }
-    }
-
-    @Test
-    public void executeAlgorithmWithComplexStringTest() {
-        String input = "string main(){\n"
-                + "	string s=\"Aufruf\";\n"
-                + "	string t= s+\"!\";\n"
-                + "	return t;\n"
-                + "}\n"
-                + "\n"
-                + "f(string s){\n"
-                + "	print(s);\n"
-                + "}";
-        Algorithm mainAlg = null;
-        try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
-            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
-            assertTrue(result.getType() == IdentifierType.STRING);
-            assertTrue(result.getName().equals("t"));
-            assertEquals("Aufruf!", ((MalStringCharSequence) ((MalString) result.getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
-        } catch (AlgorithmCompileException e) {
-            fail(input + " konnte nicht geparst werden.");
-        } catch (Exception e) {
-            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
-        }
-    }
-
-    @Test
-    public void executeVoidAlgorithmWithEarlyReturnTest() {
-        String input = "main(){\n"
-                + "	expression a=1;\n"
-                + "     print(\"Das soll ausgegeben werden!\");\n"
-                + "	if(a>0){\n"
-                + "         return;\n"
-                + "     }\n"
-                + "     print(\"Das soll nicht ausgegeben werden!\");\n"
-                + "}";
-        Algorithm mainAlg = null;
-
-        // AlgorithmOutputPrinter wird gemockt, damit man die Aufrufe der Methode printLine() nachverfolgen kann. 
-        AlgorithmOutputPrinter printerMock = Mockito.mock(AlgorithmOutputPrinter.class);
-        AlgorithmOutputPrinter.setMockInstance(printerMock);
-
-        try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
-            Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
-            assertTrue(result == Identifier.NULL_IDENTIFIER);
-
-            Mockito.verify(printerMock, Mockito.times(1)).printLine("Das soll ausgegeben werden!");
-            Mockito.verify(printerMock, Mockito.never()).printLine("Das soll nicht ausgegeben werden!");
-        } catch (AlgorithmCompileException e) {
-            fail(input + " konnte nicht geparst werden.");
-        } catch (Exception e) {
-            fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
-        }
-    }
-
+    ////////////////////////// Tests: Standardfunktionen //////////////////////////
+    
     @Test
     public void executeAlgorithmWithApproxMatrixTest() {
         String input = "matrixexpression main(){\n"
@@ -747,6 +756,8 @@ public class AlgorithmExecutionTests {
             assertTrue(result.getName().equals("a"));
             assertTrue(((MatrixExpression) result.getRuntimeValue()).isMatrix());
             assertEquals(new Dimension(1, 2), ((MatrixExpression) result.getRuntimeValue()).getDimension());
+            assertTrue(Expression.TWO.turnToApproximate().equals(((Matrix) result.getRuntimeValue()).getEntry(0, 0)));
+            assertEquals(0.84, (((Constant) ((Matrix) result.getRuntimeValue()).getEntry(1, 0)).getApproxValue()), 0.002);
         } catch (AlgorithmCompileException e) {
             fail(input + " konnte nicht geparst werden.");
         } catch (Exception e) {
@@ -754,6 +765,8 @@ public class AlgorithmExecutionTests {
         }
     }
 
+    ////////////////////////// Tests: Impliziter Typecast //////////////////////////
+    
     @Test
     public void executeAlgorithmWithDifferentTypeCastCasesTest() {
         String input = "matrixexpression main(){\n"
@@ -809,6 +822,8 @@ public class AlgorithmExecutionTests {
         }
     }
 
+    ////////////////////////// Tests: Fehler während der Ausführung //////////////////////////
+    
     @Test
     public void executeAlgorithmWithNotDefinedMatrixTest() {
         String input = "matrixexpression main(){\n"

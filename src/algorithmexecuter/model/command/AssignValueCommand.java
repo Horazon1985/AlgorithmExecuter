@@ -217,7 +217,7 @@ public class AssignValueCommand extends AlgorithmCommand {
                     } else if (malString.getMalStringSummands()[i] instanceof MalStringVariable) {
                         commandString += ((MalStringVariable) malString.getMalStringSummands()[i]).getVariableName();
                     } else {
-                        commandString += malString.getMalStringSummands()[i].toString();
+                        commandString += ((MalStringAbstractExpression) malString.getMalStringSummands()[i]).getAbstractExpression().toString();
                     }
                     if (i < malString.getMalStringSummands().length - 1) {
                         commandString += Operators.CONCAT.getValue();

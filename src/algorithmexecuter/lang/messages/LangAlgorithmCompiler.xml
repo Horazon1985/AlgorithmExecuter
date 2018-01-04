@@ -32,8 +32,8 @@
     <object id = "AC_INVALID_ALGORITHM_NAME">
         <German>Ungültiger Algorithmenname: '[0]'.</German>
         <German>Invalid algorithm name: '[0]'.</German>
-        <Ukrainian>???: '[0]'.</Ukrainian>
-        <Russian>???: '[0]'.</Russian>
+        <Ukrainian>Недійсна назва алгоритму: '[0]'.</Ukrainian>
+        <Russian>Недействительное название алгоритма: '[0]'.</Russian>
     </object>
     <object id = "AC_ALGORITHM_ALREADY_EXISTS">
         <German>Algorithmus mit Signatur [0] existiert bereits.</German>
@@ -197,11 +197,11 @@
         <Ukrainian>Ідентифікатор '[0]', ймовірно, не було ініціалізовано.</Ukrainian>
         <Russian>Идентификатор '[0]', вероятно,  не был инициализирован.</Russian>
     </object>
-    <object id = "AC_BOOLEAN_EXPRESSION_EMPTY_OR_INCOMPLETE">
-        <German>Der boolsche Ausdruck ist leer, fehlerhaft oder unvollständig.</German>
-        <English>The boolean expression is either empty, incorrect or incomplete.</English>
-        <Ukrainian>Булів вираз порожня ??? або неповна.</Ukrainian>
-        <Russian>Булево выражение ???.</Russian>
+    <object id = "AC_BOOLEAN_EXPRESSION_EMPTY_INCORRECT_OR_INCOMPLETE">
+        <German>Boolscher Ausdruck ist leer oder unvollständig.</German>
+        <English>Boolean expression is either empty or incomplete.</English>
+        <Ukrainian>Булів вираз порожній або неповний.</Ukrainian>
+        <Russian>Булево выражение пустое или неполное.</Russian>
     </object>
     <object id = "AC_LEFT_SIDE_OF_BOOLEAN_BINARY_EXPRESSION_IS_EMPTY">
         <German>Linke Seite eines boolschen binären Operators ist leer.</German>
