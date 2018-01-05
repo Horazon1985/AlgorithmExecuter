@@ -19,7 +19,9 @@ import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.command.ForControlStructure;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class AlgorithmCompiler {
     
