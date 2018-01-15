@@ -6,6 +6,7 @@ import abstractexpressions.logicalexpression.classes.LogicalExpression;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
 import algorithmexecuter.enums.ComparingOperators;
 import algorithmexecuter.model.AlgorithmMemory;
+import algorithmexecuter.model.identifier.Identifier;
 import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.model.utilclasses.malstring.MalStringAbstractExpression;
 import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
@@ -84,8 +85,10 @@ public class BooleanComparisonBlock extends BooleanExpression {
             sondern der Vergleich liefert stets 'false'
              */
             try {
-                Expression exprLeft = (Expression) replaceVariablesInExpressionByIdentifierValues((Expression) this.left, scopeMemory);
-                Expression exprRight = (Expression) replaceVariablesInExpressionByIdentifierValues((Expression) this.right, scopeMemory);
+                Expression exprLeft = replaceVariablesInExpressionByIdentifierValues((Expression) this.left, scopeMemory);
+                Expression exprRight = replaceVariablesInExpressionByIdentifierValues((Expression) this.right, scopeMemory);
+                exprLeft = exprLeft.simplify();
+                exprRight = exprRight.simplify();
                 double valueLeft = exprLeft.evaluate();
                 double valueRight = exprRight.evaluate();
                 switch (this.comparingOperator) {
@@ -123,10 +126,6 @@ public class BooleanComparisonBlock extends BooleanExpression {
             }
             return false;
         } else if (isComparisonOfLogicalExpressions()) {
-            /* 
-            Wenn arithmetische Fehler auftreten, dann werden diese nicht geworfen, 
-            sondern der Vergleich liefert stets 'false'
-             */
             boolean logValueLeft = ((LogicalExpression) this.left).evaluate();
             boolean logValueRight = ((LogicalExpression) this.left).evaluate();
             switch (this.comparingOperator) {
@@ -142,8 +141,10 @@ public class BooleanComparisonBlock extends BooleanExpression {
             sondern der Vergleich liefert stets 'false'
              */
             try {
-                MatrixExpression matValueLeft = ((MatrixExpression) this.left).evaluate();
-                MatrixExpression matValueRight = ((MatrixExpression) this.left).evaluate();
+                MatrixExpression matValueLeft = replaceVariablesInMatrixExpressionByIdentifierValues((MatrixExpression) this.left, scopeMemory);
+                MatrixExpression matValueRight = replaceVariablesInMatrixExpressionByIdentifierValues((MatrixExpression) this.right, scopeMemory);
+                matValueLeft = matValueLeft.simplify();
+                matValueRight = matValueRight.simplify();
                 switch (this.comparingOperator) {
                     case EQUALS:
                         return matValueLeft.equivalent(matValueRight);
@@ -206,7 +207,7 @@ public class BooleanComparisonBlock extends BooleanExpression {
         return this.left.toString() + this.comparingOperator.getValue() + this.right.toString();
     }
 
-    private static AbstractExpression replaceVariablesInExpressionByIdentifierValues(Expression expr, AlgorithmMemory scopeMemory) {
+    private static Expression replaceVariablesInExpressionByIdentifierValues(Expression expr, AlgorithmMemory scopeMemory) {
         Set<String> vars = expr.getContainedVars();
         for (String var : vars) {
             if (scopeMemory.containsIdentifier(var) && scopeMemory.get(var).getRuntimeValue() instanceof Expression) {
@@ -214,6 +215,18 @@ public class BooleanComparisonBlock extends BooleanExpression {
             }
         }
         return expr;
+    }
+
+    private static MatrixExpression replaceVariablesInMatrixExpressionByIdentifierValues(MatrixExpression matExpr, AlgorithmMemory scopeMemory) {
+        Set<String> vars = matExpr.getContainedVars();
+        for (String var : vars) {
+            if (scopeMemory.containsIdentifier(var) && scopeMemory.get(var).getRuntimeValue() instanceof Expression) {
+                matExpr = matExpr.replaceVariable(var, (Expression) scopeMemory.get(var).getRuntimeValue());
+            } else if (scopeMemory.containsIdentifier(var) && scopeMemory.get(var).getRuntimeValue() instanceof MatrixExpression) {
+                matExpr = matExpr.replaceMatrixVariable(var, (MatrixExpression) scopeMemory.get(var).getRuntimeValue());
+            }
+        }
+        return matExpr;
     }
 
     private static String replaceVariablesInMalStringByIdentifierValuesAndGetStringValue(MalString malString, AlgorithmMemory scopeMemory) {

@@ -101,10 +101,10 @@ public class AlgorithmMemory {
         return copyOfMemory;
     }
 
-    public void addToMemoryInCompileTime(Identifier identifier) throws AlgorithmCompileException {
+    public void addToMemoryInCompileTime(Integer[] errorLines, Identifier identifier) throws AlgorithmCompileException {
         if (this.memory.get(identifier.getName()) != null) {
             // Identifier existiert bereits!
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, identifier.getName());
+            throw new AlgorithmCompileException(errorLines, AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, identifier.getName());
         }
         this.memory.put(identifier.getName(), identifier);
     }

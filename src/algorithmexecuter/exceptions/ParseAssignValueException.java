@@ -2,7 +2,7 @@ package algorithmexecuter.exceptions;
 
 public class ParseAssignValueException extends AlgorithmCompileException {
     
-    public ParseAssignValueException(Exception e) {
+    public ParseAssignValueException(AlgorithmCompileException e) {
         super(e);
     }
     
@@ -10,5 +10,8 @@ public class ParseAssignValueException extends AlgorithmCompileException {
         super(message, params);
     }
     
+    public ParseAssignValueException(Integer[] errorLines, String message, Object... params) {
+        super(errorLines, message, params);
+    }
     
 }

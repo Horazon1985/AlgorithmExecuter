@@ -44,15 +44,11 @@ public class MalStringAbstractExpression extends MalStringSummand {
                 }
             }
         } else if (this.abstrExpr instanceof MatrixExpression) {
-            Set<String> exprVars = ((MatrixExpression) resultExpression).getContainedExpressionVars();
-            Set<String> matrixVars = ((MatrixExpression) resultExpression).getContainedMatrixVars();
-            for (String var : exprVars) {
-                if (scopeMemory.containsIdentifier(var)) {
+            Set<String> allVars = ((MatrixExpression) resultExpression).getContainedVars();
+            for (String var : allVars) {
+                if (scopeMemory.containsIdentifier(var) && scopeMemory.get(var).getRuntimeValue() instanceof Expression) {
                     resultExpression = ((MatrixExpression) resultExpression).replaceVariable(var, (Expression) scopeMemory.get(var).getRuntimeValue());
-                }
-            }
-            for (String var : matrixVars) {
-                if (scopeMemory.containsIdentifier(var)) {
+                } else if (scopeMemory.containsIdentifier(var) && scopeMemory.get(var).getRuntimeValue() instanceof MatrixExpression) {
                     resultExpression = ((MatrixExpression) resultExpression).replaceMatrixVariable(var, (MatrixExpression) scopeMemory.get(var).getRuntimeValue());
                 }
             }

@@ -22,8 +22,6 @@ import algorithmexecuter.model.utilclasses.malstring.MalStringAbstractExpression
 import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
 import algorithmexecuter.model.utilclasses.malstring.MalStringVariable;
 import exceptions.EvaluationException;
-import java.util.HashSet;
-import java.util.Set;
 
 public class AssignValueCommand extends AlgorithmCommand {
 
@@ -34,9 +32,9 @@ public class AssignValueCommand extends AlgorithmCommand {
     private final Identifier[] targetAlgorithmArguments;
     private Algorithm targetAlgorithm;
 
-    public AssignValueCommand(Identifier identifierSrc, Object targetValue, AssignValueType type) throws AlgorithmCompileException {
+    public AssignValueCommand(Identifier identifierSrc, Object targetValue, AssignValueType type, Integer[] errorLines) throws AlgorithmCompileException {
         if (!areTypesCompatible(identifierSrc, IdentifierType.identifierTypeOf(targetValue))) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES);
+            throw new AlgorithmCompileException(errorLines, AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES);
         }
         this.identifierSrc = identifierSrc;
         this.targetValue = targetValue;
@@ -45,9 +43,9 @@ public class AssignValueCommand extends AlgorithmCommand {
         this.targetAlgorithmArguments = null;
     }
 
-    public AssignValueCommand(Identifier identifierSrc, Signature targetAlgorithmSignature, Identifier[] targetAlgorithmArguments, AssignValueType type) throws AlgorithmCompileException {
+    public AssignValueCommand(Identifier identifierSrc, Signature targetAlgorithmSignature, Identifier[] targetAlgorithmArguments, AssignValueType type, Integer[] errorLines) throws AlgorithmCompileException {
         if (!areTypesCompatible(identifierSrc, targetAlgorithmSignature.getReturnType())) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES);
+            throw new AlgorithmCompileException(errorLines, AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES);
         }
         this.identifierSrc = identifierSrc;
         this.targetValue = null;
@@ -114,18 +112,6 @@ public class AssignValueCommand extends AlgorithmCommand {
             return command + ", targetValue = " + this.targetValue + "]";
         }
         return command + ", targetAlgorithm = " + this.targetAlgorithmSignature.toString() + "]";
-    }
-
-    private Set<String> getVarsFromAlgorithmParameters(Algorithm alg) {
-        Set<String> varsInAlgorithmSignature = new HashSet<>();
-        AbstractExpression abstrExpr;
-        for (Identifier identifier : alg.getInputParameters()) {
-            if (identifier.getRuntimeValue() != null && identifier.getRuntimeValue() instanceof AbstractExpression) {
-                abstrExpr = (AbstractExpression) identifier.getRuntimeValue();
-                varsInAlgorithmSignature.addAll(abstrExpr.getContainedIndeterminates());
-            }
-        }
-        return varsInAlgorithmSignature;
     }
 
     @Override

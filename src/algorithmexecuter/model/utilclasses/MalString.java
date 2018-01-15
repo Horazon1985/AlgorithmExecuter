@@ -43,9 +43,6 @@ public class MalString {
                 vars.add(((MalStringVariable) summand).getVariableName());
             } else if (summand instanceof MalStringAbstractExpression) {
                 AbstractExpression abstrExpr = ((MalStringAbstractExpression) summand).getAbstractExpression();
-                if (abstrExpr instanceof MatrixExpression) {
-                    vars.addAll(((MatrixExpression) abstrExpr).getContainedMatrixVars());
-                }
                 vars.addAll(abstrExpr.getContainedVars());
             }
         }

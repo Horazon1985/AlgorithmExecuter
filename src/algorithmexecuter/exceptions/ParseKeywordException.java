@@ -6,4 +6,8 @@ public class ParseKeywordException extends AlgorithmCompileException {
         super(message, params);
     }
     
+    public ParseKeywordException(Integer[] errorLines, String message, Object... params) {
+        super(errorLines, message, params);
+    }
+    
 }

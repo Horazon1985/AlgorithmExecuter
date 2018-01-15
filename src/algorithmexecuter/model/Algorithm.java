@@ -175,7 +175,7 @@ public class Algorithm {
         return false;
     }
 
-    private Identifier executeStandardAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
+    private Identifier executeStandardAlgorithm(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
         Method[] methods = Algorithm.class.getDeclaredMethods();
         Execute annotation;
         for (Method method : methods) {
@@ -187,7 +187,7 @@ public class Algorithm {
                     if (e.getCause() instanceof AlgorithmExecutionException) {
                         throw (AlgorithmExecutionException) e.getCause();
                     } else if (e.getCause() instanceof EvaluationException) {
-                        throw (EvaluationException) e.getCause();
+                        throw AlgorithmExecutionException.createAlgorithmExecutionExceptionWithMessage(e.getMessage());
                     }
                 }
             }

@@ -6,4 +6,8 @@ public class ParseReturnException extends AlgorithmCompileException {
         super(message, params);
     }
     
+    public ParseReturnException(Integer[] errorLines, String message, Object... params) {
+        super(errorLines, message, params);
+    }
+    
 }

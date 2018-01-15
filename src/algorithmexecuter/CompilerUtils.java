@@ -5,7 +5,6 @@ import abstractexpressions.expression.classes.TypeFunction;
 import abstractexpressions.expression.classes.TypeOperator;
 import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.interfaces.IdentifierValidator;
-import abstractexpressions.matrixexpression.classes.Matrix;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
 import abstractexpressions.matrixexpression.classes.TypeMatrixFunction;
 import abstractexpressions.matrixexpression.classes.TypeMatrixOperator;
@@ -30,6 +29,7 @@ import algorithmexecuter.model.AlgorithmStorage;
 import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.command.AssignValueCommand;
 import algorithmexecuter.model.command.DeclareIdentifierCommand;
+import algorithmexecuter.model.utilclasses.EditorCodeString;
 import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.model.utilclasses.malstring.MalStringVariable;
 import algorithmexecuter.model.utilclasses.ParameterData;
@@ -46,6 +46,9 @@ import java.util.Set;
 
 public final class CompilerUtils {
 
+    private static final String SIGN_TAB = "\t";
+    private static final String SIGN_NEXT_LINE = "\n";
+
     public static final String GEN_VAR = "#";
 
     private CompilerUtils() {
@@ -57,18 +60,18 @@ public final class CompilerUtils {
      */
     public static class AlgorithmParseData {
 
-        String name;
-        String[] parameters;
+        EditorCodeString name;
+        EditorCodeString[] parameters;
 
-        public String getName() {
+        public EditorCodeString getName() {
             return name;
         }
 
-        public String[] getParameters() {
+        public EditorCodeString[] getParameters() {
             return parameters;
         }
 
-        public AlgorithmParseData(String name, String[] parameters) {
+        public AlgorithmParseData(EditorCodeString name, EditorCodeString[] parameters) {
             this.name = name;
             this.parameters = parameters;
         }
@@ -79,11 +82,31 @@ public final class CompilerUtils {
      * Gibt den Parameter input vorformatiert zurück, damit er für einen
      * Kompilierungsprozess geeignet ist.
      */
+    public static EditorCodeString preprocessAlgorithm(EditorCodeString input) {
+        EditorCodeString outputFormatted = input;
+        outputFormatted = removeLeadingWhitespaces(outputFormatted);
+        outputFormatted = removeEndingWhitespaces(outputFormatted);
+        outputFormatted = replaceAllRepeatedly(outputFormatted, " ", SIGN_TAB, SIGN_NEXT_LINE);
+        outputFormatted = replaceAllRepeatedly(outputFormatted, " ", "  ");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, ",", ", ", " ,");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, ";", "; ", " ;");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, "=", " =", "= ");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, "{", " {", "{ ");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, "}", " }", "} ");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, "(", " (", "( ");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, ")", " )", ") ");
+        return outputFormatted;
+    }
+
+    /**
+     * Gibt den Parameter input vorformatiert zurück, damit er für einen
+     * Kompilierungsprozess geeignet ist.
+     */
     public static String preprocessAlgorithm(String input) {
         String outputFormatted = input;
         outputFormatted = removeLeadingWhitespaces(outputFormatted);
         outputFormatted = removeEndingWhitespaces(outputFormatted);
-        outputFormatted = replaceAllRepeatedly(outputFormatted, " ", "\t", "\n");
+        outputFormatted = replaceAllRepeatedly(outputFormatted, " ", SIGN_TAB, SIGN_NEXT_LINE);
         outputFormatted = replaceAllRepeatedly(outputFormatted, " ", "  ");
         outputFormatted = replaceAllRepeatedly(outputFormatted, ",", ", ", " ,");
         outputFormatted = replaceAllRepeatedly(outputFormatted, ";", "; ", " ;");
@@ -93,6 +116,40 @@ public final class CompilerUtils {
         outputFormatted = replaceAllRepeatedly(outputFormatted, "\\(", " \\(", "\\( ");
         outputFormatted = replaceAllRepeatedly(outputFormatted, "\\)", " \\)", "\\) ");
         return outputFormatted;
+    }
+
+    private static EditorCodeString removeLeadingWhitespaces(EditorCodeString input) {
+        while (input.startsWith(" ")) {
+            input = input.substring(1);
+        }
+        while (input.endsWith(" ")) {
+            input = input.substring(0, input.length() - 1);
+        }
+        return input;
+    }
+
+    private static EditorCodeString removeEndingWhitespaces(EditorCodeString input) {
+        while (input.endsWith(" ")) {
+            input = input.substring(0, input.length() - 1);
+        }
+        return input;
+    }
+
+    private static EditorCodeString replaceAllRepeatedly(EditorCodeString input, String replaceBy, String... toReplace) {
+        EditorCodeString result = input;
+        for (String s : toReplace) {
+            result = replaceRepeatedly(result, s, replaceBy);
+        }
+        return result;
+    }
+
+    private static EditorCodeString replaceRepeatedly(EditorCodeString input, String toReplace, String replaceBy) {
+        EditorCodeString result = input;
+        do {
+            input = result;
+            result = result.replaceAll(toReplace, replaceBy);
+        } while (!result.equals(input));
+        return result;
     }
 
     private static String removeLeadingWhitespaces(String input) {
@@ -129,6 +186,18 @@ public final class CompilerUtils {
         return result;
     }
 
+    public static Integer[] getErrorLines(EditorCodeString lines) {
+        if (lines.getValue().isEmpty()) {
+            return new Integer[0];
+        }
+        int numberOfLines = lines.getLineNumbers()[lines.getLineNumbers().length - 1] - lines.getLineNumbers()[0] + 1;
+        Integer[] errorLines = new Integer[numberOfLines];
+        for (int i = 0; i < numberOfLines; i++) {
+            errorLines[i] = lines.getLineNumbers()[0] + 1;
+        }
+        return errorLines;
+    }
+
     /**
      * Gibt die Signatur eines Algorithmus zurück, welche durch die
      * Eingabeparameter vollständig festgelegt ist.
@@ -146,10 +215,10 @@ public final class CompilerUtils {
      * Algorithmusaufruf darstellt, also einen String der Form
      * 'algorithmusname(param1, ..., paramN)'.
      */
-    public static AlgorithmParseData getAlgorithmParseData(String input) throws AlgorithmCompileException {
-        String[] algNameAndParams = CompilerUtils.getAlgorithmNameAndParameters(input);
-        String algName = algNameAndParams[0];
-        String[] params = CompilerUtils.getParameters(algNameAndParams[1]);
+    public static AlgorithmParseData getAlgorithmParseData(EditorCodeString input) throws AlgorithmCompileException {
+        EditorCodeString[] algNameAndParams = CompilerUtils.getAlgorithmNameAndParameters(input);
+        EditorCodeString algName = algNameAndParams[0];
+        EditorCodeString[] params = CompilerUtils.getParameters(algNameAndParams[1]);
         return new AlgorithmParseData(algName, params);
     }
 
@@ -162,36 +231,36 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    private static String[] getAlgorithmNameAndParameters(String input) throws AlgorithmCompileException {
+    private static EditorCodeString[] getAlgorithmNameAndParameters(EditorCodeString input) throws AlgorithmCompileException {
 
         // Leerzeichen beseitigen
         input = CompilerUtils.removeLeadingWhitespaces(input);
 
-        String[] result = new String[2];
+        EditorCodeString[] algNameAndParameters = new EditorCodeString[2];
         int i = input.indexOf(ReservedChars.OPEN_BRACKET.getValue());
         if (i == -1) {
             // Um zu verhindern, dass es eine IndexOutOfBoundsException gibt.
             i = 0;
         }
-        result[0] = input.substring(0, i);
+        algNameAndParameters[0] = input.substring(0, i);
 
         // Wenn der Algorithmusname leer ist -> Fehler.
-        if (result[0].length() == 0) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_ALGORITHM_HAS_NO_NAME);
+        if (algNameAndParameters[0].length() == 0) {
+            throw new AlgorithmCompileException(input.firstChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_HAS_NO_NAME);
         }
 
-        // Wenn result[0].length() > input.length() - 2 -> Fehler (der Befehl besitzt NICHT die Form command(...), insbesondere fehlt ")" am Ende).
-        if (result[0].length() > input.length() - 2) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
+        // Wenn algNameAndParameters[0].length() > input.length() - 2 -> Fehler (Algorithmenaufruf besitzt NICHT die Form 'algName(...)', insbesondere fehlt ")" am Ende).
+        if (algNameAndParameters[0].length() > input.length() - 2) {
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
         }
 
         if (input.charAt(input.length() - 1) != ReservedChars.CLOSE_BRACKET.getValue()) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
         }
 
-        result[1] = input.substring(result[0].length() + 1, input.length() - 1);
+        algNameAndParameters[1] = input.substring(algNameAndParameters[0].length() + 1, input.length() - 1);
 
-        return result;
+        return algNameAndParameters;
 
     }
 
@@ -203,14 +272,14 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    private static String[] getParameters(String input) throws AlgorithmCompileException {
+    private static EditorCodeString[] getParameters(EditorCodeString input) throws AlgorithmCompileException {
 
         // Falls Parameterstring leer ist -> Fertig
         if (input.isEmpty()) {
-            return new String[0];
+            return new EditorCodeString[0];
         }
 
-        ArrayList<String> resultParameters = new ArrayList<>();
+        ArrayList<EditorCodeString> resultParameters = new ArrayList<>();
         int startPositionOfCurrentParameter = 0;
 
         /*
@@ -235,36 +304,34 @@ public final class CompilerUtils {
             }
             if (bracketCounter == 0 && squareBracketCounter == 0 && currentChar == ReservedChars.ARGUMENT_SEPARATOR.getValue()) {
                 if (input.substring(startPositionOfCurrentParameter, i).isEmpty()) {
-                    throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_EXPECTED);
+                    throw new AlgorithmCompileException(input.lineNumberAt(i), AlgorithmCompileExceptionIds.AC_IDENTIFIER_EXPECTED);
                 }
                 resultParameters.add(input.substring(startPositionOfCurrentParameter, i));
                 startPositionOfCurrentParameter = i + 1;
             }
             if (i == input.length() - 1) {
                 if (startPositionOfCurrentParameter == input.length()) {
-                    throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_IDENTIFIER_EXPECTED);
+                    throw new AlgorithmCompileException(input.lineNumberAt(i), AlgorithmCompileExceptionIds.AC_IDENTIFIER_EXPECTED);
                 }
                 resultParameters.add(input.substring(startPositionOfCurrentParameter, input.length()));
             }
 
-        }
-
-        if (bracketCounter != 0 || squareBracketCounter != 0) {
-            if (bracketCounter > 0) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
-            }
             if (bracketCounter < 0) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.OPEN_BRACKET.getValue());
-            }
-            if (squareBracketCounter > 0) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_SQUARE_BRACKET.getValue());
+                throw new AlgorithmCompileException(input.lineNumberAt(i), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.OPEN_BRACKET.getValue());
             }
             if (squareBracketCounter < 0) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.OPEN_SQUARE_BRACKET.getValue());
+                throw new AlgorithmCompileException(input.lineNumberAt(i), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.OPEN_SQUARE_BRACKET.getValue());
             }
         }
 
-        String[] resultParametersAsArray = new String[resultParameters.size()];
+        if (bracketCounter > 0) {
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
+        }
+        if (squareBracketCounter > 0) {
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_SQUARE_BRACKET.getValue());
+        }
+
+        EditorCodeString[] resultParametersAsArray = new EditorCodeString[resultParameters.size()];
         for (int i = 0; i < resultParameters.size(); i++) {
             resultParametersAsArray[i] = resultParameters.get(i);
         }
@@ -291,39 +358,39 @@ public final class CompilerUtils {
 
     /**
      * Prüft, ob algName ein gültiger Algorithmusname ist.
-     * 
+     *
      * @throws AlgorithmCompileException
      */
-    public static void checkIfAlgorithmNameIsValid(String algName) throws AlgorithmCompileException {
+    public static void checkIfAlgorithmNameIsValid(EditorCodeString algName) throws AlgorithmCompileException {
         for (TypeFunction type : TypeFunction.values()) {
-            if (algName.equals(type.name())) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            if (algName.getValue().equals(type.name())) {
+                throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName.getValue());
             }
         }
         for (TypeMatrixFunction type : TypeMatrixFunction.values()) {
-            if (algName.equals(type.name())) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            if (algName.getValue().equals(type.name())) {
+                throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName.getValue());
             }
         }
         for (TypeOperator type : TypeOperator.values()) {
-            if (algName.equals(type.name())) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            if (algName.getValue().equals(type.name())) {
+                throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName.getValue());
             }
         }
         for (TypeMatrixOperator type : TypeMatrixOperator.values()) {
-            if (algName.equals(type.name())) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+            if (algName.getValue().equals(type.name())) {
+                throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName.getValue());
             }
         }
         int asciiValue;
         for (int i = 0; i < algName.length(); i++) {
             asciiValue = (int) algName.charAt(i);
             if (!isNumber(asciiValue) && !isSmallLetter(asciiValue) && !isCapitalLetter(asciiValue) && !isUnderscore(asciiValue)) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName);
+                throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INVALID_ALGORITHM_NAME, algName.getValue());
             }
         }
     }
-    
+
     private static boolean isNumber(int asciiValue) {
         return asciiValue >= 48 && asciiValue <= 57;
     }
@@ -346,13 +413,13 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    public static void checkIfMainAlgorithmSignatureExists(AlgorithmSignatureStorage signatures) throws AlgorithmCompileException {
+    public static void checkIfMainAlgorithmSignatureExists(EditorCodeString inputAlgorithmFile, AlgorithmSignatureStorage signatures) throws AlgorithmCompileException {
         for (Signature sgn : signatures.getAlgorithmSignatureStorage()) {
             if (sgn.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
                 return;
             }
         }
-        throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_DOES_NOT_EXIST);
+        throw new AlgorithmCompileException(inputAlgorithmFile.getLineNumbers(), AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_DOES_NOT_EXIST);
     }
 
     /**
@@ -360,13 +427,13 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    public static void checkIfMainAlgorithmExists(AlgorithmStorage algorithms) throws AlgorithmCompileException {
+    public static void checkIfMainAlgorithmExists(EditorCodeString inputAlgorithmFile, AlgorithmStorage algorithms) throws AlgorithmCompileException {
         for (Algorithm alg : algorithms.getAlgorithmStorage()) {
             if (alg.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
                 return;
             }
         }
-        throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_DOES_NOT_EXIST);
+        throw new AlgorithmCompileException(inputAlgorithmFile.getLineNumbers(), AlgorithmCompileExceptionIds.AC_MAIN_ALGORITHM_DOES_NOT_EXIST);
     }
 
     /**
@@ -374,10 +441,10 @@ public final class CompilerUtils {
      *
      * @throws ParseAssignValueException
      */
-    public static void checkIfAllIdentifiersAreDefined(Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
+    public static void checkIfAllIdentifiersAreDefined(EditorCodeString paramToCheck, Set<String> vars, AlgorithmMemory memory) throws ParseAssignValueException {
         for (String var : vars) {
             if (!memory.containsKey(var)) {
-                throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, var);
+                throw new ParseAssignValueException(paramToCheck.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, var);
             }
         }
     }
@@ -408,13 +475,13 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    public static String[] splitByKomma(String input) throws AlgorithmCompileException {
-        List<String> linesAsList = new ArrayList<>();
+    public static EditorCodeString[] splitByKomma(EditorCodeString input) throws AlgorithmCompileException {
+        List<EditorCodeString> linesAsList = new ArrayList<>();
         int wavedBracketCounter = 0;
         int bracketCounter = 0;
         int squareBracketCounter = 0;
         int beginBlockPosition = 0;
-        int endBlockPosition = -1;
+        int endBlockPosition;
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == ReservedChars.BEGIN.getValue()) {
                 wavedBracketCounter++;
@@ -440,16 +507,16 @@ public final class CompilerUtils {
             }
         }
         if (wavedBracketCounter > 0) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.END);
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.END.getValue());
         }
         if (bracketCounter > 0) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET);
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
         }
         if (squareBracketCounter > 0) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_SQUARE_BRACKET);
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_SQUARE_BRACKET.getValue());
         }
 
-        return linesAsList.toArray(new String[linesAsList.size()]);
+        return linesAsList.toArray(new EditorCodeString[linesAsList.size()]);
     }
 
     /**
@@ -556,7 +623,7 @@ public final class CompilerUtils {
     public static void checkForUnreachableCodeInBlock(List<AlgorithmCommand> commands, Algorithm alg) throws AlgorithmCompileException {
         for (int i = 0; i < commands.size(); i++) {
             if (commands.get(i).isReturnCommand() && i < commands.size() - 1) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg);
+                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg.getName());
             }
             if (commands.get(i).isControlStructure()) {
                 for (List<AlgorithmCommand> commandsInBlock : ((ControlStructure) commands.get(i)).getCommandBlocks()) {
@@ -564,7 +631,7 @@ public final class CompilerUtils {
                 }
                 if (commands.get(i).isIfElseControlStructure()) {
                     if (doBothPartsContainReturnStatementInIfElseBlock((IfElseControlStructure) commands.get(i)) && i < commands.size() - 1) {
-                        throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg);
+                        throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg.getName());
                     }
                 }
             }
@@ -665,24 +732,13 @@ public final class CompilerUtils {
                     allUsedIdentifierNames.addAll(getUsedIdentifierNamesInCaseOfAbstractExpression(abstrExpr));
                 }
             }
+            return allUsedIdentifierNames;
         }
         return new HashSet<>();
     }
 
     private static Set<String> getUsedIdentifierNamesInCaseOfAbstractExpression(AbstractExpression targetValue) {
-        if (targetValue instanceof Expression) {
-            return ((Expression) targetValue).getContainedVars();
-        }
-        if (targetValue instanceof MatrixExpression) {
-            Set<String> allVars = ((MatrixExpression) targetValue).getContainedExpressionVars();
-            Set<String> matrixVars = ((MatrixExpression) targetValue).getContainedMatrixVars();
-            allVars.addAll(matrixVars);
-            return allVars;
-        }
-        if (targetValue instanceof BooleanExpression) {
-
-        }
-        return new HashSet<>();
+        return targetValue.getContainedVars();
     }
 
     private static Set<String> getIdentifiersWhichValueIsAssigned(IfElseControlStructure ifElseControlStructure) {
@@ -768,51 +824,51 @@ public final class CompilerUtils {
     }
 
     ///////////////////// Parsing-HilfsMethoden /////////////////////
-    public static Object parseParameterAgaingstType(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory, IdentifierType type) throws AlgorithmCompileException, ExpressionException, BooleanExpressionException {
+    public static Object parseParameterAgaingstType(EditorCodeString param, IdentifierValidator validator, AlgorithmMemory scopeMemory, IdentifierType type) throws AlgorithmCompileException, ExpressionException, BooleanExpressionException {
         switch (type) {
             case EXPRESSION:
-                Expression expr = buildExpressionWithScopeMemory(input, validator, scopeMemory);
+                Expression expr = buildExpressionWithScopeMemory(param, validator, scopeMemory);
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
-                checkIfAllIdentifiersAreDefined(expr.getContainedVars(), scopeMemory);
+                checkIfAllIdentifiersAreDefined(param, expr.getContainedVars(), scopeMemory);
                 return expr;
             case BOOLEAN_EXPRESSION:
-                BooleanExpression boolExpr = buildBooleanExpressionWithScopeMemory(input, validator, scopeMemory);
+                BooleanExpression boolExpr = buildBooleanExpressionWithScopeMemory(param, validator, scopeMemory);
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
-                CompilerUtils.checkIfAllIdentifiersAreDefined(boolExpr.getContainedVars(), scopeMemory);
+                CompilerUtils.checkIfAllIdentifiersAreDefined(param, boolExpr.getContainedVars(), scopeMemory);
                 return boolExpr;
             case MATRIX_EXPRESSION:
-                MatrixExpression matExpr = buildMatrixExpressionWithScopeMemory(input, validator, scopeMemory);
+                MatrixExpression matExpr = buildMatrixExpressionWithScopeMemory(param, validator, scopeMemory);
                 // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
-                CompilerUtils.checkIfAllIdentifiersAreDefined(matExpr.getContainedVars(), scopeMemory);
+                CompilerUtils.checkIfAllIdentifiersAreDefined(param, matExpr.getContainedVars(), scopeMemory);
                 return matExpr;
             default:
                 // Fall: String. 
-                return getMalString(input, scopeMemory);
+                return getMalString(param, scopeMemory);
         }
     }
 
-    public static ParameterData parseParameterWithoutType(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
+    public static ParameterData parseParameterWithoutType(EditorCodeString param, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
         try {
             // Prüfung, ob der Parameter ein Ausdruck ist.
-            Expression expr = buildExpressionWithScopeMemory(input, validator, scopeMemory);
+            Expression expr = buildExpressionWithScopeMemory(param, validator, scopeMemory);
             return new ParameterData(expr);
         } catch (ExpressionException eExpr) {
             // Prüfung, ob der Parameter ein boolscher Ausdruck ist.
             try {
-                BooleanExpression boolExpr = buildBooleanExpressionWithScopeMemory(input, validator, scopeMemory);
+                BooleanExpression boolExpr = buildBooleanExpressionWithScopeMemory(param, validator, scopeMemory);
                 return new ParameterData(boolExpr);
             } catch (BooleanExpressionException eBoolExpr) {
                 try {
                     // Prüfung, ob der Parameter ein Matrizenausdruck ist.
-                    MatrixExpression matExpr = buildMatrixExpressionWithScopeMemory(input, validator, scopeMemory);
+                    MatrixExpression matExpr = buildMatrixExpressionWithScopeMemory(param, validator, scopeMemory);
                     return new ParameterData(matExpr);
                 } catch (ExpressionException eMatExpr) {
                     // Prüfung, ob der Parameter ein String ist.
                     try {
-                        MalString malString = CompilerUtils.getMalString(input, scopeMemory);
+                        MalString malString = CompilerUtils.getMalString(param, scopeMemory);
                         return new ParameterData(malString);
                     } catch (AlgorithmCompileException e) {
-                        throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, input);
+                        throw new ParseAssignValueException(param.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, param);
                     }
                 }
             }
@@ -820,14 +876,14 @@ public final class CompilerUtils {
     }
 
     ///////////////////// Methoden für die Zerlegung eines Strings ///////////////////////
-    public static MalString getMalString(String input, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
-        List<String> stringValuesAsStrings = decomposeByConcat(input);
+    public static MalString getMalString(EditorCodeString input, AlgorithmMemory scopeMemory) throws AlgorithmCompileException {
+        List<EditorCodeString> stringValuesAsStrings = decomposeByConcat(input);
         List<MalStringSummand> malStringSummands = new ArrayList<>();
-        for (String s : stringValuesAsStrings) {
+        for (EditorCodeString s : stringValuesAsStrings) {
             if (isValidString(s)) {
-                malStringSummands.add(new MalStringCharSequence(s.substring(1, s.length() - 1)));
-            } else if (scopeMemory.containsIdentifier(s) && scopeMemory.get(s).getType().equals(IdentifierType.STRING)) {
-                malStringSummands.add(new MalStringVariable(scopeMemory.get(s).getName()));
+                malStringSummands.add(new MalStringCharSequence(s.substring(1, s.length() - 1).getValue()));
+            } else if (scopeMemory.containsIdentifier(s.getValue()) && scopeMemory.get(s.getValue()).getType().equals(IdentifierType.STRING)) {
+                malStringSummands.add(new MalStringVariable(scopeMemory.get(s.getValue()).getName()));
             } else {
                 // Öffnende Klammer am Anfang und schließende Klammer am Ende beseitigen.
                 boolean stringWasSurroundedByBracket = false;
@@ -840,7 +896,7 @@ public final class CompilerUtils {
                 try {
                     abstrExpr = buildExpressionWithScopeMemory(s, AlgorithmCompiler.VALIDATOR, scopeMemory);
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
-                    CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
+                    CompilerUtils.checkIfAllIdentifiersAreDefined(s, abstrExpr.getContainedVars(), scopeMemory);
                     malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
                     continue;
                 } catch (ExpressionException e) {
@@ -848,7 +904,7 @@ public final class CompilerUtils {
                 try {
                     abstrExpr = buildBooleanExpressionWithScopeMemory(s, AlgorithmCompiler.VALIDATOR, scopeMemory);
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
-                    CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
+                    CompilerUtils.checkIfAllIdentifiersAreDefined(s, abstrExpr.getContainedVars(), scopeMemory);
                     malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
                     continue;
                 } catch (BooleanExpressionException e) {
@@ -856,7 +912,7 @@ public final class CompilerUtils {
                 try {
                     abstrExpr = buildMatrixExpressionWithScopeMemory(s, AlgorithmCompiler.VALIDATOR, scopeMemory);
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
-                    CompilerUtils.checkIfAllIdentifiersAreDefined(abstrExpr.getContainedVars(), scopeMemory);
+                    CompilerUtils.checkIfAllIdentifiersAreDefined(s, abstrExpr.getContainedVars(), scopeMemory);
                     malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
                     continue;
                 } catch (ExpressionException e) {
@@ -864,7 +920,7 @@ public final class CompilerUtils {
                 if (abstrExpr == null) {
                     // Letzte Möglichkeit: s war von Klammern umgeben und innen steht ein zusammengesetzter String.
                     if (stringWasSurroundedByBracket) {
-                        List<String> substrings = decomposeByConcat(s);
+                        List<EditorCodeString> substrings = decomposeByConcat(s);
                         if (substrings.size() > 1) {
                             MalString subMalString = getMalString(s, scopeMemory);
                             for (MalStringSummand obj : subMalString.getMalStringSummands()) {
@@ -872,7 +928,7 @@ public final class CompilerUtils {
                             }
                         }
                     } else {
-                        throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_NOT_A_VALID_STRING, s);
+                        throw new ParseAssignValueException(s.getLineNumbers(), AlgorithmCompileExceptionIds.AC_NOT_A_VALID_STRING, s);
                     }
                 }
             }
@@ -881,8 +937,8 @@ public final class CompilerUtils {
         return new MalString(malStringSummands.toArray(new MalStringSummand[malStringSummands.size()]));
     }
 
-    public static MalString getMalString(String input, Map<String, IdentifierType> typesMap) throws AlgorithmCompileException {
-        // Hier wird ein "Hilfsspeicher" erschaffen, damit die getMalString-Methode 
+    public static MalString getMalString(EditorCodeString input, Map<String, IdentifierType> typesMap) throws AlgorithmCompileException {
+        // Hier wird ein "Hilfsspeicher" erschaffen, damit die Methode getMalString()
         // mit der Signatur getMalString(String,AlgorithmMemory) anwendbar ist.
         AlgorithmMemory memory = new AlgorithmMemory(null);
         for (String varName : typesMap.keySet()) {
@@ -891,8 +947,8 @@ public final class CompilerUtils {
         return getMalString(input, memory);
     }
 
-    private static List<String> decomposeByConcat(String input) throws AlgorithmCompileException {
-        List<String> stringValues = new ArrayList<>();
+    private static List<EditorCodeString> decomposeByConcat(EditorCodeString input) throws AlgorithmCompileException {
+        List<EditorCodeString> stringValues = new ArrayList<>();
 
         int bracketCounter = 0;
         int beginBlockPosition = 0;
@@ -920,7 +976,7 @@ public final class CompilerUtils {
             }
         }
         if (bracketCounter > 0) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET);
+            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
         }
         if (endBlockPosition != input.length()) {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, input.substring(endBlockPosition));
@@ -929,23 +985,23 @@ public final class CompilerUtils {
         return stringValues;
     }
 
-    private static boolean isValidString(String input) {
+    private static boolean isValidString(EditorCodeString input) {
         return input.startsWith(ReservedChars.STRING_DELIMITER.getStringValue())
                 && input.endsWith(ReservedChars.STRING_DELIMITER.getStringValue())
                 && input.replaceAll(ReservedChars.STRING_DELIMITER.getStringValue(), "").length() == input.length() - 2;
     }
 
     ////////////////////////////////// Parsen von abstrakten Ausdrücken unter Zuhilfenahme bereits bekannter Bezeichner im Speicher //////////////////////////////////
-    public static Expression buildExpressionWithScopeMemory(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws ExpressionException {
+    public static Expression buildExpressionWithScopeMemory(EditorCodeString input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws ExpressionException {
         validator.setKnownVariables(extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory));
         try {
-            return Expression.build(input, validator);
+            return Expression.build(input.getValue(), validator);
         } finally {
             validator.unsetKnownVariables();
         }
     }
 
-    public static BooleanExpression buildBooleanExpressionWithScopeMemory(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws BooleanExpressionException {
+    public static BooleanExpression buildBooleanExpressionWithScopeMemory(EditorCodeString input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws BooleanExpressionException {
         validator.setKnownVariables(extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory));
         try {
             return BooleanExpression.build(input, validator, extractTypesFromMemory(scopeMemory));
@@ -954,10 +1010,10 @@ public final class CompilerUtils {
         }
     }
 
-    public static MatrixExpression buildMatrixExpressionWithScopeMemory(String input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws ExpressionException {
+    public static MatrixExpression buildMatrixExpressionWithScopeMemory(EditorCodeString input, IdentifierValidator validator, AlgorithmMemory scopeMemory) throws ExpressionException {
         validator.setKnownVariables(extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory));
         try {
-            return MatrixExpression.build(input, validator, validator);
+            return MatrixExpression.build(input.getValue(), validator, validator);
         } finally {
             validator.unsetKnownVariables();
         }

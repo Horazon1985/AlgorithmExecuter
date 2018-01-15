@@ -16,7 +16,7 @@ import algorithmexecuter.exceptions.AlgorithmCompileException;
 import algorithmexecuter.exceptions.BooleanExpressionException;
 import algorithmexecuter.exceptions.constants.AlgorithmCompileExceptionIds;
 import algorithmexecuter.model.AlgorithmMemory;
-import algorithmexecuter.model.identifier.Identifier;
+import algorithmexecuter.model.utilclasses.EditorCodeString;
 import algorithmexecuter.model.utilclasses.MalString;
 import exceptions.ExpressionException;
 import java.util.HashSet;
@@ -107,7 +107,7 @@ public abstract class BooleanExpression implements AbstractExpression {
         return exprVars;
     }
 
-    public static BooleanExpression build(String input, IdentifierValidator validator,
+    public static BooleanExpression build(EditorCodeString input, IdentifierValidator validator,
             Map<String, IdentifierType> typesMap) throws BooleanExpressionException {
 
         /*
@@ -117,9 +117,9 @@ public abstract class BooleanExpression implements AbstractExpression {
         int breakpoint = -1;
         int bracketCounter = 0;
         int inputLength = input.length();
-        String currentEnding;
+        EditorCodeString currentEnding;
 
-        if (input.equals("")) {
+        if (input.getValue().equals("")) {
             throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_BOOLEAN_EXPRESSION_EMPTY_OR_INCOMPLETE);
         }
 
@@ -170,13 +170,13 @@ public abstract class BooleanExpression implements AbstractExpression {
 
         // Aufteilung, falls eine Elementaroperation (|, &, !) vorliegt
         if (priority < 2) {
-            String inputLeft = input.substring(0, breakpoint);
-            String inputRight = input.substring(breakpoint + 1, inputLength);
+            EditorCodeString inputLeft = input.substring(0, breakpoint);
+            EditorCodeString inputRight = input.substring(breakpoint + 1, inputLength);
 
-            if (inputLeft.equals("") && priority != 1) {
+            if (inputLeft.getValue().equals("") && priority != 1) {
                 throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_LEFT_SIDE_OF_BOOLEAN_BINARY_EXPRESSION_IS_EMPTY);
             }
-            if (inputRight.equals("")) {
+            if (inputRight.getValue().equals("")) {
                 throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_RIGHT_SIDE_OF_BOOLEAN_BINARY_EXPRESSION_IS_EMPTY);
             }
 
@@ -197,7 +197,7 @@ public abstract class BooleanExpression implements AbstractExpression {
              werden und dann die entsprechende Negation zurückgegeben
              werden.
              */
-            String inputLeft = input.substring(1, inputLength);
+            EditorCodeString inputLeft = input.substring(1, inputLength);
             return new BooleanNegation(build(inputLeft, validator, typesMap));
         }
 
@@ -220,14 +220,15 @@ public abstract class BooleanExpression implements AbstractExpression {
 
             if (comparisonType != null) {
                 // Es kommt genau ein Vergleichsoperator in input vor.
-                String[] comparison = input.split(comparisonType.getValue());
+                EditorCodeString leftPart = input.substring(0, input.indexOf(comparisonType.getValue()));
+                EditorCodeString rightPart = input.substring(input.indexOf(comparisonType.getValue()) + comparisonType.getValue().length());
                 /* 
                 Es wird nach folgenden Regeln eine Instanz von BooleanComparisonBlock gebildet: 
                 (1) Alle Operatoren machen bei gewöhnlichen Ausdrücken Sinn. 
                 (2) Bei boolschen Ausdrücken, Matrizenausdrücken und Strings machen nur "==" und "!=" Sinn.
                  */
-                Object left = parseMalExpression(comparison[0], validator, typesMap);
-                Object right = parseMalExpression(comparison[1], validator, typesMap);
+                Object left = parseMalExpression(leftPart, validator, typesMap);
+                Object right = parseMalExpression(rightPart, validator, typesMap);
                 if (left != null && right != null) {
                     if (left instanceof Expression && right instanceof Expression) {
                         return new BooleanComparisonBlock(left, right, comparisonType);
@@ -241,38 +242,38 @@ public abstract class BooleanExpression implements AbstractExpression {
                     if (left instanceof MalString && right instanceof MalString && (comparisonType == ComparingOperators.EQUALS || comparisonType == ComparingOperators.NOT_EQUALS)) {
                         return new BooleanComparisonBlock(left, right, comparisonType);
                     }
-                    throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, null, null);
+                    throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_BOOLEAN_OPERATOR_NOT_APPLICABLE, left, right);
                 }
             }
         }
 
         // Falls kein binärer Operator und die Formel die Form (...) hat -> Klammern beseitigen
-        if (priority == 4 && input.substring(0, 1).equals(ReservedChars.OPEN_BRACKET.getStringValue())
-                && input.substring(inputLength - 1, inputLength).equals(ReservedChars.CLOSE_BRACKET.getStringValue())) {
+        if (priority == 4 && input.substring(0, 1).getValue().equals(ReservedChars.OPEN_BRACKET.getStringValue())
+                && input.substring(inputLength - 1, inputLength).getValue().equals(ReservedChars.CLOSE_BRACKET.getStringValue())) {
             return build(input.substring(1, inputLength - 1), validator, typesMap);
         }
 
         // Falls der Ausdruck eine logische Konstante ist (false, true)
         if (priority == 4) {
-            if (input.equals(Keyword.FALSE.getValue())) {
+            if (input.getValue().equals(Keyword.FALSE.getValue())) {
                 return new BooleanConstant(false);
             }
-            if (input.equals(Keyword.TRUE.getValue())) {
+            if (input.getValue().equals(Keyword.TRUE.getValue())) {
                 return new BooleanConstant(true);
             }
         }
 
         // Falls der Ausdruck eine Variable ist
         if (priority == 4) {
-            if (validator.isValidIdentifier(input) && typesMap.get(input) == IdentifierType.BOOLEAN_EXPRESSION) {
-                return new BooleanVariable(input);
+            if (validator.isValidIdentifier(input.getValue()) && typesMap.get(input.getValue()) == IdentifierType.BOOLEAN_EXPRESSION) {
+                return new BooleanVariable(input.getValue());
             }
         }
 
-        throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_BOOLEAN_EXPRESSION_CANNOT_BE_INTERPRETED, input);
+        throw new BooleanExpressionException(AlgorithmCompileExceptionIds.AC_BOOLEAN_EXPRESSION_CANNOT_BE_INTERPRETED, input.getValue());
     }
 
-    private static boolean containsOperatorExactlyOneTime(String input, ComparingOperators op) {
+    private static boolean containsOperatorExactlyOneTime(EditorCodeString input, ComparingOperators op) {
         return input.contains(op.getValue()) && input.length() - input.replaceAll(op.getValue(), "").length() == op.getValue().length();
     }
 
@@ -280,29 +281,22 @@ public abstract class BooleanExpression implements AbstractExpression {
      * Versucht, den Parameter input zu parsen. Die Typen, gegen die geparst
      * wird, sind: Expression, BooleanExpression, MatrixExpression, MalString.
      */
-    private static Object parseMalExpression(String input, IdentifierValidator validator, Map<String, IdentifierType> typesMap) {
+    private static Object parseMalExpression(EditorCodeString input, IdentifierValidator validator, Map<String, IdentifierType> typesMap) {
         // In valuesMap werden nur Variablen aufgenommen.
         AbstractExpression parsedInput;
         try {
-            parsedInput = Expression.build(input, validator);
+            parsedInput = Expression.build(input.getValue(), validator);
             if (doesValuesMapContainAllVarsOfCorrectType(parsedInput, typesMap)) {
                 return parsedInput;
             }
         } catch (ExpressionException e) {
         }
         try {
-            parsedInput = BooleanExpression.build(input, validator, typesMap);
-            if (doesValuesMapContainAllVarsOfCorrectType(parsedInput, typesMap)) {
-                return parsedInput;
-            }
-        } catch (BooleanExpressionException e) {
-        }
-        try {
             /*
             Hier darf build() rekursiv angewendet werden, da input hier eine kleinere Länge
             besitzt, als der input im vorherigen Aufruf.
              */
-            parsedInput = MatrixExpression.build(input, validator, validator);
+            parsedInput = MatrixExpression.build(input.getValue(), validator, validator);
             if (doesValuesMapContainAllVarsOfCorrectType(parsedInput, typesMap)) {
                 return parsedInput;
             }
@@ -324,15 +318,6 @@ public abstract class BooleanExpression implements AbstractExpression {
         return null;
     }
     
-    private static AlgorithmMemory createHelpMemory(Map<String, IdentifierType> typesMap) {
-        AlgorithmMemory memory = new AlgorithmMemory(null);
-        for (String varName : typesMap.keySet()) {
-            memory.put(varName, Identifier.createIdentifier(varName, typesMap.get(varName)));
-        }
-        return memory;
-    }
-    
-
     private static boolean doesValuesMapContainAllVarsOfCorrectType(AbstractExpression abstrExpr, Map<String, IdentifierType> typesMap) {
         Set<String> vars = abstrExpr.getContainedVars();
         IdentifierType type = IdentifierType.identifierTypeOf(abstrExpr);

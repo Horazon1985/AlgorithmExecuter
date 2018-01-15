@@ -20,6 +20,7 @@ import algorithmexecuter.model.command.ReturnCommand;
 import algorithmexecuter.model.command.VoidCommand;
 import java.util.List;
 import algorithmexecuter.lang.translator.Translator;
+import algorithmexecuter.model.utilclasses.EditorCodeString;
 import algorithmexecuter.model.utilclasses.MalString;
 import algorithmexecuter.model.utilclasses.malstring.MalStringAbstractExpression;
 import algorithmexecuter.model.utilclasses.malstring.MalStringCharSequence;
@@ -39,6 +40,14 @@ public class AlgorithmCompileTests {
     }
 
     @Test
+    public void preprocessMainWithEditorCodeStringTest() {
+        EditorCodeString input = new EditorCodeString("main() { expression    a =     sin( 5   )  ;   a = a+   5  ;   }   ");
+        EditorCodeString outputFormatted = CompilerUtils.preprocessAlgorithm(input);
+        EditorCodeString outputFormattedExpected = new EditorCodeString("main(){expression a=sin(5);a=a+ 5;}");
+        assertTrue(outputFormatted.equals(outputFormattedExpected));
+    }
+
+    @Test
     public void preprocessAlgorithmTest() {
         String input = "alg(expression   a   ,  expression b) {return  a  ;   }   ";
         String outputFormatted = CompilerUtils.preprocessAlgorithm(input);
@@ -47,16 +56,42 @@ public class AlgorithmCompileTests {
     }
 
     @Test
+    public void preprocessAlgorithmWithEditorCodeStringTest() {
+        EditorCodeString input = new EditorCodeString("alg(expression   a   ,  expression b) {return  a  ;   }   ");
+        EditorCodeString outputFormatted = CompilerUtils.preprocessAlgorithm(input);
+        EditorCodeString outputFormattedExpected = new EditorCodeString("alg(expression a,expression b){return a;}");
+        assertTrue(outputFormatted.equals(outputFormattedExpected));
+    }
+
+    @Test
     public void preprocessNonTrivialAlgorithmTest() {
-        String input = "expression main(){expression a=5;do  {a=a+1;}   while(a<10);return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	do{\n"
+                + "		a=a+1;\n"
+                + "	}\n"
+                + "	while(a<10);\n"
+                + "	return a;\n"
+                + "}";
         String outputFormatted = CompilerUtils.preprocessAlgorithm(input);
         String outputFormattedExpected = "expression main(){expression a=5;do{a=a+1;}while(a<10);return a;}";
         assertTrue(outputFormatted.equals(outputFormattedExpected));
     }
 
     @Test
+    public void preprocessNonTrivialAlgorithmWithEditorCodeStringTest() {
+        EditorCodeString input = new EditorCodeString("expression main(){expression a=5;do  {a=a+1;}   while(a<10);return a;}");
+        EditorCodeString outputFormatted = CompilerUtils.preprocessAlgorithm(input);
+        EditorCodeString outputFormattedExpected = new EditorCodeString("expression main(){expression a=5;do{a=a+1;}while(a<10);return a;}");
+        assertTrue(outputFormatted.equals(outputFormattedExpected));
+    }
+
+    @Test
     public void parseSimpleAlgorithmWithReturnTest() {
-        String input = "expression main(){expression a=5;return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -73,7 +108,10 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmTest() {
-        String input = "main(){expression a=5;a=a+5;}";
+        String input = "main(){\n"
+                + "	expression a=5;\n"
+                + "	a=a+5;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -90,7 +128,11 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmWithReturnTypeStringTest() {
-        String input = "string main(){expression a=3;string s=\"a hat den Wert \"+a;return s;}";
+        String input = "string main(){\n"
+                + "	expression a=3;\n"
+                + "	string s=\"a hat den Wert \"+a;\n"
+                + "	return s;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -112,7 +154,12 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithReturnTypeStringTest() {
-        String input = "string main(){expression a=3;expression b=5;string s=\"a+b hat den Wert \"+((a+b)+\". Dies wurde eben ausgegeben.\");return s;}";
+        String input = "string main(){\n"
+                + "	expression a=3;\n"
+                + "	expression b=5;\n"
+                + "	string s=\"a+b hat den Wert \"+((a+b)+\". Dies wurde eben ausgegeben.\");\n"
+                + "	return s;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -163,7 +210,15 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmWithIfElseTest() {
-        String input = "expression main(){expression a=3;expression b=5;if(a==3){return a;}else{return b;}}";
+        String input = "expression main(){\n"
+                + "	expression a=3;\n"
+                + "	expression b=5;\n"
+                + "	if(a==3){\n"
+                + "		return a;\n"
+                + "	}else{\n"
+                + "		return b;\n"
+                + "	}\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -185,7 +240,17 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithIfElseTest() {
-        String input = "expression main(){expression a=3;expression b=5;if(a==3){expression c=8;return a;}else{expression c=10;return b;}}";
+        String input = "expression main(){\n"
+                + "	expression a=3;\n"
+                + "	expression b=5;\n"
+                + "	if(a==3){\n"
+                + "		expression c=8;\n"
+                + "		return a;\n"
+                + "	}else{\n"
+                + "		expression c=10;\n"
+                + "		return b;\n"
+                + "	}\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -209,7 +274,16 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithIdentifierDeclarationAndIfElseTest() {
-        String input = "expression main(){expression a=2;expression b;if(a==1){b=7;}else{b=13;}return b;}";
+        String input = "expression main(){\n"
+                + "	expression a=2;\n"
+                + "	expression b;\n"
+                + "	if(a==1){\n"
+                + "		b=7;\n"
+                + "	}else{\n"
+                + "		b=13;\n"
+                + "	}\n"
+                + "	return b;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm alg = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage().get(0);
@@ -228,7 +302,17 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithIfElseAndBreakTest() {
-        String input = "expression main(){expression a=2;expression b;if(a==1){b=7;}else{b=13;break;}return b;}";
+        String input = "expression main(){\n"
+                + "	expression a=2;\n"
+                + "	expression b;\n"
+                + "	if(a==1){\n"
+                + "		b=7;\n"
+                + "	}else{\n"
+                + "		b=13;\n"
+                + "		break;\n"
+                + "	}\n"
+                + "	return b;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail(input + " konnte geparst werden, obwohl es Compilerfehler enthielt.");
@@ -239,7 +323,15 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmWithIfElseForMatrixComparisonTest() {
-        String input = "matrixexpression main(){matrixexpression a=[1,1;2,-5]*[3;4];matrixexpression b=[7;15];if(a==b){return a;}else{return b;}}";
+        String input = "matrixexpression main(){\n"
+                + "	matrixexpression a=[1,1;2,-5]*[3;4];\n"
+                + "	matrixexpression b=[7;15];\n"
+                + "	if(a==b){\n"
+                + "		return a;\n"
+                + "	}else{\n"
+                + "		return b;\n"
+                + "	}\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -261,8 +353,19 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithAlgorithmUsageInConditionTest() {
-        String input = "expression main(){expression a=4;expression b=6;if(ggt(a,b)==2){return 5;}else{return 7;}} "
-                + "expression ggt(expression a, expression b){return gcd(a, b);}";
+        String input = "expression main(){\n"
+                + "	expression a=4;\n"
+                + "	expression b=6;\n"
+                + "	if(ggt(a,b)==2){\n"
+                + "		return 5;\n"
+                + "	}else{\n"
+                + "		return 7;\n"
+                + "	}\n"
+                + "}\n"
+                + "\n"
+                + "expression ggt(expression a,expression b){\n"
+                + "	return gcd(a,b);\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -284,7 +387,13 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmWithWhileLoopTest() {
-        String input = "expression main(){expression a = 1;while(a<6){a = 2*a;}return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=1;\n"
+                + "	while(a<6){\n"
+                + "		a=2*a;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -304,9 +413,21 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithAlgorithmCallInWhileConditionTest() {
-        String input = "expression main(){expression a = 1;while(f(a)*g(a)<6){a=a+1;}return a;} "
-                + "expression f(expression a) {return a-1;} "
-                + "expression g(expression a) {return a+1;} ";
+        String input = "expression main(){\n"
+                + "	expression a=1;\n"
+                + "	while(f(a)*g(a)<6){\n"
+                + "		a=a+1;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}\n"
+                + "\n"
+                + "expression f(expression a){\n"
+                + "	return a-1;\n"
+                + "}\n"
+                + "\n"
+                + "expression g(expression a){\n"
+                + "	return a+1;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -329,7 +450,14 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmWithDoWhileLoopTest() {
-        String input = "expression main(){expression a=5;do{a=a+1;}while(a<10);return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	do{\n"
+                + "		a=a+1;\n"
+                + "	}\n"
+                + "	while(a<10);\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -349,9 +477,22 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithAlgorithmCallInDoWhileConditionTest() {
-        String input = "expression main(){expression a = 1;do{a=a+1;}while(f(a)*g(a)<6);return a;} "
-                + "expression f(expression a) {return a-1;} "
-                + "expression g(expression a) {return a+1;}";
+        String input = "expression main(){\n"
+                + "	expression a=1;\n"
+                + "	do{\n"
+                + "		a=a+1;\n"
+                + "	}\n"
+                + "	while(f(a)*g(a)<6);\n"
+                + "	return a;\n"
+                + "}\n"
+                + "\n"
+                + "expression f(expression a){\n"
+                + "	return a-1;\n"
+                + "}\n"
+                + "\n"
+                + "expression g(expression a){\n"
+                + "	return a+1;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -374,7 +515,13 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseSimpleAlgorithmWithForLoopTest() {
-        String input = "expression main(){expression a=5;for(expression i=0, i<7, i=i+1){a=a+i^2;}return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	for(expression i=0,i<7,i=i+1){\n"
+                + "		a=a+i^2;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -394,8 +541,17 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithAlgorithmCallInForConditionTest() {
-        String input = "expression main(){expression a = 1;for(expression i=0,f(i)<10,i=i+1){a=3*a+1;}return a;} "
-                + "expression f(expression a) {return a-1;} ";
+        String input = "expression main(){\n"
+                + "	expression a=1;\n"
+                + "	for(expression i=0,f(i)<10,i=i+1){\n"
+                + "		a=3*a+1;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}\n"
+                + "\n"
+                + "expression f(expression a){\n"
+                + "	return a-1;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -416,7 +572,16 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithForLoopAndBreakTest() {
-        String input = "expression main(){expression a=5;for(expression i=0, i<7, i=i+1){a=a+i^2; if (i==5){break;}}return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	for(expression i=0,i<7,i=i+1){\n"
+                + "		a=a+i^2;\n"
+                + "		if(i==5){\n"
+                + "			break;\n"
+                + "		}\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -439,7 +604,14 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithForLoopTest() {
-        String input = "expression main(){expression a=5;for(expression i=0, i<7, i=i+1){a=a+i^2;}expression i=10;return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	for(expression i=0,i<7,i=i+1){\n"
+                + "		a=a+i^2;\n"
+                + "	}\n"
+                + "	expression i=10;\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
@@ -507,9 +679,20 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmCallingTheCorrectAlgorithmTest() {
-        String input = "expression main(){expression res = 5*myggt(10,14)*7; return res;} "
-                + "expression ggt(expression a, expression b){expression result = gcd(a, b); return result;} "
-                + "expression myggt(expression a, expression b){expression result = gcd(a, b); return result;} ";
+        String input = "expression main(){\n"
+                + "	expression res=5*myggt(10,14)*7;\n"
+                + "	return res;\n"
+                + "}\n"
+                + "\n"
+                + "expression ggt(expression a,expression b){\n"
+                + "	expression result=gcd(a,b);\n"
+                + "	return result;\n"
+                + "}\n"
+                + "\n"
+                + "expression myggt(expression a,expression b){\n"
+                + "	expression result=gcd(a,b);\n"
+                + "	return result;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -553,8 +736,15 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmCallingAnotherAlgorithmInOneAssignmentTest() {
-        String input = "expression main(){expression ggt = computeggt(15, 25)*exp(2)*computeggt(15, 25); return ggt;} "
-                + "expression computeggt(expression a, expression b){expression result = gcd(a, b); return result;}";
+        String input = "expression main(){\n"
+                + "	expression ggt=computeggt(15,25)*exp(2)*computeggt(15,25);\n"
+                + "	return ggt;\n"
+                + "}\n"
+                + "\n"
+                + "expression computeggt(expression a,expression b){\n"
+                + "	expression result=gcd(a,b);\n"
+                + "	return result;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -585,7 +775,10 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithNonTrivialReturnCommandTest() {
-        String input = "expression main(){expression a = 3; return 7*a;}";
+        String input = "expression main(){\n"
+                + "	expression a=3;\n"
+                + "	return 7*a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
@@ -759,7 +952,11 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithUnreachableCodeTest() {
-        String input = "expression main(){expression a=exp(1);if(a>2){return a;expression b=a+5;}}";
+        String input = "expression main(){\n"
+                + "	expression a=exp(1);\n"
+                + "	return a;\n"
+                + "	expression b=a+5;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz unerreichbarem Code kompiliert.");
@@ -769,7 +966,9 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithoutReturnCommandTest1() {
-        String input = "expression main(){expression x=2;}";
+        String input = "expression main(){\n"
+                + "	expression x=2;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz fehlendem 'return' kompiliert.");
@@ -779,7 +978,12 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithoutReturnCommandTest2() {
-        String input = "expression main(){expression result=1;if(result>0){result=3*result;}}";
+        String input = "expression main(){\n"
+                + "	expression result=1;\n"
+                + "	if(result>0){\n"
+                + "		result=3*result;\n"
+                + "	}\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz fehlendem 'return' kompiliert.");
@@ -789,8 +993,14 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithDoubledParametersTest() {
-        String input = "expression main(){expression ggt = computeggt(15, 25); return ggt;} "
-                + "expression computeggt(expression a, expression a){return a;}";
+        String input = "expression main(){\n"
+                + "	expression ggt=computeggt(15,25);\n"
+                + "	return ggt;\n"
+                + "}\n"
+                + "\n"
+                + "expression computeggt(expression a,expression a){\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz doppelt vorkommender Parameter in einem Algorithmusheader kompiliert.");
@@ -801,7 +1011,13 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithWrongForLoopTest() {
-        String input = "expression main(){expression a=5;for(expression i=0,i<7){a=a+i^2;}return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	for(expression i=0,i<7){\n"
+                + "		a=a+i^2;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz doppelt fehlerhafter For-Struktur kompiliert.");
@@ -812,7 +1028,13 @@ public class AlgorithmCompileTests {
 
     @Test
     public void parseAlgorithmWithWrongForLoopWithFourCommandsInHeaderTest() {
-        String input = "expression main(){expression a=5;for(expression i=0,i<7,i++,i=i+7){a=a+i^2;}return a;}";
+        String input = "expression main(){\n"
+                + "	expression a=5;\n"
+                + "	for(expression i=0,i<7,i++,i=i+7){\n"
+                + "		a=a+i^2;\n"
+                + "	}\n"
+                + "	return a;\n"
+                + "}";
         try {
             AlgorithmCompiler.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz doppelt fehlerhafter For-Struktur kompiliert.");

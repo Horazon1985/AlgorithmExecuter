@@ -8,4 +8,8 @@ public class BooleanExpressionException extends AlgorithmException {
         super(Translator.translateOutputMessage(message, params));
     }
     
+    public BooleanExpressionException(Integer[] errorLines, String message, Object... params) {
+        super(errorLines, Translator.translateOutputMessage(message, params));
+    }
+    
 }

@@ -1,6 +1,7 @@
 package algorithmexecuter.output;
 
 import algorithmexecuter.enums.IdentifierType;
+import algorithmexecuter.exceptions.AlgorithmException;
 import algorithmexecuter.exceptions.constants.AlgorithmPrinterExceptionIds;
 import algorithmexecuter.model.identifier.Identifier;
 import algorithmexecuter.model.Algorithm;
@@ -134,7 +135,22 @@ public class AlgorithmOutputPrinter {
         }
         StyledDocument doc = this.outputArea.getStyledDocument();
         SimpleAttributeSet keyWord = new SimpleAttributeSet();
-        println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
+        if (e instanceof AlgorithmException) {
+            Integer[] errorLines = ((AlgorithmException) e).getErrorLines();
+            if (errorLines == null) {
+                println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
+            } else {
+                Integer firstLine = errorLines[0] + 1;
+                String linesWithError = firstLine.toString();
+                Integer lastLine = errorLines[errorLines.length - 1] + 1;
+                if (lastLine > firstLine) {
+                    linesWithError += "-" + lastLine;
+                }
+                println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXCEPTION_IN_ALGORITHM_LINE_OCCURRED, linesWithError, e.getMessage()));
+            }
+        } else {
+            println(doc, keyWord, Translator.translateOutputMessage(AlgorithmPrinterExceptionIds.AP_EXCEPTION_IN_ALGORITHM_OCCURRED, e.getMessage()));
+        }
     }
 
     public void printUnexpectedException(Exception e) {

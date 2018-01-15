@@ -5,6 +5,12 @@
         <Ukrainian>Ідентифікатор [0] вже існує.</Ukrainian>
         <Russian>Ідентификатор [0] уже существует.</Russian>
     </object>
+    <object id = "AC_IDENTIFIER_VALUE_EXPECTED">
+        <German>Wert für Bezeichner '[0]' erwartet.</German>
+        <English>Value for identifier '[0]' expected.</English>
+        <Ukrainian>???</Ukrainian>
+        <Russian>???</Russian>
+    </object>
     <object id = "AC_INCOMPATIBLE_TYPES">
         <German>Inkompatible Typen: [0] kann nicht zu [1] konvertiert werden.</German>
         <English>Incompatible types: [0] cannot be converted to [1].</English>
@@ -72,10 +78,10 @@
         <Russian>Ожидается скобка: [0].</Russian>
     </object>
     <object id = "AC_EXPECTED">
-        <German>Erwartet: [0].</German>
-        <English>Expected: [0].</English>
-        <Ukrainian>Очікується: [0].</Ukrainian>
-        <Russian>Ожидается: [0].</Russian>
+        <German>Erwartet: '[0]'.</German>
+        <English>Expected: '[0]'.</English>
+        <Ukrainian>Очікується: '[0]'.</Ukrainian>
+        <Russian>Ожидается: '[0]'.</Russian>
     </object>
     <object id = "AC_CANNOT_FIND_SYMBOL">
         <German>Kann Symbol nicht finden: '[0]'.</German>
@@ -214,6 +220,12 @@
         <English>The right side of a boolean binary operator is empty.</English>
         <Ukrainian>Права частина бульового бінарного оператора порожня.</Ukrainian>
         <Russian>Правая часть булевого бинарного оператора пуста.</Russian>
+    </object>
+    <object id = "AC_BOOLEAN_OPERATOR_NOT_APPLICABLE">
+        <German>Der Operator '[0]' ist nicht anwendbar auf die Objekte [1] und [2].</German>
+        <English>The operator '[0]' is not applicable for the objects [1] and [2].</English>
+        <Ukrainian>???</Ukrainian>
+        <Russian>???</Russian>
     </object>
     <object id = "AC_BOOLEAN_EXPRESSION_CANNOT_BE_INTERPRETED">
         <German>Folgender boolscher Ausdruck/Teilausdruck kann nicht interpretiert werden: [0]</German>

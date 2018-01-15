@@ -6,9 +6,9 @@ import java.util.List;
 public class AlgorithmCommandReplacementData {
 
     private final List<AlgorithmCommand> commands;
-    private final String substitutedExpression;
+    private final EditorCodeString substitutedExpression;
 
-    public AlgorithmCommandReplacementData(List<AlgorithmCommand> commands, String rightSide) {
+    public AlgorithmCommandReplacementData(List<AlgorithmCommand> commands, EditorCodeString rightSide) {
         this.commands = commands;
         this.substitutedExpression = rightSide;
     }
@@ -17,7 +17,7 @@ public class AlgorithmCommandReplacementData {
         return commands;
     }
 
-    public String getSubstitutedExpression() {
+    public EditorCodeString getSubstitutedExpression() {
         return substitutedExpression;
     }
 
