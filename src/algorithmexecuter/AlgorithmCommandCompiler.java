@@ -1008,9 +1008,18 @@ public abstract class AlgorithmCommandCompiler {
         EditorCodeString[] lines = linesAsList.toArray(new EditorCodeString[linesAsList.size()]);
 
         List<AlgorithmCommand> commands = new ArrayList<>();
-        for (EditorCodeString line : lines) {
-            if (!line.isEmpty()) {
-                commands.addAll(parseLine(line, memoryBeforeBlockBeginning, alg, keywordsAllowed));
+        List<AlgorithmCommand> parsedLine;
+        for (int i = 0; i < lines.length; i++) {
+            if (!lines[i].isEmpty()) {
+                parsedLine = parseLine(lines[i], memoryBeforeBlockBeginning, alg, keywordsAllowed);
+                commands.addAll(parsedLine);
+                // Nach dem Kompilieren jeder Kommandozeile Plausibilitätschecks durchführen.
+                // Prüfung, ob es bei (beliebigen) Algorithmen keinen Code hinter einem Return gibt.
+                CompilerUtils.checkForUnreachableCodeInBlock(lines[i], commands, alg);
+                // Prüfung, ob es bei Void-Algorithmen keine zurückgegebenen Objekte gibt.
+                if (alg.getReturnType() == null) {
+                    CompilerUtils.checkForOnlySimpleReturns(lines[i], commands);
+                }
             }
         }
         return commands;

@@ -546,14 +546,14 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    public static void checkForOnlySimpleReturns(List<AlgorithmCommand> commands) throws AlgorithmCompileException {
+    public static void checkForOnlySimpleReturns(EditorCodeString line, List<AlgorithmCommand> commands) throws AlgorithmCompileException {
         for (int i = 0; i < commands.size(); i++) {
             if (commands.get(i).isReturnCommand() && ((ReturnCommand) commands.get(i)).getIdentifier() != Identifier.NULL_IDENTIFIER) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_VOID_ALGORITHM_MUST_CONTAIN_ONLY_SIMPLE_RETURNS);
+                throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_VOID_ALGORITHM_MUST_CONTAIN_ONLY_SIMPLE_RETURNS);
             }
             if (commands.get(i).isControlStructure()) {
                 for (List<AlgorithmCommand> commandsInBlock : ((ControlStructure) commands.get(i)).getCommandBlocks()) {
-                    checkForOnlySimpleReturns(commandsInBlock);
+                    checkForOnlySimpleReturns(line, commandsInBlock);
                 }
             }
         }
@@ -620,18 +620,18 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    public static void checkForUnreachableCodeInBlock(List<AlgorithmCommand> commands, Algorithm alg) throws AlgorithmCompileException {
+    public static void checkForUnreachableCodeInBlock(EditorCodeString line, List<AlgorithmCommand> commands, Algorithm alg) throws AlgorithmCompileException {
         for (int i = 0; i < commands.size(); i++) {
             if (commands.get(i).isReturnCommand() && i < commands.size() - 1) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg.getName());
+                throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg.getName());
             }
             if (commands.get(i).isControlStructure()) {
                 for (List<AlgorithmCommand> commandsInBlock : ((ControlStructure) commands.get(i)).getCommandBlocks()) {
-                    checkForUnreachableCodeInBlock(commandsInBlock, alg);
+                    checkForUnreachableCodeInBlock(line, commandsInBlock, alg);
                 }
                 if (commands.get(i).isIfElseControlStructure()) {
                     if (doBothPartsContainReturnStatementInIfElseBlock((IfElseControlStructure) commands.get(i)) && i < commands.size() - 1) {
-                        throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg.getName());
+                        throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, alg.getName());
                     }
                 }
             }

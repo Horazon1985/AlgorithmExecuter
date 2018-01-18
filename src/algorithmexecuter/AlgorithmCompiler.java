@@ -26,11 +26,13 @@ public abstract class AlgorithmCompiler {
 
     public static final Algorithm[] FIXED_ALGORITHMS;
 
-    public final static IdentifierValidator VALIDATOR = new IdentifierValidatorImpl();
+    public static final IdentifierValidator VALIDATOR = new IdentifierValidatorImpl();
 
-    public final static AlgorithmStorage ALGORITHMS = new AlgorithmStorage();
+    public static final AlgorithmStorage ALGORITHMS = new AlgorithmStorage();
 
-    protected final static AlgorithmSignatureStorage ALGORITHM_SIGNATURES = new AlgorithmSignatureStorage();
+    protected static final AlgorithmSignatureStorage ALGORITHM_SIGNATURES = new AlgorithmSignatureStorage();
+
+    private static final List<EditorCodeString> ALGORITHM_CODES = new ArrayList<>();
 
     static {
         // 1. Standardalgorithmen definieren.
@@ -70,6 +72,7 @@ public abstract class AlgorithmCompiler {
         for (Algorithm alg : FIXED_ALGORITHMS) {
             ALGORITHM_SIGNATURES.add(alg.getSignature());
         }
+        ALGORITHM_CODES.clear();
     }
 
     private static void removeStandardAlgorithmsFromStorage() {
@@ -182,6 +185,7 @@ public abstract class AlgorithmCompiler {
         boolean beginPassed = false;
         int lastEndOfAlgorithm = -1;
 
+        EditorCodeString singleAlgorithmCode;
         for (int i = 0; i < editorCodeInput.length(); i++) {
             if (editorCodeInput.charAt(i) == ReservedChars.BEGIN.getValue()) {
                 bracketCounter++;
@@ -190,7 +194,9 @@ public abstract class AlgorithmCompiler {
                 bracketCounter--;
             }
             if (bracketCounter == 0 && beginPassed || i == editorCodeInput.length() - 1) {
-                ALGORITHMS.add(parseAlgorithm(editorCodeInput.substring(lastEndOfAlgorithm + 1, i + 1)));
+                singleAlgorithmCode = editorCodeInput.substring(lastEndOfAlgorithm + 1, i + 1);
+                ALGORITHMS.add(parseAlgorithm(singleAlgorithmCode));
+                ALGORITHM_CODES.add(singleAlgorithmCode);
                 beginPassed = false;
                 lastEndOfAlgorithm = i;
             }
@@ -204,9 +210,9 @@ public abstract class AlgorithmCompiler {
         }
 
         // Prüfung, ob ein Main-Algorithmus existiert.
-        CompilerUtils.checkIfMainAlgorithmExists(editorCodeInput, ALGORITHMS);
+        checkIfMainAlgorithmExists(editorCodeInput);
         // Prüfung, ob ein Main-Algorithmus parameterlos ist.
-        CompilerUtils.checkIfMainAlgorithmContainsNoParameters(CompilerUtils.getMainAlgorithm(ALGORITHMS));
+        checkIfMainAlgorithmContainsNoParameters(CompilerUtils.getMainAlgorithm(ALGORITHMS));
         // Bei Bezeichnerzuordnungen Algorithmensignaturen durch Algorithmenreferenzen ersetzen.
         replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands();
 
@@ -364,37 +370,33 @@ public abstract class AlgorithmCompiler {
     }
 
     private static void checkAlgorithmForPlausibility(Algorithm alg) throws AlgorithmCompileException {
-        // Prüfung, ob der Main-Algorithmen keine Parameter enthält.
-        checkIfMainAlgorithmContainsNoParameters(alg);
-        // Prüfung, ob es bei (beliebigen) Algorithmen keinen Code hinter einem Return gibt.
-        checkIfAlgorithmContainsNoDeadCode(alg);
         // Prüfung, ob es bei Void-Algorithmen keine zurückgegebenen Objekte gibt.
-        checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(alg);
+//        checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(alg);
         // Prüfung, ob es bei Algorithmen mit Rückgabewerten immer Rückgaben mit korrektem Typ gibt.
         checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(alg);
         // Prüfung, ob alle eingeführten Bezeichner auch initialisiert wurden.
         checkIfAllIdentifierAreInitialized(alg);
     }
 
+    private static void checkIfMainAlgorithmExists(EditorCodeString editorCodeInput) throws AlgorithmCompileException {
+        CompilerUtils.checkIfMainAlgorithmExists(editorCodeInput, ALGORITHMS);
+    }
+
     private static void checkIfMainAlgorithmContainsNoParameters(Algorithm alg) throws AlgorithmCompileException {
         CompilerUtils.checkIfMainAlgorithmContainsNoParameters(alg);
     }
 
-    private static void checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(Algorithm alg) throws AlgorithmCompileException {
-        if (alg.getReturnType() == null) {
-            CompilerUtils.checkForOnlySimpleReturns(alg.getCommands());
-        }
-    }
+//    private static void checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(Algorithm alg) throws AlgorithmCompileException {
+//        if (alg.getReturnType() == null) {
+//            CompilerUtils.checkForOnlySimpleReturns(alg.getCommands());
+//        }
+//    }
 
     private static void checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob Wertrückgabe immer erfolgt.
         CompilerUtils.checkForContainingReturnCommand(alg.getCommands(), alg.getReturnType());
         // Prüfung auf korrekten Rückgabewert.
         CompilerUtils.checkForCorrectReturnType(alg.getCommands(), alg.getReturnType());
-    }
-
-    private static void checkIfAlgorithmContainsNoDeadCode(Algorithm alg) throws AlgorithmCompileException {
-        CompilerUtils.checkForUnreachableCodeInBlock(alg.getCommands(), alg);
     }
 
     private static void checkIfAllIdentifierAreInitialized(Algorithm alg) throws AlgorithmCompileException {
