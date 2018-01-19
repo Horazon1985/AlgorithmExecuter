@@ -542,24 +542,6 @@ public final class CompilerUtils {
     }
 
     /**
-     * Prüft, ob die Liste der Befehle commands nur einfache return enthält.
-     *
-     * @throws AlgorithmCompileException
-     */
-    public static void checkForOnlySimpleReturns(EditorCodeString line, List<AlgorithmCommand> commands) throws AlgorithmCompileException {
-        for (int i = 0; i < commands.size(); i++) {
-            if (commands.get(i).isReturnCommand() && ((ReturnCommand) commands.get(i)).getIdentifier() != Identifier.NULL_IDENTIFIER) {
-                throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_VOID_ALGORITHM_MUST_CONTAIN_ONLY_SIMPLE_RETURNS);
-            }
-            if (commands.get(i).isControlStructure()) {
-                for (List<AlgorithmCommand> commandsInBlock : ((ControlStructure) commands.get(i)).getCommandBlocks()) {
-                    checkForOnlySimpleReturns(line, commandsInBlock);
-                }
-            }
-        }
-    }
-
-    /**
      * Prüft, ob die Liste der Befehle commands stets Rückgabebefehle enthalten.
      *
      * @throws AlgorithmCompileException

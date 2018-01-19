@@ -373,8 +373,6 @@ public abstract class AlgorithmCompiler {
     }
 
     private static void checkAlgorithmForPlausibility(Algorithm alg) throws AlgorithmCompileException {
-        // Prüfung, ob es bei Void-Algorithmen keine zurückgegebenen Objekte gibt.
-//        checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(alg);
         // Prüfung, ob es bei Algorithmen mit Rückgabewerten immer Rückgaben mit korrektem Typ gibt.
         checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(alg);
         // Prüfung, ob alle eingeführten Bezeichner auch initialisiert wurden.
@@ -389,11 +387,6 @@ public abstract class AlgorithmCompiler {
         CompilerUtils.checkIfMainAlgorithmContainsNoParameters(alg);
     }
 
-//    private static void checkIfVoidAlgorithmContainsOnlyAtMostSimpleReturns(Algorithm alg) throws AlgorithmCompileException {
-//        if (alg.getReturnType() == null) {
-//            CompilerUtils.checkForOnlySimpleReturns(alg.getCommands());
-//        }
-//    }
     private static void checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob Wertrückgabe immer erfolgt.
         CompilerUtils.checkForContainingReturnCommand(alg.getCommands(), alg.getReturnType());

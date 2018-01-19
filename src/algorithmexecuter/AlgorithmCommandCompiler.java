@@ -898,13 +898,21 @@ public abstract class AlgorithmCommandCompiler {
         }
         throw new NotDesiredCommandException();
     }
-
+    
     private static List<AlgorithmCommand> parseReturnCommand(EditorCodeString line, AlgorithmMemory scopeMemory, Algorithm alg) throws AlgorithmCompileException, NotDesiredCommandException {
         if (line.startsWith(Keyword.RETURN.getValue())) {
             if (line.getValue().equals(Keyword.RETURN.getValue())) {
+                if (alg.getReturnType() != null) {
+                    throw new ParseReturnException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_MISSING_RETURN_VALUE);
+                }
                 return Collections.singletonList((AlgorithmCommand) new ReturnCommand(Identifier.NULL_IDENTIFIER));
             }
             EditorCodeString returnValueCandidate = line.substring((Keyword.RETURN.getValue() + " ").length());
+
+            // Void-Algorithmen dürfen nichts zurückgeben.
+            if (alg.getReturnType() == null) {
+                throw new ParseReturnException(returnValueCandidate.getLineNumbers(), AlgorithmCompileExceptionIds.AC_RETURN_VALUE_IN_VOID_ALGORITHM_NOT_ALLOWED);
+            }
 
             // Klammern links und rechts um den Rückgabewert entfernen.
             while (returnValueCandidate.startsWith(ReservedChars.OPEN_BRACKET.getStringValue()) && returnValueCandidate.endsWith(ReservedChars.CLOSE_BRACKET.getStringValue())) {
@@ -931,6 +939,10 @@ public abstract class AlgorithmCommandCompiler {
                 commands.add(new ReturnCommand(Identifier.createIdentifier(scopeMemory, genVarForReturn, alg.getReturnType())));
                 return commands;
             } else {
+                IdentifierType type = scopeMemory.get(returnValueCandidate.getValue()).getType();
+                if (!alg.getReturnType().isSameOrSuperTypeOf(type)) {
+                    throw new ParseReturnException(returnValueCandidate.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES, type, alg.getReturnType());
+                }
                 return Collections.singletonList((AlgorithmCommand) new ReturnCommand(Identifier.createIdentifier(scopeMemory, returnValueCandidate.getValue(), alg.getReturnType())));
             }
         }
@@ -958,11 +970,11 @@ public abstract class AlgorithmCommandCompiler {
             throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_MISSING_LINE_SEPARATOR, ReservedChars.LINE_SEPARATOR.getValue());
         }
 
-        AlgorithmMemory memoryBeforeBlockBeginning;
+        AlgorithmMemory memoryInsideBlock;
         if (connectedBlock) {
-            memoryBeforeBlockBeginning = memory.copyMemory();
+            memoryInsideBlock = memory.copyMemory();
         } else {
-            memoryBeforeBlockBeginning = memory;
+            memoryInsideBlock = memory;
         }
 
         List<EditorCodeString> linesAsList = new ArrayList<>();
@@ -1011,15 +1023,11 @@ public abstract class AlgorithmCommandCompiler {
         List<AlgorithmCommand> parsedLine;
         for (int i = 0; i < lines.length; i++) {
             if (!lines[i].isEmpty()) {
-                parsedLine = parseLine(lines[i], memoryBeforeBlockBeginning, alg, keywordsAllowed);
+                parsedLine = parseLine(lines[i], memoryInsideBlock, alg, keywordsAllowed);
                 commands.addAll(parsedLine);
                 // Nach dem Kompilieren jeder Kommandozeile Plausibilitätschecks durchführen.
                 // Prüfung, ob es bei (beliebigen) Algorithmen keinen Code hinter einem Return gibt.
                 CompilerUtils.checkForUnreachableCodeInBlock(lines[i], commands, alg);
-                // Prüfung, ob es bei Void-Algorithmen keine zurückgegebenen Objekte gibt.
-                if (alg.getReturnType() == null) {
-                    CompilerUtils.checkForOnlySimpleReturns(lines[i], commands);
-                }
             }
         }
         return commands;
