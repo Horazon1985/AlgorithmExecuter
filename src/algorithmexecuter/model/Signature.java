@@ -74,6 +74,17 @@ public class Signature implements Comparable {
         return signature + ")";
     }
 
+    public String toStringWithoutReturnType() {
+        String signature = this.name + "(";
+        for (int i = 0; i < this.parameterTypes.length; i++) {
+            signature += this.parameterTypes[i];
+            if (i < this.parameterTypes.length - 1) {
+                signature += ",";
+            }
+        }
+        return signature + ")";
+    }
+
     @Override
     public int compareTo(Object t) {
         if (t instanceof Signature) {

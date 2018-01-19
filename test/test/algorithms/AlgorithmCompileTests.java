@@ -1083,4 +1083,25 @@ public class AlgorithmCompileTests {
         }
     }
 
+    @Test
+    public void parseAlgorithmsContainingEquivalentSignaturesTest() {
+        String input = "main() {\n"
+                + "}\n"
+                + "\n"
+                + "expression f(expression a, string b) {\n"
+                + "	return 5;\n"
+                + "}\n"
+                + "\n"
+                + "expression f(matrixexpression a, string b) {\n"
+                + "	return 5;\n"
+                + "}";
+        try {
+            AlgorithmCompiler.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz nicht initialisierter Variable kompiliert.");
+        } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_ALGORITHM_ALREADY_EXISTS,
+                    new Signature(IdentifierType.EXPRESSION, "f", new IdentifierType[]{IdentifierType.MATRIX_EXPRESSION, IdentifierType.STRING}).toStringWithoutReturnType()));
+        }
+    }
+
 }

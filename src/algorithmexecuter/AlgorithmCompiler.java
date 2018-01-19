@@ -156,7 +156,7 @@ public abstract class AlgorithmCompiler {
 
         // Falls ein Algorithmus mit derselben Signatur bereits vorhanden ist, Fehler werfen.
         if (containsAlgorithmWithSameSignature(signature)) {
-            throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_ALREADY_EXISTS, signature);
+            throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_ALREADY_EXISTS, signature.toStringWithoutReturnType());
         }
 
         return signature;
@@ -248,13 +248,6 @@ public abstract class AlgorithmCompiler {
         AlgorithmMemory memory = new AlgorithmMemory(null);
 
         Identifier[] parameters = getIdentifiersFromParameterStrings(parametersAsStrings, memory);
-
-        Signature signature = CompilerUtils.getSignature(returnType, algName.getValue(), parameters);
-
-        // Falls ein Algorithmus mit derselben Signatur bereits vorhanden ist, Fehler werfen.
-        if (containsAlgorithmWithSameSignature(signature)) {
-            throw new AlgorithmCompileException(algName.getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_ALREADY_EXISTS, signature);
-        }
 
         // Algorithmusparameter zum Variablenpool hinzufügen.
         addParametersToMemoryInCompileTime(candidateForSignature, parameters, memory);
@@ -349,15 +342,25 @@ public abstract class AlgorithmCompiler {
     }
 
     private static boolean containsAlgorithmWithSameSignature(Signature signature) {
-        Signature algSignature;
-        for (Algorithm alg : ALGORITHMS.getAlgorithmStorage()) {
-            algSignature = CompilerUtils.getSignature(alg.getReturnType(), alg.getName(), alg.getInputParameters());
-            if (algSignature.getName().equals(signature.getName())
-                    && Arrays.deepEquals(algSignature.getParameterTypes(), signature.getParameterTypes())) {
-                return true;
+        for (Signature algSignature : ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+            if (algSignature.getName().equals(signature.getName()) && algSignature.getParameterTypes().length == signature.getParameterTypes().length) {
+                boolean typesHaveSameSuperType = true;
+                for (int i = 0; i < algSignature.getParameterTypes().length; i++) {
+                    if (!areTwoParametersOfSameSuperType(algSignature.getParameterTypes()[i], signature.getParameterTypes()[i])) {
+                        typesHaveSameSuperType = false;
+                        break;
+                    }
+                }
+                if (typesHaveSameSuperType) {
+                    return true;
+                }
             }
         }
         return false;
+    }
+
+    private static boolean areTwoParametersOfSameSuperType(IdentifierType typeOne, IdentifierType typeTwo) {
+        return typeOne.isSameOrSuperTypeOf(typeTwo) || typeTwo.isSameOrSuperTypeOf(typeOne);
     }
 
     private static EditorCodeString putSeparatorAfterBlockEnding(EditorCodeString input) {
@@ -391,7 +394,6 @@ public abstract class AlgorithmCompiler {
 //            CompilerUtils.checkForOnlySimpleReturns(alg.getCommands());
 //        }
 //    }
-
     private static void checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob Wertrückgabe immer erfolgt.
         CompilerUtils.checkForContainingReturnCommand(alg.getCommands(), alg.getReturnType());
