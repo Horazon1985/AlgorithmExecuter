@@ -239,8 +239,7 @@ public final class CompilerUtils {
         EditorCodeString[] algNameAndParameters = new EditorCodeString[2];
         int i = input.indexOf(ReservedChars.OPEN_BRACKET.getValue());
         if (i == -1) {
-            // Um zu verhindern, dass es eine IndexOutOfBoundsException gibt.
-            i = 0;
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.OPEN_BRACKET.getValue());
         }
         algNameAndParameters[0] = input.substring(0, i);
 
@@ -566,33 +565,6 @@ public final class CompilerUtils {
             List<AlgorithmCommand> commandsElsePart = ((IfElseControlStructure) lastCommand).getCommandsElsePart();
             checkForContainingReturnCommand(commandsIfPart, returnType);
             checkForContainingReturnCommand(commandsElsePart, returnType);
-        }
-    }
-
-    /**
-     * Prüft, ob die Liste der Befehle commands stets Rückgabebefehle vom
-     * geforderten Typ (oder Untertyp) type enthält.
-     *
-     * @throws AlgorithmCompileException
-     */
-    public static void checkForCorrectReturnType(List<AlgorithmCommand> commands, IdentifierType returnType) throws AlgorithmCompileException {
-        Identifier returnIdentifier;
-        for (int i = 0; i < commands.size(); i++) {
-            if (commands.get(i).isReturnCommand()) {
-                returnIdentifier = ((ReturnCommand) commands.get(i)).getIdentifier();
-                if (returnType == null && returnIdentifier != Identifier.NULL_IDENTIFIER
-                        || returnType != null && returnIdentifier == Identifier.NULL_IDENTIFIER) {
-                    throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
-                }
-                if (returnType != null && !returnType.isSameOrSuperTypeOf(returnIdentifier.getType())) {
-                    throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
-                }
-            }
-            if (commands.get(i).isControlStructure()) {
-                for (List<AlgorithmCommand> commandsInBlock : ((ControlStructure) commands.get(i)).getCommandBlocks()) {
-                    checkForCorrectReturnType(commandsInBlock, returnType);
-                }
-            }
         }
     }
 

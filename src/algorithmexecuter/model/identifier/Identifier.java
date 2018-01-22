@@ -1,5 +1,7 @@
 package algorithmexecuter.model.identifier;
 
+import abstractexpressions.expression.classes.Expression;
+import abstractexpressions.matrixexpression.classes.Matrix;
 import algorithmexecuter.ExecutionUtils;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.model.AlgorithmMemory;
@@ -46,7 +48,11 @@ public class Identifier {
     }
 
     public void setValueFromGivenIdentifier(Identifier identifier) {
-        this.runtimeValue = identifier.runtimeValue;
+        if (this.type == IdentifierType.MATRIX_EXPRESSION && identifier.type == IdentifierType.EXPRESSION) {
+            this.runtimeValue = new Matrix((Expression) identifier.runtimeValue);
+        } else {
+            this.runtimeValue = identifier.runtimeValue;
+        }
     }
 
     @Override

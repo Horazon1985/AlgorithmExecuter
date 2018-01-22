@@ -374,7 +374,7 @@ public abstract class AlgorithmCompiler {
 
     private static void checkAlgorithmForPlausibility(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob es bei Algorithmen mit Rückgabewerten immer Rückgaben mit korrektem Typ gibt.
-        checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(alg);
+        checkIfNonVoidAlgorithmContainsAlwaysReturns(alg);
         // Prüfung, ob alle eingeführten Bezeichner auch initialisiert wurden.
         checkIfAllIdentifierAreInitialized(alg);
     }
@@ -387,11 +387,9 @@ public abstract class AlgorithmCompiler {
         CompilerUtils.checkIfMainAlgorithmContainsNoParameters(alg);
     }
 
-    private static void checkIfNonVoidAlgorithmContainsAlwaysReturnsWithCorrectReturnType(Algorithm alg) throws AlgorithmCompileException {
+    private static void checkIfNonVoidAlgorithmContainsAlwaysReturns(Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob Wertrückgabe immer erfolgt.
         CompilerUtils.checkForContainingReturnCommand(alg.getCommands(), alg.getReturnType());
-        // Prüfung auf korrekten Rückgabewert.
-        CompilerUtils.checkForCorrectReturnType(alg.getCommands(), alg.getReturnType());
     }
 
     private static void checkIfAllIdentifierAreInitialized(Algorithm alg) throws AlgorithmCompileException {

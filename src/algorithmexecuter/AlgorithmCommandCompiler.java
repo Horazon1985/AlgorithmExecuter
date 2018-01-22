@@ -102,7 +102,7 @@ public abstract class AlgorithmCommandCompiler {
         } catch (NotDesiredCommandException e) {
         }
 
-        throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_COMMAND_COUND_NOT_BE_PARSED, line);
+        throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_COMMAND_COUND_NOT_BE_PARSED, line.getValue());
     }
 
     private static List<AlgorithmCommand> parseDeclareIdentifierCommand(EditorCodeString line, AlgorithmMemory scopeMemory) throws AlgorithmCompileException, NotDesiredCommandException {
@@ -193,6 +193,7 @@ public abstract class AlgorithmCommandCompiler {
             AlgorithmCommandReplacementData algorithmCommandReplacementList = decomposeAssignmentInvolvingAlgorithmCalls(rightSide, scopeMemory);
             List<AlgorithmCommand> commands = algorithmCommandReplacementList.getCommands();
             EditorCodeString rightSideReplaced = algorithmCommandReplacementList.getSubstitutedExpression();
+
             if (type != IdentifierType.STRING) {
                 try {
                     AbstractExpression expr = (AbstractExpression) CompilerUtils.parseParameterAgaingstType(rightSideReplaced, VALIDATOR, scopeMemory, type);
@@ -200,7 +201,22 @@ public abstract class AlgorithmCommandCompiler {
                     commands.add(new AssignValueCommand(identifier, expr, assignValueType, rightSide.getLineNumbers()));
                     return commands;
                 } catch (BooleanExpressionException | ExpressionException e) {
-                    return parseAlgorithmCall(scopeMemory, commands, rightSideReplaced, type, identifier, assignValueType);
+                    // Unterscheidung von zwei Fällen: die rechte Seite hat die formale Form "f(a_1, ..., a_n)". Dann wird versucht, 
+                    // ein Algorithmusaufruf daraus zu kompilieren. Ansonsten wird der Fehler geworfen, dass das Symbol unbekannt ist.
+                    boolean hasAlgorithmCallStructure = false;
+                    try {
+                        CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(rightSideReplaced);
+                        if (doesAlgorithmWithGivenNameExists(algParseData.getName().getValue())) {
+                            hasAlgorithmCallStructure = true;
+                        }
+                    } catch (AlgorithmCompileException ex) {
+                        throw new AlgorithmCompileException(rightSideReplaced.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, rightSideReplaced.getValue());
+                    }
+                    if (hasAlgorithmCallStructure) {
+                        return parseAlgorithmCall(scopeMemory, commands, rightSideReplaced, type, identifier, assignValueType);
+                    } else {
+                        throw new AlgorithmCompileException(rightSideReplaced.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, rightSideReplaced.getValue());
+                    }
                 }
             } else {
                 try {
@@ -209,13 +225,37 @@ public abstract class AlgorithmCommandCompiler {
                     commands.add(new AssignValueCommand(identifier, malString, assignValueType, rightSide.getLineNumbers()));
                     return commands;
                 } catch (AlgorithmCompileException e) {
-                    return parseAlgorithmCall(scopeMemory, commands, rightSideReplaced, type, identifier, assignValueType);
+                    // Unterscheidung von zwei Fällen: die rechte Seite hat die formale Form "f(a_1, ..., a_n)". Dann wird versucht, 
+                    // ein Algorithmusaufruf daraus zu kompilieren. Ansonsten wird der Fehler geworfen, dass das Symbol unbekannt ist.
+                    boolean hasAlgorithmCallStructure = false;
+                    try {
+                        CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(rightSideReplaced);
+                        if (doesAlgorithmWithGivenNameExists(algParseData.getName().getValue())) {
+                            hasAlgorithmCallStructure = true;
+                        }
+                    } catch (AlgorithmCompileException ex) {
+                        throw new AlgorithmCompileException(rightSideReplaced.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, rightSideReplaced.getValue());
+                    }
+                    if (hasAlgorithmCallStructure) {
+                        return parseAlgorithmCall(scopeMemory, commands, rightSideReplaced, type, identifier, assignValueType);
+                    } else {
+                        throw new AlgorithmCompileException(rightSideReplaced.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, rightSideReplaced.getValue());
+                    }
                 }
             }
         }
 
         throw new NotDesiredCommandException();
 
+    }
+
+    private static boolean doesAlgorithmWithGivenNameExists(String algName) {
+        for (Signature signature : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+            if (signature.getName().equals(algName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int getPositionOfDefineCharIfIsAssignValueCommandIfValid(EditorCodeString line) {
@@ -257,8 +297,6 @@ public abstract class AlgorithmCommandCompiler {
 
     private static List<AlgorithmCommand> parseAlgorithmCall(AlgorithmMemory scopeMemory, List<AlgorithmCommand> commands,
             EditorCodeString rightSide, IdentifierType assignedIdentifierType, Identifier identifier, AssignValueType assignValueType) throws AlgorithmCompileException {
-        // 1. Auf vom benutzer definierte Algorithmen prüfen.
-        try {
             // Kompatibilitätscheck
             Signature calledAlgSignature = getAlgorithmCallDataFromAlgorithmCall(rightSide, scopeMemory, assignedIdentifierType).getSignature();
             // Parameter auslesen;
@@ -266,25 +304,6 @@ public abstract class AlgorithmCommandCompiler {
             scopeMemory.put(identifier.getName(), identifier);
             commands.add(new AssignValueCommand(identifier, calledAlgSignature, parameter, assignValueType, rightSide.getLineNumbers()));
             return commands;
-        } catch (AlgorithmCompileException e) {
-            // 2. Auf Standardbefehle überprüfen.
-            CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(rightSide);
-            EditorCodeString algName = algParseData.getName();
-            for (Algorithm alg : AlgorithmCompiler.FIXED_ALGORITHMS) {
-                Signature sgn = alg.getSignature();
-                if (sgn.getName().equals(algName.getValue()) && alg.getReturnType() == assignedIdentifierType) {
-                    try {
-                        Identifier[] parameters = getParameterFromAlgorithmCall(rightSide, sgn, commands, scopeMemory);
-                        scopeMemory.put(identifier.getName(), identifier);
-                        AssignValueCommand resultCommand = new AssignValueCommand(identifier, alg.getSignature(), parameters, assignValueType, rightSide.getLineNumbers());
-                        commands.add(resultCommand);
-                        return commands;
-                    } catch (ParseAssignValueException ex) {
-                    }
-                }
-            }
-            throw new AlgorithmCompileException(rightSide.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, rightSide);
-        }
     }
 
     private static Identifier[] getParameterFromAlgorithmCall(EditorCodeString input, Signature calledAlgSignature, List<AlgorithmCommand> commands, AlgorithmMemory scopeMemory)
@@ -341,7 +360,7 @@ public abstract class AlgorithmCommandCompiler {
                     commands.add(new AssignValueCommand(genVarIdentifier, argument, AssignValueType.NEW, input.getLineNumbers()));
                     scopeMemory.addToMemoryInCompileTime(input.getLineNumbers(), genVarIdentifier);
                 } else {
-                    throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, params[i]);
+                    throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, params[i].getValue());
                 }
             }
             return identifiers;
@@ -373,7 +392,7 @@ public abstract class AlgorithmCommandCompiler {
                                 candidateFound = false;
                             }
                         } else if (!areAllVarsContainedInMemory(((AbstractExpression) paramValues[i].getValue()).getContainedVars(), scopeMemory)
-                                || IdentifierType.identifierTypeOf(paramValues[i].getValue()) != signature.getParameterTypes()[i]) {
+                                || !signature.getParameterTypes()[i].isSameOrSuperTypeOf(IdentifierType.identifierTypeOf(paramValues[i].getValue()))) {
                             candidateFound = false;
                         }
                     }
@@ -385,12 +404,12 @@ public abstract class AlgorithmCommandCompiler {
                 }
             }
             if (algorithmCandidate == null) {
-                throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, algName);
+                throw new ParseAssignValueException(input.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, algName.getValue());
             }
 
             // Prüfung, ob Rückgabewert korrekt ist.
-            if (!algorithmCandidate.getReturnType().equals(returnType)) {
-                throw new ParseAssignValueException(AlgorithmCompileExceptionIds.AC_WRONG_RETURN_TYPE);
+            if (!returnType.isSameOrSuperTypeOf(algorithmCandidate.getReturnType())) {
+                throw new ParseAssignValueException(input.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES, algorithmCandidate.getReturnType(), returnType);
             }
             return new AlgorithmCallData(algorithmCandidate, paramValues);
         } catch (AlgorithmCompileException e) {
@@ -629,7 +648,7 @@ public abstract class AlgorithmCommandCompiler {
         }
         if (endBlockPosition != restLine.length() - 1) {
             EditorCodeString incorrestRestLine = restLine.substring(endBlockPosition);
-            throw new ParseControlStructureException(incorrestRestLine.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, line.substring(endBlockPosition + 1));
+            throw new ParseControlStructureException(incorrestRestLine.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, line.substring(endBlockPosition + 1).getValue());
         }
 
         List<AlgorithmCommand> commandsElsePart;
@@ -720,7 +739,7 @@ public abstract class AlgorithmCommandCompiler {
         }
 
         EditorCodeString incorrectRestLine = line.substring(endBlockPosition + 1);
-        throw new ParseControlStructureException(incorrectRestLine.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, incorrectRestLine);
+        throw new ParseControlStructureException(incorrectRestLine.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, incorrectRestLine.getValue());
     }
 
     private static List<AlgorithmCommand> parseDoWhileControlStructure(EditorCodeString line, AlgorithmMemory memory, Algorithm alg)
@@ -872,7 +891,7 @@ public abstract class AlgorithmCommandCompiler {
         }
 
         EditorCodeString incorrectRestLine = line.substring(endBlockPosition + 1);
-        throw new ParseControlStructureException(incorrectRestLine.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, incorrectRestLine);
+        throw new ParseControlStructureException(incorrectRestLine.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, incorrectRestLine.getValue());
     }
 
     private static void checkIfNewIdentifierOccur(EditorCodeString loopAssignment, AlgorithmMemory memoryBeforeLoop, AlgorithmMemory currentMemory) throws ParseControlStructureException {
@@ -898,7 +917,7 @@ public abstract class AlgorithmCommandCompiler {
         }
         throw new NotDesiredCommandException();
     }
-    
+
     private static List<AlgorithmCommand> parseReturnCommand(EditorCodeString line, AlgorithmMemory scopeMemory, Algorithm alg) throws AlgorithmCompileException, NotDesiredCommandException {
         if (line.startsWith(Keyword.RETURN.getValue())) {
             if (line.getValue().equals(Keyword.RETURN.getValue())) {
@@ -929,7 +948,7 @@ public abstract class AlgorithmCommandCompiler {
                     return Collections.singletonList((AlgorithmCommand) new ReturnCommand(scopeMemory.get(returnValueCandidate.getValue())));
                 }
                 if (VALIDATOR.isValidKnownIdentifier(returnValueReplaced.getValue(), alg.getReturnType().getClassOf(), CompilerUtils.extractClassesOfAbstractExpressionIdentifiersFromMemory(scopeMemory))) {
-                    throw new ParseReturnException(returnValueCandidate.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, returnValueCandidate);
+                    throw new ParseReturnException(returnValueCandidate.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, returnValueCandidate.getValue());
                 }
                 String genVarForReturn = CompilerUtils.generateTechnicalIdentifierName(scopeMemory);
                 EditorCodeString assignValueCommand = EditorCodeString.createEditorCodeStringWithGivenLineNumber(alg.getReturnType().toString() + " " + genVarForReturn + "=" + returnValueReplaced.getValue(),
@@ -1014,7 +1033,7 @@ public abstract class AlgorithmCommandCompiler {
         }
         if (endBlockPosition != input.length() - 1) {
             EditorCodeString incorrectRestInput = input.substring(endBlockPosition);
-            throw new AlgorithmCompileException(incorrectRestInput.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, incorrectRestInput);
+            throw new AlgorithmCompileException(incorrectRestInput.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, incorrectRestInput.getValue());
         }
 
         EditorCodeString[] lines = linesAsList.toArray(new EditorCodeString[linesAsList.size()]);
