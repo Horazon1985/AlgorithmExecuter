@@ -5,7 +5,7 @@ import abstractexpressions.expression.classes.Variable;
 import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
 import abstractexpressions.matrixexpression.classes.MatrixVariable;
-import static algorithmexecuter.AlgorithmCompiler.VALIDATOR;
+import static algorithmexecuter.AlgorithmBuilder.VALIDATOR;
 import algorithmexecuter.model.command.AlgorithmCommand;
 import algorithmexecuter.model.command.AssignValueCommand;
 import algorithmexecuter.model.command.DeclareIdentifierCommand;
@@ -47,7 +47,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AlgorithmCommandCompiler {
+public abstract class AlgorithmLineCompiler {
 
     /**
      * Gibt eine Liste von Befehlen zurück, welche aus der gegebenen Zeile
@@ -250,7 +250,7 @@ public abstract class AlgorithmCommandCompiler {
     }
 
     private static boolean doesAlgorithmWithGivenNameExists(String algName) {
-        for (Signature signature : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+        for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
             if (signature.getName().equals(algName)) {
                 return true;
             }
@@ -383,7 +383,7 @@ public abstract class AlgorithmCommandCompiler {
             // Prüfung, ob ein Algorithmus mit diesem Namen bekannt ist.
             Signature algorithmCandidate = null;
             boolean candidateFound;
-            for (Signature signature : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+            for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
                 if (signature.getName().equals(algName.getValue()) && signature.getParameterTypes().length == params.length) {
                     candidateFound = true;
                     for (int i = 0; i < params.length; i++) {
@@ -447,7 +447,7 @@ public abstract class AlgorithmCommandCompiler {
         // Auf 1. vom Benutzer definierte Algorithmen und 2. auf Standardalgorithmen prüfen.
         boolean algorithmWithRequiredNameFound = false;
         boolean algorithmWithRequiredNameAndCorrectNumberOfParametersFound = false;
-        for (Signature sgn : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+        for (Signature sgn : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
             if (sgn.getName().equals(algName)) {
                 algorithmWithRequiredNameFound = true;
             } else {
@@ -1063,7 +1063,7 @@ public abstract class AlgorithmCommandCompiler {
         int endingAlgCall;
         do {
             algorithmCallFound = false;
-            for (Signature signature : AlgorithmCompiler.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+            for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
                 if (!inputWithGeneratedVars.contains(signature.getName())) {
                     continue;
                 }

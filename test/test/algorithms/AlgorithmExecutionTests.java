@@ -4,7 +4,7 @@ import abstractexpressions.expression.classes.Constant;
 import abstractexpressions.expression.classes.Expression;
 import abstractexpressions.matrixexpression.classes.Matrix;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
-import algorithmexecuter.AlgorithmCompiler;
+import algorithmexecuter.AlgorithmBuilder;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.booleanexpression.BooleanConstant;
 import algorithmexecuter.enums.IdentifierType;
@@ -49,10 +49,10 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 1);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             assertTrue(mainAlg.getCommands().isEmpty());
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result == Identifier.NULL_IDENTIFIER);
@@ -80,10 +80,10 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("ggt"));
@@ -104,8 +104,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
@@ -128,8 +128,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
@@ -152,8 +152,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("result"));
@@ -179,8 +179,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("s"));
@@ -202,8 +202,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.STRING);
             assertTrue(result.getName().equals("t"));
@@ -229,8 +229,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -252,8 +252,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -274,8 +274,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -295,8 +295,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().startsWith("#"));
@@ -319,8 +319,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(((Expression) result.getRuntimeValue()).equals(Expression.TWO));
@@ -343,8 +343,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.BOOLEAN_EXPRESSION);
             assertTrue(result.getName().equals("#1"));
@@ -370,8 +370,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("b"));
@@ -394,8 +394,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -426,8 +426,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -451,8 +451,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -484,8 +484,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -508,8 +508,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -540,8 +540,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -565,8 +565,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -594,8 +594,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -621,8 +621,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -651,8 +651,8 @@ public class AlgorithmExecutionTests {
         AlgorithmOutputPrinter.setMockInstance(printerMock);
 
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result == Identifier.NULL_IDENTIFIER);
 
@@ -689,8 +689,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -724,8 +724,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -749,8 +749,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.MATRIX_EXPRESSION);
             assertTrue(result.getName().equals("a"));
@@ -768,7 +768,7 @@ public class AlgorithmExecutionTests {
     ////////////////////////// Tests: Impliziter Typecast //////////////////////////
     
     @Test
-    public void executeAlgorithmWithDifferentTypeCastCasesTest() {
+    public void executeAlgorithmWithDifferentTypeCastCasesTest1() {
         String input = "matrixexpression main(){\n"
                 + "	matrixexpression a=[7];\n"
                 + "	matrixexpression b=f();\n"
@@ -782,8 +782,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.MATRIX_EXPRESSION);
             assertTrue(result.getName().equals("c"));
@@ -794,8 +794,11 @@ public class AlgorithmExecutionTests {
         } catch (Exception e) {
             fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
         }
+    }
 
-        input = "matrixexpression main(){\n"
+    @Test
+    public void executeAlgorithmWithDifferentTypeCastCasesTest2() {
+        String input = "matrixexpression main(){\n"
                 + "	matrixexpression a=[7];\n"
                 + "	expression b=f();\n"
                 + "	matrixexpression c=b*a;\n"
@@ -806,10 +809,10 @@ public class AlgorithmExecutionTests {
                 + "	expression a=5;\n"
                 + "	return a;\n"
                 + "}";
-        mainAlg = null;
+        Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             assertTrue(result.getType() == IdentifierType.MATRIX_EXPRESSION);
             assertTrue(result.getName().equals("c"));
@@ -835,8 +838,8 @@ public class AlgorithmExecutionTests {
                 + "}";
         Algorithm mainAlg = null;
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            mainAlg = AlgorithmCompiler.ALGORITHMS.getMainAlgorithm();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));
             fail("Der Algorithmus " + mainAlg + " konnte nicht ausgeführt werden.");
         } catch (AlgorithmCompileException | AlgorithmExecutionException e) {

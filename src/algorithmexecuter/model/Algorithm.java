@@ -6,7 +6,7 @@ import abstractexpressions.expression.classes.Variable;
 import abstractexpressions.interfaces.AbstractExpression;
 import abstractexpressions.matrixexpression.classes.Matrix;
 import abstractexpressions.matrixexpression.classes.MatrixExpression;
-import algorithmexecuter.AlgorithmCompiler;
+import algorithmexecuter.AlgorithmBuilder;
 import algorithmexecuter.AlgorithmExecuter;
 import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.annotations.Execute;
@@ -167,7 +167,7 @@ public class Algorithm {
     }
 
     private boolean isStandardAlgorithm() {
-        for (Algorithm alg : AlgorithmCompiler.FIXED_ALGORITHMS) {
+        for (Algorithm alg : AlgorithmBuilder.FIXED_ALGORITHMS) {
             if (alg.getName().equals(this.name)) {
                 return true;
             }

@@ -545,12 +545,12 @@ public final class CompilerUtils {
      *
      * @throws AlgorithmCompileException
      */
-    public static void checkForContainingReturnCommand(List<AlgorithmCommand> commands, IdentifierType returnType) throws AlgorithmCompileException {
+    public static void checkForContainingReturnCommand(EditorCodeString input, List<AlgorithmCommand> commands, IdentifierType returnType) throws AlgorithmCompileException {
         if (returnType == null) {
             return;
         }
         if (commands.isEmpty()) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MISSING_RETURN_STATEMENT);
+            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_MISSING_RETURN_STATEMENT);
         }
         AlgorithmCommand lastCommand = commands.get(commands.size() - 1);
         if (!lastCommand.isReturnCommand()) {
@@ -559,12 +559,12 @@ public final class CompilerUtils {
             am Ende haben. In allen anderen Fällen wird ein Fehler geworfen.
              */
             if (!lastCommand.isIfElseControlStructure()) {
-                throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_MISSING_RETURN_STATEMENT);
+                throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_MISSING_RETURN_STATEMENT);
             }
             List<AlgorithmCommand> commandsIfPart = ((IfElseControlStructure) lastCommand).getCommandsIfPart();
             List<AlgorithmCommand> commandsElsePart = ((IfElseControlStructure) lastCommand).getCommandsElsePart();
-            checkForContainingReturnCommand(commandsIfPart, returnType);
-            checkForContainingReturnCommand(commandsElsePart, returnType);
+            checkForContainingReturnCommand(input, commandsIfPart, returnType);
+            checkForContainingReturnCommand(input, commandsElsePart, returnType);
         }
     }
 
@@ -848,7 +848,7 @@ public final class CompilerUtils {
 
                 AbstractExpression abstrExpr = null;
                 try {
-                    abstrExpr = buildExpressionWithScopeMemory(s, AlgorithmCompiler.VALIDATOR, scopeMemory);
+                    abstrExpr = buildExpressionWithScopeMemory(s, AlgorithmBuilder.VALIDATOR, scopeMemory);
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(s, abstrExpr.getContainedVars(), scopeMemory);
                     malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
@@ -856,7 +856,7 @@ public final class CompilerUtils {
                 } catch (ExpressionException e) {
                 }
                 try {
-                    abstrExpr = buildBooleanExpressionWithScopeMemory(s, AlgorithmCompiler.VALIDATOR, scopeMemory);
+                    abstrExpr = buildBooleanExpressionWithScopeMemory(s, AlgorithmBuilder.VALIDATOR, scopeMemory);
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(s, abstrExpr.getContainedVars(), scopeMemory);
                     malStringSummands.add(new MalStringAbstractExpression(abstrExpr));
@@ -864,7 +864,7 @@ public final class CompilerUtils {
                 } catch (BooleanExpressionException e) {
                 }
                 try {
-                    abstrExpr = buildMatrixExpressionWithScopeMemory(s, AlgorithmCompiler.VALIDATOR, scopeMemory);
+                    abstrExpr = buildMatrixExpressionWithScopeMemory(s, AlgorithmBuilder.VALIDATOR, scopeMemory);
                     // Prüfung auf Wohldefiniertheit aller auftretenden Bezeichner.
                     CompilerUtils.checkIfAllIdentifiersAreDefined(s, abstrExpr.getContainedVars(), scopeMemory);
                     malStringSummands.add(new MalStringAbstractExpression(abstrExpr));

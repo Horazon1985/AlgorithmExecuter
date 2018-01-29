@@ -1,7 +1,7 @@
 package algorithmexecuter.model.command;
 
 import abstractexpressions.expression.classes.Expression;
-import algorithmexecuter.AlgorithmCompiler;
+import algorithmexecuter.AlgorithmBuilder;
 import algorithmexecuter.annotations.Execute;
 import algorithmexecuter.enums.FixedAlgorithmNames;
 import algorithmexecuter.enums.IdentifierType;
@@ -64,7 +64,7 @@ public class VoidCommand extends AlgorithmCommand {
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
         // Zunächst über alle definierten Algorithmen iterieren.
-        for (Algorithm alg : AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage()) {
+        for (Algorithm alg : AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage()) {
             if (alg.getSignature().equals(getSignature()) && alg.getReturnType() == null) {
                 alg.initInputParameter(this.identifiers);
                 alg.execute();

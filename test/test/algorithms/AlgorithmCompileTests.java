@@ -2,13 +2,14 @@ package test.algorithms;
 
 import abstractexpressions.expression.classes.Expression;
 import abstractexpressions.expression.classes.Variable;
-import algorithmexecuter.AlgorithmCompiler;
+import algorithmexecuter.AlgorithmBuilder;
 import algorithmexecuter.CompilerUtils;
 import algorithmexecuter.model.command.AssignValueCommand;
 import algorithmexecuter.model.command.IfElseControlStructure;
 import algorithmexecuter.model.command.WhileControlStructure;
 import algorithmexecuter.enums.IdentifierType;
 import algorithmexecuter.enums.Keyword;
+import algorithmexecuter.enums.ReservedChars;
 import algorithmexecuter.exceptions.AlgorithmCompileException;
 import algorithmexecuter.exceptions.constants.AlgorithmCompileExceptionIds;
 import algorithmexecuter.model.Algorithm;
@@ -93,8 +94,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -113,8 +114,8 @@ public class AlgorithmCompileTests {
                 + "	a=a+5;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), null);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -134,8 +135,8 @@ public class AlgorithmCompileTests {
                 + "	return s;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.STRING);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -161,8 +162,8 @@ public class AlgorithmCompileTests {
                 + "	return s;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.STRING);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -189,8 +190,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -220,8 +221,8 @@ public class AlgorithmCompileTests {
                 + "	}\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -252,8 +253,8 @@ public class AlgorithmCompileTests {
                 + "	}\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -285,8 +286,8 @@ public class AlgorithmCompileTests {
                 + "	return b;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm alg = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage().get(0);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm alg = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage().get(0);
             assertEquals(alg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(alg.getName(), "main");
             assertEquals(alg.getInputParameters().length, 0);
@@ -314,7 +315,7 @@ public class AlgorithmCompileTests {
                 + "	return b;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail(input + " konnte geparst werden, obwohl es Compilerfehler enthielt.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_KEYWORD_NOT_ALLOWED_HERE, Keyword.BREAK));
@@ -333,8 +334,8 @@ public class AlgorithmCompileTests {
                 + "	}\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.MATRIX_EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -367,11 +368,11 @@ public class AlgorithmCompileTests {
                 + "	return gcd(a,b);\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -395,8 +396,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -429,11 +430,11 @@ public class AlgorithmCompileTests {
                 + "	return a+1;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 3);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getCommands().size(), 5);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
@@ -459,8 +460,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -494,11 +495,11 @@ public class AlgorithmCompileTests {
                 + "	return a+1;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 3);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getCommands().size(), 5);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
@@ -523,8 +524,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -553,11 +554,11 @@ public class AlgorithmCompileTests {
                 + "	return a-1;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getCommands().size(), 3);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
@@ -583,8 +584,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -613,8 +614,8 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -644,11 +645,11 @@ public class AlgorithmCompileTests {
                 + "	return result;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             Algorithm ggtAlg;
             if (algorithmList.get(0).getName().equals("computeggt")) {
                 ggtAlg = algorithmList.get(0);
@@ -694,12 +695,12 @@ public class AlgorithmCompileTests {
                 + "	return result;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 3);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS), ggtAlg = null, myggtAlg = null;
-            for (Algorithm alg : AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage()) {
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS), ggtAlg = null, myggtAlg = null;
+            for (Algorithm alg : AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage()) {
                 switch (alg.getName()) {
                     case "ggt":
                         ggtAlg = alg;
@@ -746,11 +747,11 @@ public class AlgorithmCompileTests {
                 + "	return result;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS), ggtAlg;
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS), ggtAlg;
             if (algorithmList.get(0).getName().equals("computeggt")) {
                 ggtAlg = algorithmList.get(0);
             } else {
@@ -780,11 +781,11 @@ public class AlgorithmCompileTests {
                 + "	return 7*a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 1);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             // Prüfung für den Hauptalgorithmus "main".
             assertEquals(mainAlg.getCommands().size(), 3);
             assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
@@ -808,11 +809,11 @@ public class AlgorithmCompileTests {
                 + "	print(s);\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             Algorithm printAlg;
             if (algorithmList.get(0).getName().equals("f")) {
                 printAlg = algorithmList.get(0);
@@ -847,11 +848,11 @@ public class AlgorithmCompileTests {
                 + "	return \"Test!\";\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmCompiler.ALGORITHMS.getAlgorithmStorage();
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
             assertEquals(algorithmList.size(), 2);
 
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             Algorithm stringAlg;
             if (algorithmList.get(0).getName().equals("f")) {
                 stringAlg = algorithmList.get(0);
@@ -884,8 +885,8 @@ public class AlgorithmCompileTests {
                 + "	print(s);\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -908,8 +909,8 @@ public class AlgorithmCompileTests {
                 + "	return [entry(a,1,1);1];\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmCompiler.ALGORITHMS);
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
             assertEquals(mainAlg.getReturnType(), IdentifierType.MATRIX_EXPRESSION);
             assertEquals(mainAlg.getName(), "main");
             assertEquals(mainAlg.getInputParameters().length, 0);
@@ -925,13 +926,16 @@ public class AlgorithmCompileTests {
         }
     }
 
+    /////////////////// Test für nichtkompilierbare Algorithmen ////////////////////
     @Test
-    public void parseAlgorithmWithCompileErrorCodeTest() {
+    public void parseAlgorithmWithMIssingLineSeparatorTest() {
         String input = "main(){expression a=exp(1)}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            fail("Der Algorithmus " + input + " wurde trotz fehlerhaftem Code kompiliert.");
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz fehlendem Semikolon kompiliert.");
         } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_MISSING_LINE_SEPARATOR,
+                    ReservedChars.LINE_SEPARATOR.getValue()));
         }
     }
 
@@ -944,9 +948,11 @@ public class AlgorithmCompileTests {
                 + "	return c;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz Benutzung eines nicht initialisierten Bezeichners kompiliert.");
         } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED,
+                    "a"));
         }
     }
 
@@ -958,9 +964,10 @@ public class AlgorithmCompileTests {
                 + "	expression b=a+5;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz unerreichbarem Code kompiliert.");
         } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_UNREACHABLE_CODE, "main"));
         }
     }
 
@@ -970,9 +977,10 @@ public class AlgorithmCompileTests {
                 + "	expression x=2;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz fehlendem 'return' kompiliert.");
         } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_MISSING_RETURN_STATEMENT));
         }
     }
 
@@ -985,9 +993,10 @@ public class AlgorithmCompileTests {
                 + "	}\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz fehlendem 'return' kompiliert.");
         } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_MISSING_RETURN_STATEMENT));
         }
     }
 
@@ -1002,7 +1011,7 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz doppelt vorkommender Parameter in einem Algorithmusheader kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, "a"));
@@ -1019,10 +1028,10 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz doppelt fehlerhafter For-Struktur kompiliert.");
         } catch (AlgorithmCompileException e) {
-            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_EXPECTED, ","));
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_EXPECTED, ReservedChars.ARGUMENT_SEPARATOR.getValue()));
         }
     }
 
@@ -1036,7 +1045,7 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz doppelt fehlerhafter For-Struktur kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ")"));
@@ -1057,7 +1066,7 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz nicht initialisierter Variable kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED, "a"));
@@ -1076,7 +1085,7 @@ public class AlgorithmCompileTests {
                 + "	return a;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
+            AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz nicht initialisierter Variable kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_IDENTIFIER_MAYBE_NOT_INITIALIZED, "a"));
@@ -1096,11 +1105,65 @@ public class AlgorithmCompileTests {
                 + "	return 5;\n"
                 + "}";
         try {
-            AlgorithmCompiler.parseAlgorithmFile(input);
-            fail("Der Algorithmus " + input + " wurde trotz nicht initialisierter Variable kompiliert.");
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz zweier äquivalenter Signaturen kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_ALGORITHM_ALREADY_EXISTS,
                     new Signature(IdentifierType.EXPRESSION, "f", new IdentifierType[]{IdentifierType.MATRIX_EXPRESSION, IdentifierType.STRING}).toStringWithoutReturnType()));
+        }
+    }
+
+    @Test
+    public void callingNonExistingAlgorithmTest() {
+        String input = "expression main(){\n"
+                + "	expression a=g();\n"
+                + "	return a;\n"
+                + "}\n"
+                + "\n"
+                + "string f() {\n"
+                + "	string x = \"Hi\";\n"
+                + "	return x;\n"
+                + "}";
+        try {
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz nicht unbekanntem Symbol 'g()' kompiliert.");
+        } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, "g()"));
+        }
+    }
+
+    @Test
+    public void parseAlgorithmWithIncompatibleTypesTest() {
+        String input = "expression main(){\n"
+                + "	string a=\"Hi\";\n"
+                + "	return a;\n"
+                + "} ";
+        try {
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz inkompatibler Typen kompiliert.");
+        } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES,
+                    IdentifierType.STRING.getValue(), IdentifierType.EXPRESSION.getValue()));
+        }
+    }
+
+    @Test
+    public void callingIncompatibleAlgorithmTest() {
+        String input = "expression main(){\n"
+                + "	expression a=f();\n"
+                + "	return a;\n"
+                + "}\n"
+                + "\n"
+                + "string f() {\n"
+                + "	string x = \"Hi\";\n"
+                + "	return x;\n"
+                + "}";
+        try {
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz inkompatibler Typen kompiliert.");
+        } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES,
+                    IdentifierType.STRING.getValue(), IdentifierType.EXPRESSION.getValue()));
         }
     }
 

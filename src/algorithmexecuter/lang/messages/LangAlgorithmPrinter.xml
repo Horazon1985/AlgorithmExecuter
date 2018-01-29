@@ -44,8 +44,8 @@
     <object id = "AP_EXCEPTION_IN_ALGORITHM_LINE_OCCURRED">
         <German>Folgender Fehler trat in Zeile [0] auf: [1]</German>
         <English>Following exception ocurred in line [0]: [1]</English>
-        <Ukrainian>Виникла наступна помилка ???: [1]</Ukrainian>
-        <Russian>Возникла следующая ошибка ???: [1]</Russian>
+        <Ukrainian>Виникла наступна помилка у рядку [0]: [1]</Ukrainian>
+        <Russian>Возникла следующая ошибка в строке [0]: [1]</Russian>
     </object>
     <object id = "AP_UNEXPECTED_EXCEPTION_IN_ALGORITHM_OCCURRED">
         <German>Folgender unerwarteter Fehler trat auf: [0]</German>

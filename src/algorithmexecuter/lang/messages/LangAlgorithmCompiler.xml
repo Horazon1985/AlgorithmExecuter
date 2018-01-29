@@ -8,8 +8,8 @@
     <object id = "AC_IDENTIFIER_VALUE_EXPECTED">
         <German>Wert für Bezeichner '[0]' erwartet.</German>
         <English>Value for identifier '[0]' expected.</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Очікується значення для оператора '[0]'.</Ukrainian>
+        <Russian>Ожидается значение для идентификатора '[0]'.</Russian>
     </object>
     <object id = "AC_INCOMPATIBLE_TYPES">
         <German>Inkompatible Typen: [0] kann nicht zu [1] konvertiert werden.</German>
@@ -74,14 +74,14 @@
     <object id = "AC_MISSING_RETURN_VALUE">
         <German>Rückgabewert fehlt.</German>
         <English>Missing return value.</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Відсутній тип повернення.</Ukrainian>
+        <Russian>Отсутствует тип возврата.</Russian>
     </object>
     <object id = "AC_RETURN_VALUE_IN_VOID_ALGORITHM_NOT_ALLOWED">
         <German>Algorithmen mit leerem Rückgabetyp dürfen keinen Wert zurückgeben.</German>
         <English>Algorithms with empty return type must not return a value.</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Алгоритми з порожнім типом повернення не повинні повертати значення.</Ukrainian>
+        <Russian>Алгоритмы с пустым типом возврата не должны возвращать значений.</Russian>
     </object>
     <object id = "AC_BRACKET_EXPECTED">
         <German>Klammer erwartet: [0].</German>
@@ -230,8 +230,8 @@
     <object id = "AC_BOOLEAN_OPERATOR_NOT_APPLICABLE">
         <German>Der Operator '[0]' ist nicht anwendbar auf die Objekte [1] und [2].</German>
         <English>The operator '[0]' is not applicable for the objects [1] and [2].</English>
-        <Ukrainian>???</Ukrainian>
-        <Russian>???</Russian>
+        <Ukrainian>Оператор '[0]' не можна застосувати до обє'ктів [1] та [2].</Ukrainian>
+        <Russian>Оператор '[0]' нельзя применить к обьектам [1] и [2].</Russian>
     </object>
     <object id = "AC_BOOLEAN_EXPRESSION_CANNOT_BE_INTERPRETED">
         <German>Folgender boolscher Ausdruck/Teilausdruck kann nicht interpretiert werden: [0]</German>

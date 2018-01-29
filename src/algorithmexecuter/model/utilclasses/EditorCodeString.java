@@ -31,6 +31,11 @@ public class EditorCodeString {
         this.lineNumbers = lineNumbers;
     }
 
+    public  EditorCodeString(EditorCodeString code) {
+        this.value = code.value;
+        this.lineNumbers = code.lineNumbers;
+    }
+    
     /**
      * Gibt einen EditorCodeString zurück, dessen Stringwert der gegebene String
      * value ist und dessen Zeilennummern lineNumbers den konstanten Wert

@@ -19,10 +19,9 @@ import algorithmexecuter.model.Signature;
 import algorithmexecuter.model.command.ForControlStructure;
 import algorithmexecuter.model.utilclasses.EditorCodeString;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public abstract class AlgorithmCompiler {
+public abstract class AlgorithmBuilder {
 
     public static final Algorithm[] FIXED_ALGORITHMS;
 
@@ -222,25 +221,27 @@ public abstract class AlgorithmCompiler {
 
     private static Algorithm parseAlgorithm(EditorCodeString input) throws AlgorithmCompileException {
 
-        int indexBeginParameters = input.indexOf(ReservedChars.OPEN_BRACKET.getValue());
+        EditorCodeString algCode = new EditorCodeString(input);
+        
+        int indexBeginParameters = algCode.indexOf(ReservedChars.OPEN_BRACKET.getValue());
         if (indexBeginParameters < 0) {
-            throw new AlgorithmCompileException(input.firstChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_FILE_MUST_CONTAIN_A_BEGIN);
+            throw new AlgorithmCompileException(algCode.firstChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_FILE_MUST_CONTAIN_A_BEGIN);
         }
-        if (input.indexOf(ReservedChars.CLOSE_BRACKET.getValue()) < 0) {
-            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_FILE_MUST_CONTAIN_AN_END);
+        if (algCode.indexOf(ReservedChars.CLOSE_BRACKET.getValue()) < 0) {
+            throw new AlgorithmCompileException(algCode.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_FILE_MUST_CONTAIN_AN_END);
         }
-        if (indexBeginParameters > input.indexOf(ReservedChars.CLOSE_BRACKET.getValue())) {
-            int indexOfCloseBracket = input.indexOf(ReservedChars.CLOSE_BRACKET.getValue());
-            throw new AlgorithmCompileException(input.substring(indexOfCloseBracket, indexOfCloseBracket + 1).getLineNumbers(), AlgorithmCompileExceptionIds.AC_END_BEFORE_BEGIN);
+        if (indexBeginParameters > algCode.indexOf(ReservedChars.CLOSE_BRACKET.getValue())) {
+            int indexOfCloseBracket = algCode.indexOf(ReservedChars.CLOSE_BRACKET.getValue());
+            throw new AlgorithmCompileException(algCode.substring(indexOfCloseBracket, indexOfCloseBracket + 1).getLineNumbers(), AlgorithmCompileExceptionIds.AC_END_BEFORE_BEGIN);
         }
 
         // Rückgabewert ermitteln (führende Leerzeichen existieren nicht).
-        IdentifierType returnType = CompilerUtils.getReturnTypeFromAlgorithmDeclaration(input.getValue());
+        IdentifierType returnType = CompilerUtils.getReturnTypeFromAlgorithmDeclaration(algCode.getValue());
         // Signatur ermitteln.
         if (returnType != null) {
-            input = input.substring(returnType.toString().length());
+            algCode = algCode.substring(returnType.toString().length());
         }
-        EditorCodeString candidateForSignature = input.substring(0, input.indexOf(ReservedChars.BEGIN.getValue()));
+        EditorCodeString candidateForSignature = algCode.substring(0, algCode.indexOf(ReservedChars.BEGIN.getValue()));
         CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(candidateForSignature);
         EditorCodeString algName = algParseData.getName();
         EditorCodeString[] parametersAsStrings = algParseData.getParameters();
@@ -255,34 +256,34 @@ public abstract class AlgorithmCompiler {
         Algorithm alg = new Algorithm(algName.getValue(), parameters, returnType);
         memory.setAlgorithm(alg);
 
-        int indexEndParameters = input.indexOf(ReservedChars.CLOSE_BRACKET.getValue());
+        int indexEndParameters = algCode.indexOf(ReservedChars.CLOSE_BRACKET.getValue());
 
         /* 
         Algorithmusnamen und Parameter inkl. Klammern beseitigen. Es bleibt nur 
         noch ein String der Form "{...;...;...}" übrig.
          */
-        input = input.substring(indexEndParameters + 1, input.length());
+        algCode = algCode.substring(indexEndParameters + 1, algCode.length());
         // input muss mit "{" beginnen und auf "}" enden.
-        if (!input.startsWith(String.valueOf(ReservedChars.BEGIN.getValue()))) {
-            throw new AlgorithmCompileException(input.firstChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_MUST_START_WITH_BEGIN);
+        if (!algCode.startsWith(String.valueOf(ReservedChars.BEGIN.getValue()))) {
+            throw new AlgorithmCompileException(algCode.firstChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_MUST_START_WITH_BEGIN);
         }
-        if (!input.endsWith(String.valueOf(ReservedChars.END.getValue()))) {
-            throw new AlgorithmCompileException(input.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_MUST_END_WITH_END);
+        if (!algCode.endsWith(String.valueOf(ReservedChars.END.getValue()))) {
+            throw new AlgorithmCompileException(algCode.lastChar().getLineNumbers(), AlgorithmCompileExceptionIds.AC_ALGORITHM_MUST_END_WITH_END);
         }
         // Öffnende {-Klammer und schließende }-Klammer am Anfang und am Ende beseitigen.
-        input = input.substring(1, input.length() - 1);
+        algCode = algCode.substring(1, algCode.length() - 1);
 
-        input = putSeparatorAfterBlockEnding(input);
+        algCode = putSeparatorAfterBlockEnding(algCode);
 
-        if (!input.isEmpty()) {
+        if (!algCode.isEmpty()) {
             // Alle Zeilen innerhalb des Algorithmus kompilieren.
-            List<AlgorithmCommand> commands = AlgorithmCommandCompiler.parseConnectedBlockWithoutKeywords(input, memory, alg);
+            List<AlgorithmCommand> commands = AlgorithmLineCompiler.parseConnectedBlockWithoutKeywords(algCode, memory, alg);
             // Allen Befehlen den aktuellen Algorithmus alg zuordnen.
             alg.appendCommands(commands);
         }
 
         // Plausibilitätschecks.
-        checkAlgorithmForPlausibility(alg);
+        checkAlgorithmForPlausibility(input, alg);
 
         return alg;
     }
@@ -372,9 +373,9 @@ public abstract class AlgorithmCompiler {
         return inputWithSeparators;
     }
 
-    private static void checkAlgorithmForPlausibility(Algorithm alg) throws AlgorithmCompileException {
+    private static void checkAlgorithmForPlausibility(EditorCodeString input, Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob es bei Algorithmen mit Rückgabewerten immer Rückgaben mit korrektem Typ gibt.
-        checkIfNonVoidAlgorithmContainsAlwaysReturns(alg);
+        checkIfNonVoidAlgorithmContainsAlwaysReturns(input, alg);
         // Prüfung, ob alle eingeführten Bezeichner auch initialisiert wurden.
         checkIfAllIdentifierAreInitialized(alg);
     }
@@ -387,9 +388,9 @@ public abstract class AlgorithmCompiler {
         CompilerUtils.checkIfMainAlgorithmContainsNoParameters(alg);
     }
 
-    private static void checkIfNonVoidAlgorithmContainsAlwaysReturns(Algorithm alg) throws AlgorithmCompileException {
+    private static void checkIfNonVoidAlgorithmContainsAlwaysReturns(EditorCodeString input, Algorithm alg) throws AlgorithmCompileException {
         // Prüfung, ob Wertrückgabe immer erfolgt.
-        CompilerUtils.checkForContainingReturnCommand(alg.getCommands(), alg.getReturnType());
+        CompilerUtils.checkForContainingReturnCommand(input, alg.getCommands(), alg.getReturnType());
     }
 
     private static void checkIfAllIdentifierAreInitialized(Algorithm alg) throws AlgorithmCompileException {
