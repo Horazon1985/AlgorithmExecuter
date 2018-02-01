@@ -17,12 +17,6 @@
         <Ukrainian>Команду з сігнатурою '[0]' не знайдено.</Ukrainian>
         <Russian>Команда с сигнатурой '[0]' не найдена.</Russian>
     </object>
-    <object id = "AE_UNKNOWN_IDENTIFIER">
-        <German>Unbekannter Bezeichner: [0].</German>
-        <English>Unknown identifier: [0].</English>
-        <Ukrainian>Невідомий ідентифікатор: [0].</Ukrainian>
-        <Russian>Неизвестный идентификатор: [0].</Russian>
-    </object>
     <object id = "AE_RETURN_TYPE_EXPECTED">
         <German>Ein Rückgabewert wird erwartet.</German>
         <English>Return value expected.</English>
