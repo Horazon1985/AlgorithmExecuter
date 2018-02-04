@@ -42,5 +42,10 @@ public class BooleanVariable extends BooleanExpression {
     public void addContainedIdentifier(Set<String> vars) {
         vars.add(this.name);
     }
+    
+    @Override
+    public String toString() {
+        return this.name;
+    }
 
 }

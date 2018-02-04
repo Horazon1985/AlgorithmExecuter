@@ -25,7 +25,9 @@ public abstract class AlgorithmExecuter {
         try {
             mainAlg = CompilerUtils.getMainAlgorithm(new AlgorithmStorage(algorithms));
             Identifier result = mainAlg.execute();
-            AlgorithmOutputPrinter.getInstance().printOutput(mainAlg, result);
+            if (result != Identifier.NULL_IDENTIFIER) {
+                AlgorithmOutputPrinter.getInstance().printOutput(mainAlg, result);
+            }
             return result;
         } catch (AlgorithmCompileException e) {
             throw new AlgorithmExecutionException(AlgorithmExecutionExceptionIds.AE_MAIN_NOT_FOUND);
