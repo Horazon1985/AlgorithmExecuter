@@ -201,8 +201,19 @@ public abstract class AlgorithmLineCompiler {
                     commands.add(new AssignValueCommand(identifier, expr, assignValueType, rightSide.getLineNumbers()));
                     return commands;
                 } catch (BooleanExpressionException | ExpressionException e) {
-                    // Unterscheidung von zwei Fällen: die rechte Seite hat die formale Form "f(a_1, ..., a_n)". Dann wird versucht, 
-                    // ein Algorithmusaufruf daraus zu kompilieren. Ansonsten wird der Fehler geworfen, dass das Symbol unbekannt ist.
+                    // 1. Versuch: Es ist eine Zuweisung, aber vom falschen Typ. Dann entsprechende Meldung über Inkompatibilität ausgeben.
+                    ParameterData parsedParameter = null;
+                    try {
+                        parsedParameter = CompilerUtils.parseParameterWithoutType(rightSideReplaced, VALIDATOR, scopeMemory);
+                    } catch (AlgorithmCompileException ex) {
+                        // Nichts tun.
+                    }
+                    if (parsedParameter != null && parsedParameter.getType() != type) {
+                        throw new AlgorithmCompileException(line.getLineNumbers(), AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES, parsedParameter.getType().getValue(), type.getValue());
+                    }
+
+                    // 2. Versuch: Unterscheidung von zwei Fällen: die rechte Seite hat die formale Form "f(a_1, ..., a_n)". Dann wird versucht, 
+                    // einen Algorithmusaufruf daraus zu kompilieren. Ansonsten wird der Fehler geworfen, dass das Symbol unbekannt ist.
                     boolean hasAlgorithmCallStructure = false;
                     try {
                         CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(rightSideReplaced);
@@ -225,8 +236,9 @@ public abstract class AlgorithmLineCompiler {
                     commands.add(new AssignValueCommand(identifier, malString, assignValueType, rightSide.getLineNumbers()));
                     return commands;
                 } catch (AlgorithmCompileException e) {
+                    // Inkompatibilität von Typen ist hier nicht möglich, da jeder abstrakte Ausdruck zugleich als String interpretiert werden kann.
                     // Unterscheidung von zwei Fällen: die rechte Seite hat die formale Form "f(a_1, ..., a_n)". Dann wird versucht, 
-                    // ein Algorithmusaufruf daraus zu kompilieren. Ansonsten wird der Fehler geworfen, dass das Symbol unbekannt ist.
+                    // einen Algorithmusaufruf daraus zu kompilieren. Ansonsten wird der Fehler geworfen, dass das Symbol unbekannt ist.
                     boolean hasAlgorithmCallStructure = false;
                     try {
                         CompilerUtils.AlgorithmParseData algParseData = CompilerUtils.getAlgorithmParseData(rightSideReplaced);
@@ -297,13 +309,13 @@ public abstract class AlgorithmLineCompiler {
 
     private static List<AlgorithmCommand> parseAlgorithmCall(AlgorithmMemory scopeMemory, List<AlgorithmCommand> commands,
             EditorCodeString rightSide, IdentifierType assignedIdentifierType, Identifier identifier, AssignValueType assignValueType) throws AlgorithmCompileException {
-            // Kompatibilitätscheck
-            Signature calledAlgSignature = getAlgorithmCallDataFromAlgorithmCall(rightSide, scopeMemory, assignedIdentifierType).getSignature();
-            // Parameter auslesen;
-            Identifier[] parameter = getParameterFromAlgorithmCall(rightSide, calledAlgSignature, commands, scopeMemory);
-            scopeMemory.put(identifier.getName(), identifier);
-            commands.add(new AssignValueCommand(identifier, calledAlgSignature, parameter, assignValueType, rightSide.getLineNumbers()));
-            return commands;
+        // Kompatibilitätscheck
+        Signature calledAlgSignature = getAlgorithmCallDataFromAlgorithmCall(rightSide, scopeMemory, assignedIdentifierType).getSignature();
+        // Parameter auslesen;
+        Identifier[] parameter = getParameterFromAlgorithmCall(rightSide, calledAlgSignature, commands, scopeMemory);
+        scopeMemory.put(identifier.getName(), identifier);
+        commands.add(new AssignValueCommand(identifier, calledAlgSignature, parameter, assignValueType, rightSide.getLineNumbers()));
+        return commands;
     }
 
     private static Identifier[] getParameterFromAlgorithmCall(EditorCodeString input, Signature calledAlgSignature, List<AlgorithmCommand> commands, AlgorithmMemory scopeMemory)
