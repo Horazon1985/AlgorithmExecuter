@@ -1133,17 +1133,51 @@ public class AlgorithmCompileTests {
     }
 
     @Test
-    public void parseAlgorithmWithIncompatibleTypesTest() {
+    public void parseAlgorithmWithIncompatibleTypesTest1() {
         String input = "expression main(){\n"
                 + "	string a=\"Hi\";\n"
                 + "	return a;\n"
-                + "} ";
+                + "}";
         try {
             AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz inkompatibler Typen kompiliert.");
         } catch (AlgorithmCompileException e) {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES,
                     IdentifierType.STRING.getValue(), IdentifierType.EXPRESSION.getValue()));
+        }
+    }
+
+    @Test
+    public void parseAlgorithmWithIncompatibleTypesTest2() {
+        String input = "expression main(){\n"
+                + "	matrixexpression a=[7];\n"
+                + "	expression b=5;\n"
+                + "	expression c=a+b;\n"
+                + "	return c;\n"
+                + "}";
+        try {
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz inkompatibler Typen kompiliert.");
+        } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES,
+                    IdentifierType.MATRIX_EXPRESSION.getValue(), IdentifierType.EXPRESSION.getValue()));
+        }
+    }
+
+    @Test
+    public void parseAlgorithmWithIncompatibleTypesTest3() {
+        String input = "matrixexpression main(){\n"
+                + "	booleanexpression a=5>7;\n"
+                + "	booleanexpression b=sin(3)<2;\n"
+                + "	matrixexpression c=a|b;\n"
+                + "	return c;\n"
+                + "}";
+        try {
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            fail("Der Algorithmus " + input + " wurde trotz inkompatibler Typen kompiliert.");
+        } catch (AlgorithmCompileException e) {
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES,
+                    IdentifierType.BOOLEAN_EXPRESSION.getValue(), IdentifierType.MATRIX_EXPRESSION.getValue()));
         }
     }
 
