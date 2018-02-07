@@ -107,7 +107,7 @@ public class VoidCommand extends AlgorithmCommand {
     @Execute(algorithmName = FixedAlgorithmNames.PRINT)
     private void executePrint(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException {
         if (this.identifiers[0].getType() != IdentifierType.STRING) {
-            AlgorithmOutputPrinter.getInstance().printLine(this.identifiers[0].toString());
+            AlgorithmOutputPrinter.getInstance().printLine(this.identifiers[0].getRuntimeValue().toString());
         } else {
             AlgorithmOutputPrinter.getInstance().printLine(((MalStringCharSequence) ((MalString) this.identifiers[0].getRuntimeValue()).getMalStringSummands()[0]).getStringValue());
         }
