@@ -318,17 +318,17 @@ public abstract class AlgorithmBuilder {
                 }
             }
             if (parameterType == null) {
-                throw new AlgorithmCompileException(parameterStrings[i].getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, parameterStrings[i]);
+                throw new AlgorithmCompileException(parameterStrings[i].getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, parameterStrings[i].getValue());
             }
             parameterName = parameterStrings[i].substring((parameterType.toString() + " ").length());
 
             // Validierung des Parameternamen.
             if (!VALIDATOR.isValidIdentifier(parameterName.getValue())) {
-                throw new AlgorithmCompileException(parameterStrings[i].getLineNumbers(), AlgorithmCompileExceptionIds.AC_ILLEGAL_CHARACTER, parameterName);
+                throw new AlgorithmCompileException(parameterStrings[i].getLineNumbers(), AlgorithmCompileExceptionIds.AC_ILLEGAL_CHARACTER, parameterName.getValue());
             }
             // Prüfung auf doppelte Deklaration.
             if (memory.containsIdentifier(parameterName.getValue())) {
-                throw new AlgorithmCompileException(parameterStrings[i].getLineNumbers(), AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, parameterName);
+                throw new AlgorithmCompileException(parameterStrings[i].getLineNumbers(), AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, parameterName.getValue());
             }
             resultIdentifiers[i] = Identifier.createIdentifier(parameterName.getValue(), parameterType);
 

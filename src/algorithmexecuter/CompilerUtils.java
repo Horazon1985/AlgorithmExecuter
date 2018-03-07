@@ -822,7 +822,7 @@ public final class CompilerUtils {
                         MalString malString = CompilerUtils.getMalString(param, scopeMemory);
                         return new ParameterData(malString);
                     } catch (AlgorithmCompileException e) {
-                        throw new ParseAssignValueException(param.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, param);
+                        throw new ParseAssignValueException(param.getLineNumbers(), AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, param.getValue());
                     }
                 }
             }
@@ -933,7 +933,7 @@ public final class CompilerUtils {
             throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_BRACKET_EXPECTED, ReservedChars.CLOSE_BRACKET.getValue());
         }
         if (endBlockPosition != input.length()) {
-            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, input.substring(endBlockPosition));
+            throw new AlgorithmCompileException(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL, input.substring(endBlockPosition).getValue());
         }
 
         return stringValues;

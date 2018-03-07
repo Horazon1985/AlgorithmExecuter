@@ -925,6 +925,37 @@ public class AlgorithmCompileTests {
             fail(input + " konnte nicht geparst werden.");
         }
     }
+    
+    @Test
+    public void parseAlgorithmWithDoubleAlgorithmCallTest() {
+        String input = "expression main() {\n" +
+            "	expression x = f(g());\n" +
+            "	return x;\n" +
+            "}\n" +
+            "\n" +
+            "expression g() {\n" +
+            "	return 1;\n" +
+            "}\n" +
+            "\n" +
+            "expression f(expression a) {\n" +
+            "	return a+2;\n" +
+            "}";
+        try {
+            AlgorithmBuilder.parseAlgorithmFile(input);
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
+            assertEquals(algorithmList.size(), 3);
+
+            Algorithm mainAlg = CompilerUtils.getMainAlgorithm(AlgorithmBuilder.ALGORITHMS);
+            assertEquals(mainAlg.getReturnType(), IdentifierType.EXPRESSION);
+            assertEquals(mainAlg.getCommands().size(), 4);
+            assertTrue(mainAlg.getCommands().get(0).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(1).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(2).isAssignValueCommand());
+            assertTrue(mainAlg.getCommands().get(3).isReturnCommand());
+        } catch (AlgorithmCompileException e) {
+            fail(input + " konnte nicht geparst werden.");
+        }
+    }
 
     /////////////////// Test für nichtkompilierbare Algorithmen ////////////////////
     @Test
@@ -1017,7 +1048,7 @@ public class AlgorithmCompileTests {
             assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_IDENTIFIER_ALREADY_DEFINED, "a"));
         }
     }
-
+    
     @Test
     public void parseAlgorithmWithWrongForLoopTest() {
         String input = "expression main(){\n"
