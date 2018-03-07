@@ -289,7 +289,7 @@ public abstract class AlgorithmBuilder {
     }
 
     private static void replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands() {
-        for (Algorithm alg : ALGORITHMS.getAlgorithmStorage()) {
+        for (Algorithm alg : ALGORITHMS.getAlgorithms()) {
             replaceAlgorithmSignaturesByAlgorithmReferencesInAssignValueCommands(alg.getCommands());
         }
     }
@@ -343,7 +343,7 @@ public abstract class AlgorithmBuilder {
     }
 
     private static boolean containsAlgorithmWithSameSignature(Signature signature) {
-        for (Signature algSignature : ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+        for (Signature algSignature : ALGORITHM_SIGNATURES.getAlgorithmSignatures()) {
             if (algSignature.getName().equals(signature.getName()) && algSignature.getParameterTypes().length == signature.getParameterTypes().length) {
                 boolean typesHaveSameSuperType = true;
                 for (int i = 0; i < algSignature.getParameterTypes().length; i++) {
@@ -404,7 +404,7 @@ public abstract class AlgorithmBuilder {
                 assignValueCommand = (AssignValueCommand) command;
                 Signature signature = assignValueCommand.getTargetAlgorithmSignature();
                 Algorithm calledAlg = null;
-                for (Algorithm alg : ALGORITHMS.getAlgorithmStorage()) {
+                for (Algorithm alg : ALGORITHMS.getAlgorithms()) {
                     if (alg.getSignature().equals(signature)) {
                         calledAlg = alg;
                         break;

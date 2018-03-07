@@ -7,36 +7,36 @@ import java.util.List;
 
 public class AlgorithmStorage {
 
-    private final List<Algorithm> algorithmStorage = new ArrayList<>();
+    private final List<Algorithm> algorithms = new ArrayList<>();
 
-    public List<Algorithm> getAlgorithmStorage() {
-        return algorithmStorage;
+    public List<Algorithm> getAlgorithms() {
+        return algorithms;
     }
 
     public void clearAlgorithmStorage() {
-        this.algorithmStorage.clear();
+        this.algorithms.clear();
     }
 
     public void add(Algorithm alg) {
-        this.algorithmStorage.add(alg);
+        this.algorithms.add(alg);
     }
 
     public void addAll(Collection<Algorithm> algorithms) {
         algorithms.forEach((alg) -> {
-            this.algorithmStorage.add(alg);
+            this.algorithms.add(alg);
         });
     }
     
     public void remove(Algorithm alg) {
-        this.algorithmStorage.remove(alg);
+        this.algorithms.remove(alg);
     }
 
     public AlgorithmStorage() {
     }
 
-    public AlgorithmStorage(List<Algorithm> algorithmStorage) {
-        this.algorithmStorage.clear();
-        this.algorithmStorage.addAll(algorithmStorage);
+    public AlgorithmStorage(List<Algorithm> algorithms) {
+        this.algorithms.clear();
+        this.algorithms.addAll(algorithms);
     }
 
     public Algorithm getMainAlgorithm() {
@@ -44,7 +44,7 @@ public class AlgorithmStorage {
     }
 
     public Algorithm getAlgorithmByName(String name) {
-        for (Algorithm alg : this.algorithmStorage) {
+        for (Algorithm alg : this.algorithms) {
             if (alg.getName().equals(name)) {
                 return alg;
             }

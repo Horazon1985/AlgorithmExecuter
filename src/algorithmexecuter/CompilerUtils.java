@@ -413,7 +413,7 @@ public final class CompilerUtils {
      * @throws AlgorithmCompileException
      */
     public static void checkIfMainAlgorithmSignatureExists(EditorCodeString inputAlgorithmFile, AlgorithmSignatureStorage signatures) throws AlgorithmCompileException {
-        for (Signature sgn : signatures.getAlgorithmSignatureStorage()) {
+        for (Signature sgn : signatures.getAlgorithmSignatures()) {
             if (sgn.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
                 return;
             }
@@ -427,7 +427,7 @@ public final class CompilerUtils {
      * @throws AlgorithmCompileException
      */
     public static void checkIfMainAlgorithmExists(EditorCodeString inputAlgorithmFile, AlgorithmStorage algorithms) throws AlgorithmCompileException {
-        for (Algorithm alg : algorithms.getAlgorithmStorage()) {
+        for (Algorithm alg : algorithms.getAlgorithms()) {
             if (alg.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
                 return;
             }
@@ -449,7 +449,7 @@ public final class CompilerUtils {
     }
 
     public static Signature getMainAlgorithmSignature(AlgorithmSignatureStorage signatures) throws AlgorithmCompileException {
-        for (Signature sgn : signatures.getAlgorithmSignatureStorage()) {
+        for (Signature sgn : signatures.getAlgorithmSignatures()) {
             if (sgn.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
                 return sgn;
             }
@@ -458,7 +458,7 @@ public final class CompilerUtils {
     }
 
     public static Algorithm getMainAlgorithm(AlgorithmStorage algorithms) throws AlgorithmCompileException {
-        for (Algorithm alg : algorithms.getAlgorithmStorage()) {
+        for (Algorithm alg : algorithms.getAlgorithms()) {
             if (alg.getName().equals(FixedAlgorithmNames.MAIN.getValue())) {
                 return alg;
             }

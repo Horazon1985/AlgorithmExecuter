@@ -64,7 +64,7 @@ public class VoidCommand extends AlgorithmCommand {
     @Override
     public Identifier execute(AlgorithmMemory scopeMemory) throws AlgorithmExecutionException, EvaluationException {
         // Zunächst über alle definierten Algorithmen iterieren.
-        for (Algorithm alg : AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage()) {
+        for (Algorithm alg : AlgorithmBuilder.ALGORITHMS.getAlgorithms()) {
             if (alg.getSignature().equals(getSignature()) && alg.getReturnType() == null) {
                 alg.initInputParameter(this.identifiers);
                 alg.execute();

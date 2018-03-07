@@ -6,23 +6,23 @@ import java.util.List;
 
 public class AlgorithmSignatureStorage {
 
-    private final List<Signature> algorithmSignatureStorage = new ArrayList<>();
+    private final List<Signature> algorithmSignatures = new ArrayList<>();
 
-    public List<Signature> getAlgorithmSignatureStorage() {
-        return algorithmSignatureStorage;
+    public List<Signature> getAlgorithmSignatures() {
+        return algorithmSignatures;
     }
 
     public void clearAlgorithmSignatureStorage() {
-        this.algorithmSignatureStorage.clear();
+        this.algorithmSignatures.clear();
     }
 
     public void add(Signature sgn) {
-        this.algorithmSignatureStorage.add(sgn);
-        Collections.sort(this.algorithmSignatureStorage);
+        this.algorithmSignatures.add(sgn);
+        Collections.sort(this.algorithmSignatures);
     }
 
     public void remove (Signature sgn) {
-        this.algorithmSignatureStorage.remove(sgn);
+        this.algorithmSignatures.remove(sgn);
     }
     
 }

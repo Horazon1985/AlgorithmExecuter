@@ -50,7 +50,7 @@ public class AlgorithmExecutionTests {
         Algorithm mainAlg = null;
         try {
             AlgorithmBuilder.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithms();
             assertEquals(algorithmList.size(), 1);
             mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             assertTrue(mainAlg.getCommands().isEmpty());
@@ -81,7 +81,7 @@ public class AlgorithmExecutionTests {
         Algorithm mainAlg = null;
         try {
             AlgorithmBuilder.parseAlgorithmFile(input);
-            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithmStorage();
+            List<Algorithm> algorithmList = AlgorithmBuilder.ALGORITHMS.getAlgorithms();
             assertEquals(algorithmList.size(), 2);
             mainAlg = AlgorithmBuilder.ALGORITHMS.getMainAlgorithm();
             Identifier result = AlgorithmExecuter.executeAlgorithm(Collections.singletonList(mainAlg));

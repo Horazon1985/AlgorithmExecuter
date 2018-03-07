@@ -262,7 +262,7 @@ public abstract class AlgorithmLineCompiler {
     }
 
     private static boolean doesAlgorithmWithGivenNameExists(String algName) {
-        for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+        for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatures()) {
             if (signature.getName().equals(algName)) {
                 return true;
             }
@@ -395,7 +395,7 @@ public abstract class AlgorithmLineCompiler {
             // Prüfung, ob ein Algorithmus mit diesem Namen bekannt ist.
             Signature algorithmCandidate = null;
             boolean candidateFound;
-            for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+            for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatures()) {
                 if (signature.getName().equals(algName.getValue()) && signature.getParameterTypes().length == params.length) {
                     candidateFound = true;
                     for (int i = 0; i < params.length; i++) {
@@ -459,7 +459,7 @@ public abstract class AlgorithmLineCompiler {
         // Auf 1. vom Benutzer definierte Algorithmen und 2. auf Standardalgorithmen prüfen.
         boolean algorithmWithRequiredNameFound = false;
         boolean algorithmWithRequiredNameAndCorrectNumberOfParametersFound = false;
-        for (Signature sgn : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+        for (Signature sgn : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatures()) {
             if (sgn.getName().equals(algName)) {
                 algorithmWithRequiredNameFound = true;
             } else {
@@ -1075,17 +1075,17 @@ public abstract class AlgorithmLineCompiler {
         int endingAlgCall;
         do {
             algorithmCallFound = false;
-            for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatureStorage()) {
+            for (Signature signature : AlgorithmBuilder.ALGORITHM_SIGNATURES.getAlgorithmSignatures()) {
                 if (!inputWithGeneratedVars.contains(signature.getName())) {
                     continue;
                 }
                 beginningAlgCall = getListWithIndicesOfAlgorithmStart(inputWithGeneratedVars, signature.getName());
                 for (Integer index : beginningAlgCall) {
-                    for (int i = index + signature.getName().length(); i < input.length() + 1; i++) {
+                    for (int i = index + signature.getName().length(); i < inputWithGeneratedVars.length() + 1; i++) {
                         algorithmCallAsString = inputWithGeneratedVars.substring(index, i);
 
-                        // Der Algorithmusaufruf darf nicht der gesamte input sein.
-                        if (algorithmCallAsString.length() == inputWithGeneratedVars.length()) {
+                        // Der Algorithmusaufruf darf nicht der gesamte input sein, der keine weiteren Algorithmenaufrufe (in den Parametern) enthält.
+                        if (algorithmCallAsString.length() == inputWithGeneratedVars.length() && commands.isEmpty()) {
                             return new AlgorithmCommandReplacementData(new ArrayList<>(), input);
                         }
 
@@ -1123,7 +1123,6 @@ public abstract class AlgorithmLineCompiler {
                         }
 
                         endingAlgCall = i;
-                        algorithmCallFound = true;
 
                         try {
                             inputWithGeneratedVars = addAssignValueCommandsForNonVarAlgorithmParameters(inputWithGeneratedVars, index, endingAlgCall, algorithmCallData, commands, memory);
