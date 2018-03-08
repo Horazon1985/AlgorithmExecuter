@@ -1269,8 +1269,7 @@ public class AlgorithmCompileTests {
     }
 
     @Test
-    @Ignore
-    public void callingIncompatibleAlgorithmTest2() {
+    public void callingAlgorithmWithIncompatibleParameterNumberTest() {
         String input = "expression main(){\n" +
         "    expression x=f(g());\n" +
         "    return x;\n" +
@@ -1287,8 +1286,8 @@ public class AlgorithmCompileTests {
             AlgorithmBuilder.parseAlgorithmFile(input);
             fail("Der Algorithmus " + input + " wurde trotz inkompatibler Parameter kompiliert.");
         } catch (AlgorithmCompileException e) {
-            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_INCOMPATIBLE_TYPES,
-                    IdentifierType.STRING.getValue(), IdentifierType.EXPRESSION.getValue()));
+            assertEquals(e.getMessage(), Translator.translateOutputMessage(AlgorithmCompileExceptionIds.AC_CANNOT_FIND_SYMBOL,
+                    "f"));
         }
     }
     
